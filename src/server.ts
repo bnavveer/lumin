@@ -26,6 +26,8 @@ import { registerMockBenefitscal } from './benefitscal/mockSite.js';
 import { registerInboxRoutes } from './inbox.js';
 import { registerKnowledgeRoutes } from './knowledge.js';
 import { registerWebKnowledgeRoutes } from './webKnowledge.js';
+import { registerConversationRoutes } from './conversation/routes.js';
+import { registerVaultRoutes } from './vaultRoutes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
@@ -247,6 +249,8 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerInboxRoutes(app);
   registerKnowledgeRoutes(app);
   registerWebKnowledgeRoutes(app);
+  registerConversationRoutes(app);
+  registerVaultRoutes(app);
 
   // ── Static SPA ──
   if (existsSync(resolve(WEB_DIST, 'index.html'))) {
