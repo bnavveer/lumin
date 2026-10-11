@@ -10,6 +10,7 @@ import { signedUrl } from '../documents.js';
 import { logEvent } from '../keewano.js';
 import { addTimeline, getHousehold, listDocuments } from '../store.js';
 import { openBrowser, type BrowserMode } from './browser.js';
+import { scheduleKernelCleanup } from './kernelSessions.js';
 import { MOCK_BASE } from './mockSite.js';
 import {
   buildAnswers, pageById, SIGNATURE_FIELD_NAMES, SIGNATURE_PAGE_ID, type Answers, type ExtraAnswers, type FlatPage,
@@ -24,6 +25,10 @@ export interface FillResult {
   missingFields: string[];
   replayViewUrl?: string;
   detail?: string;
+  /** Kernel browser session id; set when the browser was left running for the signer (see keepAliveMs). */
+  sessionId?: string;
+  /** ISO time the held Kernel browser will be closed. */
+  heldUntil?: string;
 }
 export interface FillEvent { at: string; step: string; message: string; pageId?: string }
 export interface FillOptions {
@@ -35,6 +40,8 @@ export interface FillOptions {
   extra?: ExtraAnswers;                  // dob, address, employer... fields the Household lacks
   headless?: boolean;                    // local mode only
   holdMs?: number;                       // keep the browser open this long after finishing (live view for judges)
+  /** Kernel only: on stop-at-signature, leave the browser running this long (scheduled cleanup) instead of closing. */
+  keepAliveMs?: number;
 }
 
 const MAX_UPLOAD_TARGET = 7.5 * 1024 * 1024;
@@ -126,11 +133,21 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
   const opened = await openBrowser({ mode, headless: opts.headless });
   liveViewUrl = opened.liveViewUrl;
   const page: Page = opened.page;
-  page.setDefaultTimeout(10_000);
+  page.setDefaultTimeout(mode === 'kernel' ? 45_000 : 10_000); // cloud browser over a tunnel is slower per page
   const pace = mode === 'kernel' ? KERNEL_PACE_MS : 0;
   let replayViewUrl: string | undefined;
 
   const finish = async (status: FillStatus, detail?: string): Promise<FillResult> => {
+    const keep = opts.keepAliveMs ?? 0;
+    if (status === 'stopped_for_signature' && mode === 'kernel' && keep > 0 && opened.sessionId) {
+      // Root-cause fix: the browser used to be deleted ~10s after the stop, killing the live view link.
+      const sessionId = opened.sessionId;
+      await opened.detach();
+      scheduleKernelCleanup(sessionId, keep, async () => { await opened.close(); });
+      const heldUntil = new Date(Date.now() + keep).toISOString();
+      emit('hold', `keeping the live browser open for ${Math.round(keep / 1000)}s so you can review and sign`);
+      return { status, pagesCompleted, liveViewUrl, screenshotPath, missingFields, replayViewUrl: opened.replayViewUrl, detail, sessionId, heldUntil };
+    }
     if (opts.holdMs) { emit('hold', `holding browser open for ${Math.round(opts.holdMs / 1000)}s`); await sleep(opts.holdMs); }
     const closed = await opened.close().catch(() => ({} as { replayViewUrl?: string }));
     replayViewUrl = closed.replayViewUrl;
@@ -138,6 +155,8 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
   };
 
   try {
+    if (opened.sessionId) emit('kernel_session', opened.sessionId);
+    if (opened.replayViewUrl) emit('replay', opened.replayViewUrl);
     if (liveViewUrl) emit('live_view', `live view: ${liveViewUrl}`);
     await safe('keewano', () => logEvent(householdId, { type: 'AgentToolCalled', value: 'browser_fill_start' }));
 
@@ -160,7 +179,7 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
 
     // 3. pages
     for (let step = 0; step < STEP_LIMIT; step++) {
-      const pageId = await page.locator('body').getAttribute('data-page-id');
+      const pageId = await currentPageId(page, emit);
       const sigDom = (await page.locator('[data-field="sig_esign"], [data-field="sig_rights"]').count()) > 0;
       if (shouldStopAt(pageId) || sigDom) {
         screenshotPath = join(outDir, 'signature-screen.png');
@@ -181,7 +200,7 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
       if (spec.kind === 'upload') await uploadDocuments(page, docs, outDir, missingFields, emit);
 
       await advance(page, spec);
-      const after = await page.locator('body').getAttribute('data-page-id');
+      const after = await currentPageId(page, emit);
       if (after === spec.id) {
         const errs = await page.locator('[data-error-for]').evaluateAll((els) => els.map((e) => e.getAttribute('data-error-for')));
         emit('needs_human', `could not advance past "${spec.title}"; fields needing attention: ${errs.join(', ') || 'unknown'}`, spec.id);
@@ -204,6 +223,23 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
       await page.screenshot({ path: screenshotPath, fullPage: true });
     } catch { /* page may be gone */ }
     return await finish('error', errMsg(e));
+  }
+}
+
+const PAGE_RETRIES = 3;
+
+/**
+ * Read the mock page id; if the page is not a mock page (a quick-tunnel hiccup such as a Cloudflare 502/1033
+ * error page), reload the same GET URL a few times before giving up. Reloading a GET is idempotent.
+ */
+async function currentPageId(page: Page, emit: (step: string, message: string, pageId?: string) => void): Promise<string | null> {
+  for (let i = 0; ; i++) {
+    const id = await page.locator('body').getAttribute('data-page-id', { timeout: 5_000 }).catch(() => null);
+    if (id || i >= PAGE_RETRIES) return id;
+    const title = await page.title().catch(() => '');
+    emit('warn', `page did not load (${title || 'no title'}); reloading (${i + 1}/${PAGE_RETRIES})`);
+    await sleep(2_000 * (i + 1));
+    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => undefined);
   }
 }
 
@@ -260,6 +296,7 @@ async function advance(page: Page, spec: FlatPage): Promise<void> {
   const next = page.locator('button[data-action="next"]');
   if ((await next.count()) === 0) throw new Error(`no Next button on ${spec.id}`);
   const nav = page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+  nav.catch(() => undefined); // if the click throws first, this rejection must not crash the process
   await next.first().click();
   await nav;
 }

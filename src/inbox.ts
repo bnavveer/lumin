@@ -126,6 +126,10 @@ export async function handleInboundEmail(householdId: string, email: InboundEmai
   const event = eventsFor(c);
   if (event) await logEvent(householdId, event);
   await appendMessage(householdId, 'assistant', summarize(c, email.subject));
+  try { // propose (or, with AUTO_CALL_ON_EMAIL, place) a county call; never fails email handling
+    const [{ onCountyEmail }, { liveCallsRuntime }] = await Promise.all([import('./calls/triggers.js'), import('./calls/live.js')]);
+    await onCountyEmail(liveCallsRuntime(), { householdId, category: c.category, extracted: c.extracted });
+  } catch (err) { console.error('[inbox] call trigger failed:', err instanceof Error ? err.message : err); }
   return c;
 }
 

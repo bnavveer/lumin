@@ -36,12 +36,13 @@ function useNav(): NavItem[] {
   const { user } = useAuth()
   const items: [string, string][] = [
     [t.home, '/'],
-    [user ? 'My applications' : 'Sign in / create account', '/account'],
+    [user ? 'Dashboard' : 'Sign in / create account', user ? '/dashboard' : '/login'],
     [t.how, '/how-it-works'],
     [t.privacy, '/privacy'],
     [t.about, '/about'],
     [t.soon, '/coming-soon'],
     [t.faq, '/faq'],
+    ...(user ? ([['My applications', '/account']] as [string, string][]) : []),
     ['Staff access', '/staff'],
   ]
   return [...items.map(([label, href]) => ({ label, href, current: path === href })), { label: t.feedback, onSelect: openFeedback }]

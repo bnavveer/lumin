@@ -33,8 +33,10 @@ import { registerConversationRoutes } from './caseManager/routes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 import { clientIp } from './clientIp.js';
 import type { Conversation } from './conversation.js';
-import { registerWorkflowRoutes } from './workflow/routes.js';
+import { registerWorkflowRoutes } from './workflow/index.js';
+import { registerAccountRoutes } from './workflow/accountRoutes.js';
 import { listHouseholdWorkflows } from './workflow/repo.js';
+import { registerCallRoutes } from './calls/index.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
 
@@ -285,6 +287,10 @@ export function createApp(opts: { packet: PacketRoutes; conversation?: Conversat
   registerVaultRoutes(app);
   registerConversationRoutes(app);
   registerWorkflowRoutes(app);
+  // Teammate's account extras (link-chat, screening, document vault, receipt). Overlapping
+  // paths (/api/auth/signup, /api/me, /api/workflows*) are served by the engine routes above.
+  registerAccountRoutes(app);
+  registerCallRoutes(app);
   app.route('/', createConversationApp(opts.conversation ?? liveConversation(), {
     phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
     apiNotFound: false, // Keep later dev/staff routes reachable on the parent app.

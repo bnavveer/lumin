@@ -94,8 +94,17 @@ export interface Me {
 // POST /api/workflows/:id/documents  multipart { file, docType } -> Workflow
 // POST /api/workflows/:id/approve  { stepId, decision: 'approve' | 'decline' } -> Workflow
 // POST /api/workflows/:id/run      { stepId } -> Workflow   (start/retry a step)
+// GET  /api/workflows/:id/live     -> LiveViewResponse  (a FRESH Kernel live view URL, or 'ended' + replay)
 // POST /api/workflows/:id/receipt  { program, confirmation, submittedAt? } -> Workflow (applicant-reported, unverified)
 // GET /api/staff/cases/:id/workflows -> WorkflowSummary[] (staff token and household organization required)
 // Errors: non-2xx with { error: string }.
-export type CreateWorkflowRequest = { programs: ApplicationProgram[]; chatSessionId?: string };
+/** 'real' = the opt-in real-BenefitsCal preview mode (server needs ALLOW_REAL_BENEFITSCAL=true). Default 'mock'. */
+export type FillTarget = 'mock' | 'real';
+export type CreateWorkflowRequest = { programs: ApplicationProgram[]; chatSessionId?: string; target?: FillTarget };
+export interface LiveViewResponse {
+  url: string | null;            // fresh live view URL (only when status is 'live')
+  status: 'live' | 'ended';
+  replayUrl?: string;            // recording of the session, when one exists
+  embeddable?: boolean;          // false: open in a new tab; the iframe is only a best-effort preview
+}
 export type SuggestionsResponse = ApplicationScreening;
