@@ -52,3 +52,17 @@ export function usePlaying() {
   useEffect(() => setPlaying(!reduced), [reduced])
   return [playing, setPlaying] as const
 }
+
+/** Hold an animation while the pointer is over it or focus is inside it. */
+export function useHoverHold() {
+  const [held, setHeld] = useState(false)
+  const handlers = {
+    onMouseEnter: () => setHeld(true),
+    onMouseLeave: () => setHeld(false),
+    onFocus: () => setHeld(true),
+    onBlur: (e: { currentTarget: Element; relatedTarget: EventTarget | null }) => {
+      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHeld(false)
+    },
+  }
+  return [held, handlers] as const
+}

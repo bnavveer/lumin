@@ -3,7 +3,7 @@ import { Icon } from '../../components/icons'
 import { PageTitle, pillClass, Reveal } from '../blocks'
 import { Page } from '../chrome'
 import { useOpenFeedback } from '../feedback'
-import { useAutoStep, useInView, usePlaying } from '../hooks'
+import { useAutoStep, useHoverHold, useInView, usePlaying } from '../hooks'
 import { useLang } from '../lang'
 
 // america.gov/coming-soon: each future service is a looping walkthrough in a
@@ -156,7 +156,7 @@ export function ComingSoon() {
       <div className="mx-auto mt-28 flex max-w-[40rem] flex-col gap-28 px-6 max-mobile:mt-16 max-mobile:gap-20 max-mobile:px-4">
         {t.soon.flows.map((f, i) => (
           <Reveal key={f.title} as="figure">
-            <FlowDemo flow={fl[i]} tag={f.tag} pauseLabel={t.soon.pause} playLabel={t.soon.play} />
+            <FlowDemo flow={fl[i]} tag={f.tag} />
             <figcaption className="mt-5 px-5 max-mobile:px-2">
               <p className="type-body-m font-medium">{f.title}</p>
               <p className="type-body-m text-secondary">{f.body}</p>
@@ -180,16 +180,17 @@ export function ComingSoon() {
   )
 }
 
-function FlowDemo({ flow, tag, pauseLabel, playLabel }: { flow: Flow; tag: string; pauseLabel: string; playLabel: string }) {
-  const [playing, setPlaying] = usePlaying()
+function FlowDemo({ flow, tag }: { flow: Flow; tag: string }) {
+  const [playing] = usePlaying()
+  const [held, hold] = useHoverHold()
   const [ref, visible] = useInView<HTMLDivElement>({ once: false, margin: '0px' })
-  const [i] = useAutoStep(flow.steps.length, 3200, playing, visible)
+  const [i] = useAutoStep(flow.steps.length, 3200, playing && !held, visible)
   const step = flow.steps[i]
   return (
-    <div ref={ref} className={cx('relative aspect-[3/2] overflow-hidden rounded-48 max-mobile:aspect-[4/5] max-mobile:rounded-32', flow.wash)}>
+    <div ref={ref} {...hold} className={cx('relative aspect-[3/2] overflow-hidden rounded-48 max-mobile:aspect-[4/5] max-mobile:rounded-32', flow.wash)}>
       <span className="absolute top-4 left-4 z-10 rounded-full bg-white px-3.5 py-1.5 type-body-s font-medium shadow-soft-sm">{tag}</span>
       <div className="absolute inset-0 flex items-center justify-center p-6 pt-16">
-        <div key={i} aria-hidden="true" className="w-full max-w-[18.5rem] animate-[step-in_.55s_var(--ease-out-quint)] rounded-[1.6rem] bg-white p-4 text-[0.75rem] shadow-[0_24px_60px_#010e2426]">
+        <div key={i} aria-hidden="true" className="w-full max-w-[18.5rem] animate-[step-in_.55s_var(--ease-out-quint)] rounded-[1.6rem] bg-white p-4 text-[0.75rem] shadow-[0_24px_60px_#071a2026]">
           <StepCard step={step} />
           <div className="mt-4 flex items-center justify-between">
             <span className={cx('flex size-7 items-center justify-center rounded-full bg-background-tertiary', i === 0 && 'opacity-0')}>
@@ -203,16 +204,6 @@ function FlowDemo({ flow, tag, pauseLabel, playLabel }: { flow: Flow; tag: strin
             <span className="size-7" />
           </div>
         </div>
-      </div>
-      <div className="absolute right-4 bottom-4 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setPlaying((p) => !p)}
-          aria-label={playing ? pauseLabel : playLabel}
-          className="flex size-9 cursor-pointer items-center justify-center rounded-full bg-white/70 text-primary backdrop-blur transition-colors hover:bg-white focus-ring"
-        >
-          <Icon name={playing ? 'pause' : 'play'} size={16} />
-        </button>
       </div>
     </div>
   )

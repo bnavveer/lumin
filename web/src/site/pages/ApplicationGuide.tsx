@@ -3,7 +3,7 @@ import { brand } from '../../brand/brand'
 import { cx } from '../../components/cx'
 import { Icon } from '../../components/icons'
 import { useStartChat } from '../chrome'
-import { useInView, usePlaying, useReducedMotion } from '../hooks'
+import { useHoverHold, useInView, usePlaying, useReducedMotion } from '../hooks'
 import { useLang } from '../lang'
 import { Link } from '../router'
 import '@fontsource/mrs-saint-delafield/400.css'
@@ -18,8 +18,8 @@ import './ApplicationGuide.css'
 // Timing is pure CSS: each element's resting style is its final state and
 // its animation describes how it arrives (fill-mode both, delay via --d).
 // So reduced motion and "static" simply drop the animations and show the
-// finished scene. The active tab's progress bar ends each scene; pausing
-// pauses it along with everything else.
+// finished scene. The active tab's progress bar ends each scene; hovering
+// or focusing the stage holds it along with everything else.
 
 type Lang = 'en' | 'es'
 type Scene = 'talk' | 'documents' | 'sign' | 'filed'
@@ -35,8 +35,6 @@ const words = {
     tag: 'Example application',
     tabs: { talk: 'Conversation', documents: 'Documents', sign: 'Review and sign', filed: 'Filed' },
     tabsLabel: 'Walkthrough scenes',
-    pause: 'Pause walkthrough',
-    play: 'Play walkthrough',
     srIntro: 'Example walkthrough. ',
     sr: {
       talk: 'Maria answers a few questions in a chat with Lumin, and each answer fills in her CalFresh, Medi-Cal and CalWORKs application.',
@@ -55,8 +53,6 @@ const words = {
     tag: 'Solicitud de ejemplo',
     tabs: { talk: 'Conversación', documents: 'Documentos', sign: 'Revisar y firmar', filed: 'Presentada' },
     tabsLabel: 'Escenas del ejemplo',
-    pause: 'Pausar ejemplo',
-    play: 'Reproducir ejemplo',
     srIntro: 'Ejemplo. ',
     sr: {
       talk: 'Maria contesta unas preguntas en un chat con Lumin, y cada respuesta llena su solicitud de CalFresh, Medi-Cal y CalWORKs.',
@@ -78,12 +74,13 @@ export function ApplicationGuide() {
   const w = words[lang]
   const start = useStartChat()
   const reduced = useReducedMotion()
-  const [playing, setPlaying] = usePlaying()
+  const [playing] = usePlaying()
+  const [held, hold] = useHoverHold()
   const [ref, visible] = useInView<HTMLDivElement>({ once: false, margin: '0px' })
   const [index, setIndex] = useState(0)
   const [run, setRun] = useState(0) // bumps to restart a scene's animations
   const scene = scenes[index]
-  const live = playing && visible && !reduced
+  const live = playing && visible && !reduced && !held
 
   function go(i: number) {
     setIndex(i)
@@ -93,7 +90,7 @@ export function ApplicationGuide() {
   return (
     <section id="applications" aria-labelledby="applications-heading" className="mx-auto max-w-[70rem] px-6 pt-32 max-mobile:px-4 max-mobile:pt-20">
       <figure>
-        <div ref={ref} className="jr" data-paused={!live} data-static={reduced}>
+        <div ref={ref} {...hold} className="jr" data-paused={!live} data-static={reduced}>
           <Aurora />
           <span className="jr-tag">{w.tag}</span>
 
@@ -128,16 +125,6 @@ export function ApplicationGuide() {
                 </button>
               ))}
             </div>
-            {!reduced && (
-              <button
-                type="button"
-                onClick={() => setPlaying((p) => !p)}
-                aria-label={playing ? w.pause : w.play}
-                className="jr-pause focus-ring"
-              >
-                <Icon name={playing ? 'pause' : 'play'} size={16} />
-              </button>
-            )}
           </div>
         </div>
 

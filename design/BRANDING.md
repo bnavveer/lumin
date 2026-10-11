@@ -15,6 +15,9 @@ All tokens are in [`web/src/brand/theme.css`](../web/src/brand/theme.css). Names
 
 ## Color
 
+**Lumin uses a California palette** (changed Oct 11, 2026, so the site no longer reads as america.gov). The token names in `theme.css` stay `blue-*` so classes keep working, but the values are Pacific blue-greens: ink `#0e2129`, primary `#0b4a5e`, hover `#073847`, links `#0b6e86`, highlights `#0f7a93`. Accent: **poppy** `#f2741f`, the state flower, used sparingly (photo progress, active walkthrough scene, the statement's arrow chip). Atmospheric washes: fog `#e6f0f2`, sand `#f7ead6`, sage `#d3dfcb`, blush `#f8cdb5`. The table below is the original america.gov reference.
+
+
 | Token | Hex | Used for |
 |---|---|---|
 | blue-900 | `#000c1f` | All text ("ink") |

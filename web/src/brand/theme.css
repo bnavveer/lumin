@@ -1,9 +1,10 @@
 /*
- * Design tokens taken from america.gov's production stylesheet (Oct 2026).
- * Values match theirs except the fonts: america.gov uses Rhymes (serif) and
- * Helvetica Now (sans), both paid licenses. We use the closest free
- * substitutes, Newsreader and Inter. To switch to the licensed fonts later,
- * change --font-serif and --font-sans.
+ * Lumin's California theme. Layout tokens (radii, spacing, motion) started
+ * from america.gov's stylesheet; the colors are our own:
+ *   Pacific  (blue-* scale) deep ocean blue-green for ink, actions and links
+ *   Poppy    the state flower, the single bright accent
+ *   Golden hour washes: fog, sand, sage, blush for atmospheric backgrounds
+ * The scale keeps the name blue-* so existing classes keep working.
  */
 @import "@fontsource-variable/inter/opsz.css";
 @import "@fontsource-variable/newsreader/opsz.css";
@@ -13,12 +14,12 @@
   /* Palette (america.gov names) */
   --color-white: #fff;
   --color-black: #000;
-  --color-blue-50: #f1f5fb;
-  --color-blue-500: #0066c5; /* links */
-  --color-blue-600: #004ac3; /* focus, drop tint */
-  --color-blue-700: #002664; /* primary button, "Menu" */
-  --color-blue-800: #00163b; /* primary hover */
-  --color-blue-900: #000c1f; /* ink: all primary text */
+  --color-blue-50: #edf6f7;
+  --color-blue-500: #0b6e86; /* links */
+  --color-blue-600: #0f7a93; /* focus, drop tint */
+  --color-blue-700: #0b4a5e; /* primary button, "Menu" */
+  --color-blue-800: #073847; /* primary hover */
+  --color-blue-900: #0e2129; /* ink: all primary text */
   --color-red-600: #d80007;
   --color-green-600: #007f26;
   --color-green-50: #e6f6ec;
@@ -28,29 +29,38 @@
   --color-grey-200: #e3e4e6;
   --color-page-top: #f2f3f4; /* gov-banner strip */
 
+  /* California accents */
+  --color-poppy: #f2741f;
+  --color-poppy-50: #fff1e6;
+  --color-gold: #f5b94a;
+  --color-fog: #e6f0f2;
+  --color-sand: #f7ead6;
+  --color-sage: #d3dfcb;
+  --color-redwood: #8e3b25;
+
   /* Flag colors from the america.gov favicon */
   --color-flag-red: #e64133;
   --color-flag-blue: #1d49bb;
 
   /* Semantic text (ink at 100 / 65 / 45 / 15 %) */
   --color-primary: var(--color-blue-900);
-  --color-secondary: #000c1fa6;
-  --color-tertiary: #000c1f73;
-  --color-disabled: #000c1f26;
+  --color-secondary: #0e2129a6;
+  --color-tertiary: #0e212973;
+  --color-disabled: #0e212926;
   --color-link: var(--color-blue-500);
   --color-destructive: var(--color-red-600);
 
   /* Semantic surfaces */
   --color-background-primary: var(--color-white);
-  --color-background-secondary: #0026641a; /* blue-700 @ 10% */
-  --color-background-tertiary: #0026640d; /* blue-700 @ 5%: cards, user bubble */
-  --color-background-overlay: #000c1f1a;
+  --color-background-secondary: #0b4a5e1a; /* blue-700 @ 10% */
+  --color-background-tertiary: #0b4a5e0d; /* blue-700 @ 5%: cards, user bubble */
+  --color-background-overlay: #0e21291a;
 
   /* Borders (ink at 85 / 45 / 10 / 5 %) */
-  --color-border-primary: #000c1fd9;
-  --color-border-secondary: #000c1f73;
-  --color-border-tertiary: #000c1f1a;
-  --color-border-quaternary: #000c1f0d;
+  --color-border-primary: #0e2129d9;
+  --color-border-secondary: #0e212973;
+  --color-border-tertiary: #0e21291a;
+  --color-border-quaternary: #0e21290d;
 
   /* Type */
   --font-serif: "Newsreader Variable", "Times New Roman", Times, serif;
@@ -74,9 +84,9 @@
   --radius-64: 64px;
 
   /* Elevation */
-  --shadow-elevation-1: 0 10px 40px 0 #010e2414;
-  --shadow-soft-sm: 0 3.5px 9.6px #010e2414;
-  --shadow-soft-md: 0 5.859px 16.04px #010e2414;
+  --shadow-elevation-1: 0 10px 40px 0 #071a2014;
+  --shadow-soft-sm: 0 3.5px 9.6px #071a2014;
+  --shadow-soft-md: 0 5.859px 16.04px #071a2014;
   --shadow-focus: 0 0 0 2px #fff, 0 0 0 4px var(--color-blue-900);
 
   --blur-frost: 25px;

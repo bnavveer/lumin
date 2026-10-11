@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { memo, useEffect, useRef, useState, type RefObject } from 'react'
 import { ChatComposer } from '../../components/ChatComposer'
 import { cx } from '../../components/cx'
 import { CaliforniaFlag } from '../../components/Flags'
 import { Icon } from '../../components/icons'
-import { CarouselControls } from '../../components/Marketing'
 import { Photo } from '../../components/Photo'
 import { heroPhotos } from '../../data/photos'
 import { setPendingAttach } from '../chat/useChat'
@@ -37,122 +36,142 @@ export function Home() {
   )
 }
 
-/* ── Hero: rounded panel, rotating photo, example question in the box ── */
+/* ── Hero: golden-hour panel, a wide California photo, the question box docked on it ── */
 
 function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | null> }) {
   const { t, lang } = useLang()
   const start = useStartChat()
   const { navigate } = useRouter()
-  const slides = heroPhotos
-  const count = slides.length
+  const count = heroPhotos.length
   const [index, setIndex] = useState(0)
-  const [playing, setPlaying] = usePlaying()
-  const [loaded, setLoaded] = useState(() => new Set([0, 1]))
+  const [playing] = usePlaying()
   const [text, setText] = useState('')
   const [focused, setFocused] = useState(false)
   const speech = useSpeech(lang, setText)
   const example = t.home.examples[index % t.home.examples.length]
 
-  // Hold the slide while someone is typing or talking, like america.gov.
+  // Hold the slide while someone is typing or talking.
   const holding = focused || text.length > 0 || speech.listening
   useEffect(() => {
     if (!playing || holding || count < 2) return
-    const id = setInterval(() => setIndex((i) => (i + 1) % count), 6000)
+    const id = setInterval(() => setIndex((i) => (i + 1) % count), 7000)
     return () => clearInterval(id)
   }, [playing, holding, count])
 
+  const photo = heroPhotos[index]
+  const go = (d: number) => setIndex((i) => (i + d + count) % count)
+  return (
+    <div className="px-6 max-mobile:px-0">
+      <section
+        aria-label={t.home.title}
+        className="relative isolate mx-auto max-w-[96rem] overflow-hidden rounded-[3rem] bg-[linear-gradient(180deg,var(--color-fog)_0%,#f3f1ea_48%,var(--color-sand)_100%)] pb-6 max-mobile:rounded-[2rem] max-mobile:rounded-t-none max-mobile:pb-3"
+      >
+        <Header className="!max-w-none px-12 pt-8 max-mobile:px-4 max-mobile:pt-4" />
+
+        <div className="mx-auto grid max-w-[88rem] grid-cols-[minmax(0,1fr)_minmax(0,25rem)] items-end gap-x-12 gap-y-4 px-12 pt-6 pb-8 max-[900px]:grid-cols-1 max-mobile:px-5 max-mobile:pt-2 max-mobile:pb-5">
+          <h1 className="type-site-hero">{t.home.title}</h1>
+          <p className="type-home-supporting text-secondary max-[900px]:max-w-[34rem]">{t.home.subtitle}</p>
+        </div>
+
+        <div className="relative mx-6 aspect-[16/7.2] overflow-hidden rounded-[2.25rem] bg-[#c9d6d4] shadow-[0_30px_80px_-20px_#12323d59] max-[1100px]:aspect-[16/10] max-mobile:mx-3 max-mobile:aspect-[4/5.4] max-mobile:rounded-[1.75rem]">
+          <HeroSlides index={index} />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#071a20b3] via-[#071a2040] to-transparent" />
+
+          <div
+            ref={composerRef}
+            className="absolute inset-x-0 bottom-[4.75rem] mx-auto w-[min(46rem,calc(100%-2rem))] max-mobile:bottom-[4.25rem]"
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+          >
+            <ChatComposer
+              variant="hero"
+              placeholder={`${t.composer.tryPrefix} ‘${example}’`}
+              submitEmpty={example}
+              value={text}
+              onValueChange={setText}
+              onSubmit={start}
+              onVoice={speech.toggle}
+              listening={speech.listening}
+              onAttach={() => {
+                setPendingAttach()
+                navigate('/chat')
+              }}
+              labels={composerLabels(t)}
+              className="!border-white/80 !shadow-[0_20px_50px_-12px_#071a2080]"
+            />
+            {speech.error && (
+              <p role="alert" className="mt-2 text-center type-body-s text-white">
+                {speech.error === 'denied' ? t.chat.voiceDenied : t.chat.voiceUnsupported}
+              </p>
+            )}
+          </div>
+
+          <div className="absolute inset-x-6 bottom-5 flex items-end justify-between gap-4 text-white max-mobile:inset-x-4 max-mobile:bottom-4">
+            <p className="min-w-0 type-label-s leading-snug text-white/85 [text-shadow:0_1px_8px_#0008]">
+              <span className="block text-[0.8125rem] font-medium text-white">{photo.subject}</span>
+              <span className="max-mobile:hidden">
+                {t.lang === 'es' ? 'Foto' : 'Photo'}:{' '}
+                <a href={photo.sourceUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
+                  {photo.author}
+                </a>
+                ,{' '}
+                <a href={photo.licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
+                  {photo.license}
+                </a>
+              </span>
+            </p>
+            <div className="flex shrink-0 items-center gap-3">
+              <div className="flex gap-1.5 max-mobile:hidden" aria-hidden="true">
+                {heroPhotos.map((p, i) => (
+                  <span key={p.id} className={cx('h-1 rounded-full transition-all duration-500 ease-out-quint', i === index ? 'w-6 bg-poppy' : 'w-1.5 bg-white/60')} />
+                ))}
+              </div>
+              <button type="button" onClick={() => go(-1)} aria-label={t.home.carousel.prev} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/35 focus-ring">
+                <Icon name="chevron-left" size={18} />
+              </button>
+              <button type="button" onClick={() => go(1)} aria-label={t.home.carousel.next} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/35 focus-ring">
+                <Icon name="chevron-right" size={18} />
+              </button>
+            </div>
+          </div>
+          <span className="sr-only" aria-live="polite">
+            {`${t.composer.example} ${index + 1} ${t.home.carousel.of} ${count}: ${example}`}
+          </span>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+// The photo layer only depends on the slide index, so typing in the box
+// (which re-renders the hero) never touches it.
+const HeroSlides = memo(function HeroSlides({ index }: { index: number }) {
+  const count = heroPhotos.length
+  const [loaded, setLoaded] = useState(() => new Set([0, 1]))
   useEffect(() => {
     setLoaded((prev) => {
       const near = [index, (index + 1) % count, (index - 1 + count) % count]
       return near.every((n) => prev.has(n)) ? prev : new Set([...prev, ...near])
     })
   }, [index, count])
-
   return (
-    <div className="px-8 max-mobile:px-0">
-      <section
-        aria-label={t.home.title}
-        className="relative isolate mx-auto flex min-h-[min(46rem,calc(100svh-4.5rem))] max-w-[90rem] flex-col overflow-hidden rounded-[3rem] bg-grey-50 pb-16 max-mobile:rounded-[2.5rem] max-mobile:rounded-t-none max-mobile:pb-10"
-      >
-        {/* Ambient wash taken from the current photo */}
-        <div aria-hidden="true" className="absolute inset-0 -z-10">
-          {slides.map((p, i) =>
-            loaded.has(i) ? (
-              <img
-                key={p.id}
-                src={`/photos/${p.id}-800.webp`}
-                alt=""
-                className={cx(
-                  'absolute inset-0 h-full w-full scale-125 object-cover blur-[90px] saturate-[.8] transition-opacity duration-[1500ms] ease-standard',
-                  i === index ? 'opacity-35' : 'opacity-0',
-                )}
-              />
-            ) : null,
-          )}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/50 via-white/20 to-white/60" />
-        </div>
-
-        <Header className="px-12 pt-10 max-mobile:px-4 max-mobile:pt-4" />
-
-        <div className="flex flex-1 flex-col items-center justify-center px-4 pt-4 text-center">
-          <h1 className="type-site-hero">{t.home.title}</h1>
-          <p className="mt-4 max-w-[36rem] type-home-supporting text-secondary">{t.home.subtitle}</p>
-
-          <div className="relative mt-10 w-full max-w-[43rem] max-mobile:mt-8">
-            <div className="relative aspect-[3/2] overflow-hidden rounded-[3rem] bg-grey-200 shadow-[0_30px_80px_#010e2426] max-mobile:aspect-[4/5] max-mobile:rounded-[2.25rem]">
-              {slides.map((p, i) => (
-                <div
-                  key={p.id}
-                  aria-hidden={i !== index}
-                  className={cx('absolute inset-0 transition-opacity duration-1000 ease-standard', i === index ? 'opacity-100' : 'opacity-0')}
-                >
-                  {loaded.has(i) ? (
-                    <div className={cx('h-full w-full', i === index && playing && !holding && 'animate-[kenburns_7s_ease-out_both]')}>
-                      <Photo photo={p} sizes="(max-width: 768px) 100vw, 688px" priority={i === 0} />
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-              <div ref={composerRef} className="absolute inset-x-3 top-3" onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}>
-                <ChatComposer
-                  variant="hero"
-                  placeholder={`${t.composer.tryPrefix} ‘${example}’`}
-                  submitEmpty={example}
-                  value={text}
-                  onValueChange={setText}
-                  onSubmit={start}
-                  onVoice={speech.toggle}
-                  listening={speech.listening}
-                  onAttach={() => {
-                    setPendingAttach()
-                    navigate('/chat')
-                  }}
-                  labels={composerLabels(t)}
-                />
-              </div>
-              <span className="sr-only" aria-live="polite">
-                {`${t.composer.example} ${index + 1} ${t.home.carousel.of} ${count}: ${example}`}
-              </span>
+    <>
+      {heroPhotos.map((p, i) => (
+        <div
+          key={p.id}
+          aria-hidden={i !== index}
+          className={cx('absolute inset-0 transition-opacity duration-1000 ease-standard', i === index ? 'opacity-100' : 'opacity-0')}
+        >
+          {loaded.has(i) ? (
+            <div className={cx('h-full w-full', i === index && 'animate-[kenburns_9s_ease-out_both]')}>
+              <Photo photo={p} sizes="(max-width: 768px) 100vw, 1400px" priority={i === 0} />
             </div>
-            {speech.error && (
-              <p role="alert" className="mt-4 type-body-s text-secondary">
-                {speech.error === 'denied' ? t.chat.voiceDenied : t.chat.voiceUnsupported}
-              </p>
-            )}
-            <div className="mt-8">
-              <CarouselControls
-                playing={playing}
-                onTogglePlay={() => setPlaying((v) => !v)}
-                onPrev={() => setIndex((i) => (i - 1 + count) % count)}
-                onNext={() => setIndex((i) => (i + 1) % count)}
-              />
-            </div>
-          </div>
+          ) : null}
         </div>
-      </section>
-    </div>
+      ))}
+    </>
   )
-}
+})
 
 /* ── The big statement that sharpens as you scroll ── */
 
@@ -188,10 +207,10 @@ function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
         onClick={() => setTug((n) => n + 1)}
         className={cx(
           chipBase,
-          'w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_30%,#ffe0f2,#ffb3d9_45%,#c9b8ff)] text-[#7b2a5a] transition-transform duration-300 ease-out-quint hover:scale-105 active:scale-95 focus-ring',
+          'w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_30%,#ecf8f5,#a9ddd5_50%,#6fb8bf)] text-[#0b4a5e] transition-transform duration-300 ease-out-quint hover:scale-105 active:scale-95 focus-ring',
         )}
       >
-        <Padlock tug={tug} className="h-[0.5em] w-[0.5em]" hole="#ffd3ea" />
+        <Padlock tug={tug} className="h-[0.5em] w-[0.5em]" hole="#c9ebe6" />
       </button>
     )
   return (
@@ -201,7 +220,7 @@ function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
       onClick={() => start('')}
       className={cx(
         chipBase,
-        'group w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_25%,#8fb8ff,#2f6bff_55%,#0b2a8f)] text-white shadow-[0_8px_24px_#2f6bff40] transition-[scale,box-shadow] duration-300 ease-out-quint hover:scale-105 hover:shadow-[0_10px_30px_#2f6bff66] active:scale-95 focus-ring',
+        'group w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_25%,#ffc27a,#f2741f_55%,#b8451a)] text-white shadow-[0_8px_24px_#f2741f40] transition-[scale,box-shadow] duration-300 ease-out-quint hover:scale-105 hover:shadow-[0_10px_30px_#f2741f66] active:scale-95 focus-ring',
       )}
     >
       <Icon name="arrow-right" size={28} strokeWidth={2.25} className="h-[0.42em] w-[0.42em] transition-transform duration-300 ease-out-quint group-hover:translate-x-[0.06em]" />

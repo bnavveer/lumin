@@ -6,7 +6,7 @@ import { Icon } from '../components/icons'
 import { Photo } from '../components/Photo'
 import { photoById } from '../data/photos'
 import { programs } from '../data/programs'
-import { useAutoStep, useInView, usePlaying } from './hooks'
+import { useAutoStep, useHoverHold, useInView, usePlaying } from './hooks'
 import { copies } from './copy'
 import { useLang } from './lang'
 
@@ -21,11 +21,11 @@ const programPlainEs = copies.es.programPlain
 type L = 'en' | 'es'
 const pick = <T,>(lang: L, v: { en: T; es: T }) => v[lang]
 
+// Animated tile. No pause button: it holds while hovered or focused, stops
+// off screen, and stays still for people who ask for reduced motion.
 export function MediaTile({
   children,
   className,
-  pausable = true,
-  dark,
   label,
 }: {
   children: ReactNode | ((playing: boolean) => ReactNode)
@@ -34,32 +34,20 @@ export function MediaTile({
   dark?: boolean
   label?: string
 }) {
-  const { lang } = useLang()
-  const [playing, setPlaying] = usePlaying()
+  const [playing] = usePlaying()
+  const [held, hold] = useHoverHold()
   const [ref, visible] = useInView<HTMLDivElement>({ once: false, margin: '0px' })
-  const live = playing && visible
+  const live = playing && visible && !held
   return (
     <div
       ref={ref}
       role={label ? 'img' : undefined}
       aria-label={label}
       data-paused={!live}
+      {...hold}
       className={cx('media-tile relative isolate aspect-[3/2] w-full overflow-hidden rounded-48 max-mobile:rounded-32', className)}
     >
       {typeof children === 'function' ? children(live) : children}
-      {pausable && (
-        <button
-          type="button"
-          onClick={() => setPlaying((p) => !p)}
-          aria-label={pick(lang, playing ? { en: 'Pause animation', es: 'Pausar animación' } : { en: 'Play animation', es: 'Reproducir animación' })}
-          className={cx(
-            'absolute right-5 bottom-5 z-20 flex size-9 cursor-pointer items-center justify-center rounded-full backdrop-blur-md transition-colors focus-ring',
-            dark ? 'bg-white/15 text-white hover:bg-white/25' : 'bg-blue-900/55 text-white hover:bg-blue-900/70',
-          )}
-        >
-          <Icon name={playing ? 'pause' : 'play'} size={16} />
-        </button>
-      )}
     </div>
   )
 }
@@ -123,7 +111,7 @@ export function ProgramMosaic() {
           </div>
         ))}
       </div>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_50%,transparent,#000c1f99)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_50%,transparent,#0e212999)]" />
     </MediaTile>
   )
 }
@@ -154,7 +142,7 @@ function Stars() {
 
 export function NightLock() {
   return (
-    <MediaTile className="aspect-square bg-[linear-gradient(180deg,#000814_0%,#061a44_60%,#0b2a6b_100%)]" dark>
+    <MediaTile className="aspect-square bg-[linear-gradient(180deg,#031319_0%,#052430_60%,#0b4a5e_100%)]" dark>
       {(playing) => (
         <>
           <Stars />
@@ -232,7 +220,7 @@ export function DocumentVault() {
     },
   })
   return (
-    <MediaTile className="aspect-square bg-[linear-gradient(180deg,#000814_0%,#061a44_60%,#0b2a6b_100%)]" dark>
+    <MediaTile className="aspect-square bg-[linear-gradient(180deg,#031319_0%,#052430_60%,#0b4a5e_100%)]" dark>
       {(playing) => (
         <>
           <Stars />
@@ -271,14 +259,14 @@ function Vault({ t, playing }: { t: VaultText; playing: boolean }) {
               onClick={() => setTug((n) => n + 1)}
               className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-blue-700 text-white transition-transform active:scale-95 focus-ring"
             >
-              <Padlock tug={tug} className="size-[18px]" hole="#002664" />
+              <Padlock tug={tug} className="size-[18px]" hole="#0b4a5e" />
             </button>
           </div>
           <ul className="flex flex-col gap-1.5">
             {t.docs.map(([name, detail], i) => (
               <li key={name} className="relative flex items-center gap-3 rounded-[0.9rem] bg-[#f4f6fa] p-2">
                 <span
-                  className="vault-doc flex h-10 w-8 shrink-0 items-center justify-center rounded-[6px] bg-white text-blue-700 shadow-[0_2px_6px_#23365c26]"
+                  className="vault-doc flex h-10 w-8 shrink-0 items-center justify-center rounded-[6px] bg-white text-blue-700 shadow-[0_2px_6px_#12323d26]"
                   style={{ '--d': `${0.5 + i * 1.1}s`, '--fx': `${[-120, 110, -90][i]}%`, '--fy': `${[-260, -320, 220][i]}%`, '--fr': `${[-14, 12, -8][i]}deg` } as CSSProperties}
                 >
                   <Icon name={docIcons[i]} size={15} />
@@ -331,7 +319,7 @@ const badges: Badge[] = [
 function Badge({ mark, sub, tone, img, fit }: Badge) {
   const real = USE_REAL_MARKS && img
   return (
-    <span className="relative flex aspect-square w-[24cqw] shrink-0 flex-col items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_#010e2414] ring-1 ring-border-quaternary">
+    <span className="relative flex aspect-square w-[24cqw] shrink-0 flex-col items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_#071a2014] ring-1 ring-border-quaternary">
       {real ? (
         <img
           src={img}
@@ -391,7 +379,7 @@ export function TextThread({ className, compact }: { className?: string; compact
     ],
   })
   return (
-    <MediaTile className={cx('bg-[linear-gradient(160deg,#dbe8fb,#f4f7fc)]', className)}>
+    <MediaTile className={cx('bg-[linear-gradient(160deg,#dcecef,#f4f7fc)]', className)}>
       {(playing) => <Thread msgs={msgs} playing={playing} compact={compact} />}
     </MediaTile>
   )
@@ -437,7 +425,7 @@ export function SourcesOnPhoto() {
         <SourcesCard
           title={pick(lang, { en: 'Sources', es: 'Fuentes' })}
           countLabel={(n) => pick(lang, { en: `${n} source${n > 1 ? 's' : ''}`, es: `${n} fuente${n > 1 ? 's' : ''}` })}
-          className="animate-[float_7s_ease-in-out_infinite] shadow-[0_20px_60px_#010e2433]"
+          className="animate-[float_7s_ease-in-out_infinite] shadow-[0_20px_60px_#071a2033]"
           sources={[
             { domain: 'cdss.ca.gov', title: pick(lang, { en: 'CalFresh eligibility', es: 'Quién califica para CalFresh' }), href: 'https://www.cdss.ca.gov/inforesources/calfresh' },
             { domain: 'cdss.ca.gov', title: pick(lang, { en: 'CalFresh contacts', es: 'Contactos de CalFresh' }), href: 'https://www.cdss.ca.gov/inforesources/CalFresh/Contacts' },
@@ -476,7 +464,7 @@ function ConsentAnim({ t, playing }: { t: { kicker: string; title: string; rows:
   const [step] = useAutoStep(3, 1800, playing)
   return (
     <div className="absolute inset-0 flex items-center justify-center p-[8%]">
-      <div className="w-full max-w-[21rem] animate-[float_8s_ease-in-out_infinite] rounded-32 bg-white p-6 shadow-[0_20px_60px_#010e241f]">
+      <div className="w-full max-w-[21rem] animate-[float_8s_ease-in-out_infinite] rounded-32 bg-white p-6 shadow-[0_20px_60px_#071a201f]">
         <p className="text-[0.6875rem] font-medium tracking-wide text-secondary uppercase">{t.kicker}</p>
         <p className="mt-2 text-[1.05rem] leading-snug font-medium tracking-tight">{t.title}</p>
         <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-5 gap-y-1.5 text-[0.8125rem]">
@@ -510,7 +498,7 @@ export function Orb({ className }: { className?: string }) {
   return (
     <MediaTile pausable={false} className={cx('bg-grey-50', className)}>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="relative flex aspect-square w-[24%] items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_25%,#7fb2ff_0%,#2f6bff_35%,#0b2a8f_70%,#061a5c_100%)] text-white shadow-[0_30px_60px_#0b2a8f40]">
+        <span className="relative flex aspect-square w-[24%] items-center justify-center rounded-full bg-[radial-gradient(circle_at_30%_25%,#7fb2ff_0%,#f2741f_35%,#b8451a_70%,#061a5c_100%)] text-white shadow-[0_30px_60px_#b8451a40]">
           <span className="absolute inset-0 animate-[spin_9s_linear_infinite] rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,#ffb3e680_80deg,transparent_160deg,#b3d4ff80_250deg,transparent_330deg)] mix-blend-screen blur-md" />
           <Icon name="arrow-right" size={44} strokeWidth={2} className="relative" />
         </span>
@@ -581,7 +569,7 @@ export function QualifyTile() {
   })
   const label = pick(lang, { en: 'Example: family of 4', es: 'Ejemplo: familia de 4' })
   return (
-    <MediaTile className="bg-[linear-gradient(160deg,#f1f5fb,#e6eefb)]">
+    <MediaTile className="bg-[linear-gradient(160deg,#edf6f7,#e3f0f2)]">
       {(playing) => <QualifyAnim rows={rows} label={label} playing={playing} lang={lang} />}
     </MediaTile>
   )
@@ -591,7 +579,7 @@ function QualifyAnim({ rows, label, playing, lang }: { rows: string[][]; label: 
   const [step] = useAutoStep(rows.length + 3, 1100, playing)
   return (
     <div className="absolute inset-0 flex items-center justify-center p-[8%]">
-      <div className="w-full max-w-[21rem] rounded-32 bg-white p-6 shadow-[0_20px_60px_#010e241a]">
+      <div className="w-full max-w-[21rem] rounded-32 bg-white p-6 shadow-[0_20px_60px_#071a201a]">
         <p className="text-[0.6875rem] font-medium tracking-wide text-secondary uppercase">{label}</p>
         <ul className="mt-3 divide-y divide-border-quaternary">
           {rows.map(([name, value], i) => {
@@ -626,7 +614,7 @@ function QualifyAnim({ rows, label, playing, lang }: { rows: string[][]; label: 
 
 export function LanguagesTile() {
   return (
-    <MediaTile pausable={false} className="bg-[#1f4fff]">
+    <MediaTile pausable={false} className="bg-[#127a91]">
       <div className="absolute top-[9%] left-[7%] font-serif text-[clamp(2rem,4.4vw,3.6rem)] leading-[1] tracking-[-0.04em] text-white [font-variation-settings:'opsz'_72]">
         <p lang="en">Benefits</p>
         <p lang="es">Beneficios</p>
@@ -651,7 +639,7 @@ export function MicTile() {
             style={{ animation: `ring-out 2.7s var(--ease-standard) ${i * 0.9}s infinite` }}
           />
         ))}
-        <span className="relative flex aspect-square w-[17%] items-center justify-center rounded-full bg-white shadow-[0_20px_50px_#010e241f]">
+        <span className="relative flex aspect-square w-[17%] items-center justify-center rounded-full bg-white shadow-[0_20px_50px_#071a201f]">
           <Icon name="mic" size={52} strokeWidth={1.75} />
         </span>
       </div>
@@ -663,7 +651,7 @@ export function MicTile() {
 
 export function TypingTile({ text }: { text: string }) {
   return (
-    <MediaTile className="bg-[#cfe3fb]">
+    <MediaTile className="bg-[#d7ebee]">
       {(playing) => <Typing text={text} playing={playing} />}
     </MediaTile>
   )
@@ -679,7 +667,7 @@ function Typing({ text, playing }: { text: string; playing: boolean }) {
   const shown = playing ? text.slice(0, n) : text
   return (
     <div className="absolute inset-0 flex items-center justify-center p-[10%]">
-      <div className="flex min-h-[55%] w-full max-w-[24rem] flex-col rounded-24 bg-white p-5 shadow-[0_20px_50px_#010e241a]">
+      <div className="flex min-h-[55%] w-full max-w-[24rem] flex-col rounded-24 bg-white p-5 shadow-[0_20px_50px_#071a201a]">
         <p className="flex-1 text-[0.9375rem] leading-snug tracking-tight">
           {shown}
           <span className="ml-px inline-block h-[1.1em] w-px translate-y-[3px] animate-[caret_1s_steps(1)_infinite] bg-primary" />
@@ -699,7 +687,7 @@ function Typing({ text, playing }: { text: string; playing: boolean }) {
 
 export function ThumbsTile({ light }: { light?: boolean }) {
   return (
-    <MediaTile className={light ? 'bg-[#cfe3fb]' : 'bg-[#1f4fff]'} dark={!light}>
+    <MediaTile className={light ? 'bg-[#d7ebee]' : 'bg-[#127a91]'} dark={!light}>
       {(playing) => <Thumbs playing={playing} light={light} />}
     </MediaTile>
   )
@@ -711,7 +699,7 @@ function Thumbs({ playing, light }: { playing: boolean; light?: boolean }) {
   const down = step === 3
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className={cx('flex items-center gap-1 rounded-full p-1.5 shadow-[0_20px_50px_#010e2433] backdrop-blur-xl', light ? 'bg-white/70' : 'bg-white/25')}>
+      <div className={cx('flex items-center gap-1 rounded-full p-1.5 shadow-[0_20px_50px_#071a2033] backdrop-blur-xl', light ? 'bg-white/70' : 'bg-white/25')}>
         {[
           { icon: 'thumb-up' as const, on: up },
           { icon: 'thumb-down' as const, on: down },
@@ -801,7 +789,7 @@ function PreferAnim({ q, opts, playing }: { q: string; opts: string[]; playing: 
   const [step] = useAutoStep(3, 1500, playing)
   return (
     <div className="absolute inset-0 flex items-center justify-center p-[8%]">
-      <div className="w-full max-w-[20rem] rounded-32 bg-white p-5 shadow-[0_20px_60px_#010e241a]">
+      <div className="w-full max-w-[20rem] rounded-32 bg-white p-5 shadow-[0_20px_60px_#071a201a]">
         <p className="text-[0.875rem] font-medium">{q}</p>
         <ul className="mt-3 flex flex-col gap-2">
           {opts.map((o, i) => {
