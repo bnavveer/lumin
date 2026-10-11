@@ -40,6 +40,9 @@ export interface CaseDetail {
 export interface AutopilotState { actions: Action[]; lastRunAt: string | null; source: 'keewano' }
 // POST /api/staff/ask {q} -> AskResponse
 export interface AskResponse { answer: string }
+// POST /api/staff/ask/deep {q} -> DeepDiveStart; GET /api/staff/ask/deep/:id -> DeepDiveStatus
+export interface DeepDiveStart { id: string; url: string }
+export interface DeepDiveStatus { status: string; done: boolean; answer?: string; evidence?: string[]; followUps?: string[]; url: string }
 // GET /api/staff/metrics
 export interface CohortMetrics { households: number; submittedPct: number; medianHoursToSubmit: number | null; interviewMissedPct: number }
 export interface TimeSavedMetrics { baseline: CohortMetrics; aid: CohortMetrics; source: 'keewano' | 'demo'; asOf: string }
