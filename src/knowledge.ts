@@ -8,6 +8,7 @@ import { env, optionalEnv } from './env.js';
 import { admin } from './supabase.js';
 import { rateLimit } from './rateLimit.js';
 import { requireStaff } from './auth.js';
+import { clientIp } from './clientIp.js';
 
 export interface Chunk {
   heading: string;
@@ -249,9 +250,6 @@ export const AskBody = z.object({
   county: z.string().trim().max(60).optional(),
   lang: z.string().trim().max(30).optional(),
 });
-
-const clientIp = (c: Context): string =>
-  c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || c.req.header('x-real-ip') || 'local';
 
 export function registerKnowledgeRoutes(app: Hono<any>): void {
   app.post('/api/knowledge/ask', rateLimit({ windowMs: 60_000, max: 20, key: (c) => `kask:${clientIp(c)}` }), async (c) => {

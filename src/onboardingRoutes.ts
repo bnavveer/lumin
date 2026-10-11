@@ -5,6 +5,7 @@ import { requireStaff, type StaffVars } from './auth.js';
 import { admin } from './supabase.js';
 import { COUNTIES, ROLES, HttpError, createOrgForUser, getOrg, inviteStaff, listTeam, setupStatus, updateOrgSettings } from './onboarding.js';
 import { rateLimit } from './rateLimit.js';
+import { clientIp } from './clientIp.js';
 
 type UserVars = { user: { id: string; email: string } };
 
@@ -41,7 +42,7 @@ const adminOnly = createMiddleware<{ Variables: StaffVars }>(async (c, next) => 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerOnboardingRoutes(app: Hono<any>): void {
-  app.post('/api/onboarding/org', rateLimit({ windowMs: 60_000, max: 10, key: (c) => `org:${c.req.header('x-forwarded-for') ?? 'local'}` }), requireUser, async (c) => {
+  app.post('/api/onboarding/org', rateLimit({ windowMs: 60_000, max: 10, key: (c) => `org:${clientIp(c)}` }), requireUser, async (c) => {
     const parsed = CreateOrg.safeParse(await body(c));
     if (!parsed.success) return c.json({ error: parsed.error.issues[0]?.message ?? 'Invalid request' }, 400);
     try {

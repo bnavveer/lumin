@@ -30,6 +30,7 @@ import { createApp as createConversationApp } from './app.js';
 import { liveConversation } from './channels.js';
 import { registerVaultRoutes } from './vaultRoutes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
+import { clientIp } from './clientIp.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
 
@@ -55,9 +56,6 @@ const CountyApplication = z.object({
   kind: z.enum(['minimal', 'full']),
   payload: z.unknown(),
 });
-
-const clientIp = (c: Context): string =>
-  c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || c.req.header('x-real-ip') || 'local';
 
 const page = (title: string, body: string): string =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>` +

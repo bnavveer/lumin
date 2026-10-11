@@ -7,6 +7,7 @@ import { requireStaff } from './auth.js';
 import { exaSearch, webLlm, type ExaResult } from './exa.js';
 import { rateLimit } from './rateLimit.js';
 import { applyWaitlistStatus, checkSection8Waitlists } from './waitlistWatcher.js';
+import { clientIp } from './clientIp.js';
 
 export const NEEDS = ['food', 'wic', 'county_office', 'legal_aid', 'housing'] as const;
 export type Need = (typeof NEEDS)[number];
@@ -124,9 +125,6 @@ export const webTools = {
     execute: async ({ question }) => answerFromWeb(question),
   }),
 };
-
-const clientIp = (c: Context): string =>
-  c.req.header('x-forwarded-for')?.split(',')[0]?.trim() || c.req.header('x-real-ip') || 'local';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerWebKnowledgeRoutes(app: Hono<any>): void {
