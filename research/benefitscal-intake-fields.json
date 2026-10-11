@@ -1,0 +1,3180 @@
+{
+  "catalog_type": "preparatory_paper_crosscheck_not_live_BenefitsCal_schema",
+  "source_title": "SAWS 2 PLUS (4/15)",
+  "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+  "research_date": "2026-10-11",
+  "verification": "paper_reference_not_live",
+  "limitations": [
+    "This is a historical state paper application, not BenefitsCal UI/API field names or current eligibility policy.",
+    "Stable keys are analyst-created identifiers; labels are paper-derived summaries, not asserted exact live labels.",
+    "Program symbols were not exhaustively mapped; applicable program conditions require current verification.",
+    "Required/optional statements describe only explicit paper wording; no live validation flags inferred.",
+    "Repeatable paper rows do not impose online array limits."
+  ],
+  "entries": [
+    {
+      "key": "paper_1",
+      "group": "Applicant information",
+      "source_question": "1",
+      "source_page": 1,
+      "source_pdf_page": 7,
+      "title": "Applicant information",
+      "inputs": [
+        {
+          "key": "paper_1_name_first_middle_last",
+          "label": "Name (first, middle, last)"
+        },
+        {
+          "key": "paper_1_other_names_maiden_nicknames_etc",
+          "label": "Other names (maiden, nicknames, etc.)"
+        },
+        {
+          "key": "paper_1_social_security_number_if_you_have_one_and_are_applying_for_benefits",
+          "label": "Social Security Number, if you have one and are applying for benefits"
+        },
+        {
+          "key": "paper_1_home_address_or_directions_to_home",
+          "label": "Home address or directions to home"
+        },
+        {
+          "key": "paper_1_home_apartment_number",
+          "label": "Home apartment number"
+        },
+        {
+          "key": "paper_1_home_city",
+          "label": "Home city"
+        },
+        {
+          "key": "paper_1_home_county",
+          "label": "Home county"
+        },
+        {
+          "key": "paper_1_home_state",
+          "label": "Home state"
+        },
+        {
+          "key": "paper_1_home_zip_code",
+          "label": "Home ZIP code"
+        },
+        {
+          "key": "paper_1_mailing_address_if_different",
+          "label": "Mailing address if different"
+        },
+        {
+          "key": "paper_1_mailing_apartment_number",
+          "label": "Mailing apartment number"
+        },
+        {
+          "key": "paper_1_mailing_city",
+          "label": "Mailing city"
+        },
+        {
+          "key": "paper_1_mailing_county",
+          "label": "Mailing county"
+        },
+        {
+          "key": "paper_1_mailing_state",
+          "label": "Mailing state"
+        },
+        {
+          "key": "paper_1_mailing_zip_code",
+          "label": "Mailing ZIP code"
+        },
+        {
+          "key": "paper_1_information_about_application_by_email_yes_no",
+          "label": "Information about application by email: yes/no"
+        },
+        {
+          "key": "paper_1_case_messages_by_email_yes_no",
+          "label": "Case messages by email: yes/no"
+        },
+        {
+          "key": "paper_1_home_phone",
+          "label": "Home phone"
+        },
+        {
+          "key": "paper_1_work_alternate_message_phone",
+          "label": "Work/alternate/message phone"
+        },
+        {
+          "key": "paper_1_email_address",
+          "label": "Email address"
+        },
+        {
+          "key": "paper_1_programs_calfresh_cash_aid_health_coverage_other",
+          "label": "Programs: CalFresh, Cash Aid, Health Coverage, Other"
+        },
+        {
+          "key": "paper_1_other_program_description",
+          "label": "Other program description"
+        },
+        {
+          "key": "paper_1_disability_and_need_help_applying_yes_no",
+          "label": "Disability and need help applying: yes/no"
+        },
+        {
+          "key": "paper_1_homeless_yes_no",
+          "label": "Homeless: yes/no"
+        },
+        {
+          "key": "paper_1_preferred_reading_language_if_not_english",
+          "label": "Preferred reading language if not English"
+        },
+        {
+          "key": "paper_1_preferred_speaking_language_if_not_english",
+          "label": "Preferred speaking language if not English"
+        },
+        {
+          "key": "paper_1_deaf_or_hard_of_hearing_checkbox",
+          "label": "Deaf or hard of hearing checkbox"
+        },
+        {
+          "key": "paper_1_gross_income_below_150_and_cash_checking_savings_100_or_less_yes_no",
+          "label": "Gross income below $150 and cash/checking/savings $100 or less: yes/no"
+        },
+        {
+          "key": "paper_1_gross_income_plus_liquid_resources_below_rent_mortgage_plus_utilities_yes_no",
+          "label": "Gross income plus liquid resources below rent/mortgage plus utilities: yes/no"
+        },
+        {
+          "key": "paper_1_migrant_seasonal_farmworker_household_with_liquid_resources_not_exceeding_100_yes_no",
+          "label": "Migrant/seasonal farmworker household with liquid resources not exceeding $100: yes/no"
+        },
+        {
+          "key": "paper_1_eviction_or_pay_rent_or_leave_notice_yes_no",
+          "label": "Eviction or pay-rent-or-leave notice: yes/no"
+        },
+        {
+          "key": "paper_1_utilities_shut_off_or_shut_off_notice_yes_no",
+          "label": "Utilities shut off or shut-off notice: yes/no"
+        },
+        {
+          "key": "paper_1_food_will_run_out_within_3_days_yes_no",
+          "label": "Food will run out within 3 days: yes/no"
+        },
+        {
+          "key": "paper_1_transportation_help_needed_for_food_clothing_medical_care_emergency_items_yes_no",
+          "label": "Transportation help needed for food/clothing/medical care/emergency items: yes/no"
+        },
+        {
+          "key": "paper_1_essential_clothing_needed_yes_no",
+          "label": "Essential clothing needed: yes/no"
+        },
+        {
+          "key": "paper_1_anyone_pregnant_yes_no",
+          "label": "Anyone pregnant: yes/no"
+        },
+        {
+          "key": "paper_1_presumptive_eligibility_card_received_if_pregnant_yes_no",
+          "label": "Presumptive Eligibility card received if pregnant: yes/no"
+        },
+        {
+          "key": "paper_1_personal_emergency_yes_no",
+          "label": "Personal emergency: yes/no"
+        },
+        {
+          "key": "paper_1_emergency_types_pregnancy_immediate_medical_need_child_abuse_domestic_abuse_elder_abuse_other_threat_to_health_or_safety",
+          "label": "Emergency types: Pregnancy, Immediate Medical Need, Child Abuse, Domestic Abuse, Elder Abuse, Other threat to health or safety"
+        },
+        {
+          "key": "paper_1_emergency_explanation",
+          "label": "Emergency explanation"
+        },
+        {
+          "key": "paper_1_applicant_caretaker_relative_adult_household_member_authorized_representative_guardian_signature",
+          "label": "Applicant/caretaker relative/adult household member/authorized representative/guardian signature"
+        },
+        {
+          "key": "paper_1_signature_date",
+          "label": "Signature date"
+        },
+        {
+          "key": "paper_1_spouse_other_parent_other_aided_adult_registered_domestic_partner_signature",
+          "label": "Spouse/other parent/other aided adult/registered domestic partner signature"
+        },
+        {
+          "key": "paper_1_second_signature_date",
+          "label": "Second signature date"
+        }
+      ],
+      "condition": "Answer for applicable selected programs; current live requirement not verified.",
+      "required_optional": "Coversheet explicitly says name, address, signature begin CalFresh application; Q1\u20135 and signature begin cash-aid process. Other Q1 items are not all explicitly submission-required. SSN label is conditional.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_2",
+      "group": "CalFresh authorized representatives",
+      "source_question": "2",
+      "source_page": 2,
+      "source_pdf_page": 8,
+      "title": "CalFresh authorized representatives",
+      "inputs": [
+        {
+          "key": "paper_2_name_someone_to_help_calfresh_case_yes_no",
+          "label": "Name someone to help CalFresh case: yes/no"
+        },
+        {
+          "key": "paper_2_case_representative_name",
+          "label": "Case representative name"
+        },
+        {
+          "key": "paper_2_case_representative_phone",
+          "label": "Case representative phone"
+        },
+        {
+          "key": "paper_2_name_someone_to_receive_spend_household_calfresh_benefits_yes_no",
+          "label": "Name someone to receive/spend household CalFresh benefits: yes/no"
+        },
+        {
+          "key": "paper_2_benefits_representative_name",
+          "label": "Benefits representative name"
+        },
+        {
+          "key": "paper_2_benefits_representative_phone",
+          "label": "Benefits representative phone"
+        },
+        {
+          "key": "paper_2_benefits_representative_address",
+          "label": "Benefits representative address"
+        },
+        {
+          "key": "paper_2_benefits_representative_city",
+          "label": "Benefits representative city"
+        },
+        {
+          "key": "paper_2_benefits_representative_state",
+          "label": "Benefits representative state"
+        },
+        {
+          "key": "paper_2_benefits_representative_zip_code",
+          "label": "Benefits representative ZIP code"
+        }
+      ],
+      "condition": "Complete each representative section if its yes/no answer is yes. Representative must be 18 or older per paper; representative must give proof of own and applicant identity.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_2a",
+      "group": "Health insurance authorized representative",
+      "source_question": "2a",
+      "source_page": 2,
+      "source_pdf_page": 8,
+      "title": "Health insurance authorized representative",
+      "inputs": [
+        {
+          "key": "paper_2a_choose_health_insurance_authorized_representative_yes_no",
+          "label": "Choose health-insurance authorized representative: yes/no"
+        }
+      ],
+      "condition": "If yes, complete Appendix C.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_3",
+      "group": "American Indian/Alaskan Native and race/ethnicity",
+      "source_question": "3",
+      "source_page": 2,
+      "source_pdf_page": 8,
+      "title": "American Indian/Alaskan Native and race/ethnicity",
+      "inputs": [
+        {
+          "key": "paper_3_any_family_member_american_indian_or_alaskan_native_yes_no",
+          "label": "Any family member American Indian or Alaskan Native: yes/no"
+        },
+        {
+          "key": "paper_3_decline_race_ethnicity_information_checkbox",
+          "label": "Decline race/ethnicity information checkbox"
+        },
+        {
+          "key": "paper_3_hispanic_latino_spanish_origin_yes_no",
+          "label": "Hispanic/Latino/Spanish origin: yes/no"
+        },
+        {
+          "key": "paper_3_hispanic_latino_ethnicity_mexican_puerto_rican_cuban_other",
+          "label": "Hispanic/Latino ethnicity: Mexican, Puerto Rican, Cuban, Other"
+        },
+        {
+          "key": "paper_3_other_ethnicity_description",
+          "label": "Other ethnicity description"
+        },
+        {
+          "key": "paper_3_race_white_american_indian_or_alaskan_native_black_or_african_american_other_or_mixed_asian_native_hawaiian_or_other_pacific_islander",
+          "label": "Race: White, American Indian or Alaskan Native, Black or African American, Other or Mixed, Asian, Native Hawaiian or Other Pacific Islander"
+        },
+        {
+          "key": "paper_3_other_mixed_race_description",
+          "label": "Other/mixed race description"
+        },
+        {
+          "key": "paper_3_asian_detail_filipino_chinese_japanese_cambodian_korean_vietnamese_asian_indian_laotian_other_asian",
+          "label": "Asian detail: Filipino, Chinese, Japanese, Cambodian, Korean, Vietnamese, Asian Indian, Laotian, Other Asian"
+        },
+        {
+          "key": "paper_3_other_asian_description",
+          "label": "Other Asian description"
+        },
+        {
+          "key": "paper_3_pacific_islander_detail_native_hawaiian_guamanian_or_chamorro_samoan",
+          "label": "Pacific Islander detail: Native Hawaiian, Guamanian or Chamorro, Samoan"
+        }
+      ],
+      "condition": "If American Indian/Alaskan Native and applying for health care, Appendix B. Select all applicable race/ethnicity boxes.",
+      "required_optional": "Race and ethnicity explicitly optional; answers do not affect eligibility or benefit amount according to paper.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_4",
+      "group": "Interview preference",
+      "source_question": "4",
+      "source_page": 2,
+      "source_pdf_page": 8,
+      "title": "Interview preference",
+      "inputs": [
+        {
+          "key": "paper_4_prefer_in_person_calfresh_interview_checkbox",
+          "label": "Prefer in-person CalFresh interview checkbox"
+        },
+        {
+          "key": "paper_4_need_other_interview_arrangements_due_to_disability_checkbox",
+          "label": "Need other interview arrangements due to disability checkbox"
+        }
+      ],
+      "condition": "Answer for applicable selected programs; current live requirement not verified.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_5",
+      "group": "Previous public assistance",
+      "source_question": "5",
+      "source_page": 2,
+      "source_pdf_page": 8,
+      "title": "Previous public assistance",
+      "inputs": [
+        {
+          "key": "paper_5_anyone_ever_received_public_assistance_yes_no",
+          "label": "Anyone ever received public assistance: yes/no"
+        },
+        {
+          "key": "paper_5_person_who_received_assistance",
+          "label": "Person who received assistance"
+        },
+        {
+          "key": "paper_5_where_county_state",
+          "label": "Where (county/state)"
+        }
+      ],
+      "condition": "If yes, identify people and county/state.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6",
+      "group": "Household adults",
+      "source_question": "6",
+      "source_page": 3,
+      "source_pdf_page": 9,
+      "title": "Household adults",
+      "inputs": [
+        {
+          "key": "paper_6_benefits_sought_per_adult_calfresh_cash_aid_medi_cal_health_care_none",
+          "label": "Benefits sought per adult: CalFresh, Cash Aid, Medi-Cal/Health Care, None"
+        },
+        {
+          "key": "paper_6_name_last_first_middle_initial",
+          "label": "Name (last, first, middle initial)"
+        },
+        {
+          "key": "paper_6_relationship_to_applicant",
+          "label": "Relationship to applicant"
+        },
+        {
+          "key": "paper_6_date_of_birth",
+          "label": "Date of birth"
+        },
+        {
+          "key": "paper_6_gender_m_or_f",
+          "label": "Gender (M or F)"
+        },
+        {
+          "key": "paper_6_marital_status_single_married_separated_divorced_widowed",
+          "label": "Marital status: Single, Married, Separated, Divorced, Widowed"
+        },
+        {
+          "key": "paper_6_full_time_student_checkbox",
+          "label": "Full-time student checkbox"
+        },
+        {
+          "key": "paper_6_disabled_checkbox",
+          "label": "Disabled checkbox"
+        },
+        {
+          "key": "paper_6_u_s_citizen_or_national_yes_no",
+          "label": "U.S. citizen or national: yes/no"
+        },
+        {
+          "key": "paper_6_social_security_number",
+          "label": "Social Security Number"
+        }
+      ],
+      "condition": "All adults in home; health care also adults claimed on tax return. Citizenship question only people applying; noncitizens applying route to 6e/6f. Cash aid with more than one adult applying or parent of child applying routes to Appendix D.",
+      "required_optional": "SSN explicitly optional for members not applying. Citizenship explicitly only for people applying.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6a",
+      "group": "Different adult contact information",
+      "source_question": "6a",
+      "source_page": 3,
+      "source_pdf_page": 9,
+      "title": "Different adult contact information",
+      "inputs": [
+        {
+          "key": "paper_6a_everyone_in_q6_same_contact_information_yes_no",
+          "label": "Everyone in Q6 same contact information: yes/no"
+        },
+        {
+          "key": "paper_6a_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6a_home_street_address",
+          "label": "Home street address"
+        },
+        {
+          "key": "paper_6a_home_apartment_number",
+          "label": "Home apartment number"
+        },
+        {
+          "key": "paper_6a_home_city",
+          "label": "Home city"
+        },
+        {
+          "key": "paper_6a_home_state",
+          "label": "Home state"
+        },
+        {
+          "key": "paper_6a_home_zip_code",
+          "label": "Home ZIP code"
+        },
+        {
+          "key": "paper_6a_home_phone",
+          "label": "Home phone"
+        },
+        {
+          "key": "paper_6a_mailing_address_if_different",
+          "label": "Mailing address if different"
+        },
+        {
+          "key": "paper_6a_mailing_apartment_number",
+          "label": "Mailing apartment number"
+        },
+        {
+          "key": "paper_6a_mailing_city",
+          "label": "Mailing city"
+        },
+        {
+          "key": "paper_6a_mailing_state",
+          "label": "Mailing state"
+        },
+        {
+          "key": "paper_6a_mailing_zip_code",
+          "label": "Mailing ZIP code"
+        },
+        {
+          "key": "paper_6a_work_alternate_message_phone",
+          "label": "Work/alternate/message phone"
+        },
+        {
+          "key": "paper_6a_email_address",
+          "label": "Email address"
+        }
+      ],
+      "condition": "If no, repeat contact record per adult with different information.",
+      "required_optional": "Email explicitly optional.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6b",
+      "group": "Household children",
+      "source_question": "6b",
+      "source_page": 4,
+      "source_pdf_page": 10,
+      "title": "Household children",
+      "inputs": [
+        {
+          "key": "paper_6b_benefits_sought_per_child_calfresh_cash_aid_medi_cal_health_care_none",
+          "label": "Benefits sought per child: CalFresh, Cash Aid, Medi-Cal/Health Care, None"
+        },
+        {
+          "key": "paper_6b_name_last_first_middle_initial",
+          "label": "Name (last, first, middle initial)"
+        },
+        {
+          "key": "paper_6b_relationship_to_applicant",
+          "label": "Relationship to applicant"
+        },
+        {
+          "key": "paper_6b_date_of_birth",
+          "label": "Date of birth"
+        },
+        {
+          "key": "paper_6b_place_of_birth",
+          "label": "Place of birth"
+        },
+        {
+          "key": "paper_6b_sex_m_f",
+          "label": "Sex (M/F)"
+        },
+        {
+          "key": "paper_6b_one_both_parents_not_in_home_unemployed_disabled_deceased_none",
+          "label": "One/both parents: Not in home, Unemployed, Disabled, Deceased, None"
+        },
+        {
+          "key": "paper_6b_full_time_student_checkbox",
+          "label": "Full-time student checkbox"
+        },
+        {
+          "key": "paper_6b_shots_up_to_date_checkbox",
+          "label": "Shots up to date checkbox"
+        },
+        {
+          "key": "paper_6b_u_s_citizen_or_national_yes_no",
+          "label": "U.S. citizen or national: yes/no"
+        },
+        {
+          "key": "paper_6b_social_security_number",
+          "label": "Social Security Number"
+        }
+      ],
+      "condition": "All children in home; health care also children claimed on tax return. Citizenship only applicants; noncitizen applicants route to 6e/6f. Place of birth and parent status carry cash-aid symbol.",
+      "required_optional": "SSN explicitly optional for members not applying. Citizenship only applicants.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6c",
+      "group": "Missing Social Security Number",
+      "source_question": "6c",
+      "source_page": 4,
+      "source_pdf_page": 10,
+      "title": "Missing Social Security Number",
+      "inputs": [
+        {
+          "key": "paper_6c_everyone_applying_has_ssn_yes_no",
+          "label": "Everyone applying has SSN: yes/no"
+        },
+        {
+          "key": "paper_6c_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6c_reason_child_under_one_against_religion_does_not_qualify_other",
+          "label": "Reason: child under one, against religion, does not qualify, Other"
+        },
+        {
+          "key": "paper_6c_other_reason_description",
+          "label": "Other reason description"
+        },
+        {
+          "key": "paper_6c_applied_for_ssn_yes_no",
+          "label": "Applied for SSN: yes/no"
+        }
+      ],
+      "condition": "If no to everyone having SSN; repeat for each affected person.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6d",
+      "group": "Military service",
+      "source_question": "6d",
+      "source_page": 5,
+      "source_pdf_page": 11,
+      "title": "Military service",
+      "inputs": [
+        {
+          "key": "paper_6d_military_service_or_spouse_parent_child_of_service_member_yes_no",
+          "label": "Military service or spouse/parent/child of service member: yes/no"
+        },
+        {
+          "key": "paper_6d_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6d_u_s_citizen_yes_no",
+          "label": "U.S. citizen: yes/no"
+        },
+        {
+          "key": "paper_6d_status_active_duty_veteran_spouse_parent_child_of_active_duty_person_or_veteran",
+          "label": "Status: Active duty, Veteran, Spouse/parent/child of active-duty person or veteran"
+        },
+        {
+          "key": "paper_6d_honorable_discharge_yes_no",
+          "label": "Honorable discharge: yes/no"
+        },
+        {
+          "key": "paper_6d_dates_of_service",
+          "label": "Dates of service"
+        }
+      ],
+      "condition": "If yes, repeat affected-person records.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6e",
+      "group": "Noncitizen information",
+      "source_question": "6e",
+      "source_page": 5,
+      "source_pdf_page": 11,
+      "title": "Noncitizen information",
+      "inputs": [
+        {
+          "key": "paper_6e_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6e_date_entered_u_s_if_known",
+          "label": "Date entered U.S. if known"
+        },
+        {
+          "key": "paper_6e_eligible_immigration_status_and_document_type",
+          "label": "Eligible immigration status and document type"
+        },
+        {
+          "key": "paper_6e_immigration_document_number",
+          "label": "Immigration document number"
+        },
+        {
+          "key": "paper_6e_lived_continuously_in_u_s_since_1996_yes_no",
+          "label": "Lived continuously in U.S. since 1996: yes/no"
+        },
+        {
+          "key": "paper_6e_naturalized_citizen_yes_no",
+          "label": "Naturalized citizen: yes/no"
+        },
+        {
+          "key": "paper_6e_sponsored_yes_no",
+          "label": "Sponsored: yes/no"
+        },
+        {
+          "key": "paper_6e_anyone_at_least_10_years_40_quarters_work_history_yes_no",
+          "label": "Anyone at least 10 years/40 quarters work history: yes/no"
+        },
+        {
+          "key": "paper_6e_names_with_work_history",
+          "label": "Names with work history"
+        },
+        {
+          "key": "paper_6e_t_visa_u_visa_vawa_held_applied_for_or_planned_yes_no",
+          "label": "T-Visa/U-Visa/VAWA held, applied for, or planned: yes/no"
+        },
+        {
+          "key": "paper_6e_names_with_visa_petition_answer_yes",
+          "label": "Names with visa/petition answer yes"
+        },
+        {
+          "key": "paper_6e_immigration_status_changed_in_last_12_months_yes_no",
+          "label": "Immigration status changed in last 12 months: yes/no"
+        },
+        {
+          "key": "paper_6e_person_with_change",
+          "label": "Person with change"
+        },
+        {
+          "key": "paper_6e_what_changed",
+          "label": "What changed"
+        },
+        {
+          "key": "paper_6e_date_of_change",
+          "label": "Date of change"
+        },
+        {
+          "key": "paper_6e_alien_number_if_applicable",
+          "label": "Alien number if applicable"
+        }
+      ],
+      "condition": "Only noncitizens applying. Sponsored yes routes 6f. Status-change details only if yes.",
+      "required_optional": "Entry date if known; alien number if applicable; no immigration details requested for noncitizens not applying (Program Rules p2).",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6f",
+      "group": "Sponsored noncitizen",
+      "source_question": "6f",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Sponsored noncitizen",
+      "inputs": [
+        {
+          "key": "paper_6f_sponsor_signed_i_864_yes_no",
+          "label": "Sponsor signed I-864: yes/no"
+        },
+        {
+          "key": "paper_6f_sponsor_regularly_helps_with_money_yes_no",
+          "label": "Sponsor regularly helps with money: yes/no"
+        },
+        {
+          "key": "paper_6f_money_amount",
+          "label": "Money amount"
+        },
+        {
+          "key": "paper_6f_sponsor_help_rent_clothes_food_other",
+          "label": "Sponsor help: rent, clothes, food, Other"
+        },
+        {
+          "key": "paper_6f_other_help_description",
+          "label": "Other help description"
+        },
+        {
+          "key": "paper_6f_sponsor_name",
+          "label": "Sponsor name"
+        },
+        {
+          "key": "paper_6f_sponsored_person",
+          "label": "Sponsored person"
+        },
+        {
+          "key": "paper_6f_sponsor_phone",
+          "label": "Sponsor phone"
+        }
+      ],
+      "condition": "For sponsored noncitizens applying; answer remainder if I-864 yes. Skip question if I-134 signed.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6g",
+      "group": "Absent parent of person under 21",
+      "source_question": "6g",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Absent parent of person under 21",
+      "inputs": [
+        {
+          "key": "paper_6g_anyone_under_21_with_parent_outside_home_yes_no",
+          "label": "Anyone under 21 with parent outside home: yes/no"
+        },
+        {
+          "key": "paper_6g_child_name",
+          "label": "Child name"
+        },
+        {
+          "key": "paper_6g_parent_names_not_living_in_home",
+          "label": "Parent names not living in home"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6h",
+      "group": "Main child caregiver",
+      "source_question": "6h",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Main child caregiver",
+      "inputs": [
+        {
+          "key": "paper_6h_anyone_lives_with_child_under_19_and_is_main_caregiver_yes_no",
+          "label": "Anyone lives with child under 19 and is main caregiver: yes/no"
+        },
+        {
+          "key": "paper_6h_caregiver_name",
+          "label": "Caregiver name"
+        }
+      ],
+      "condition": "Name if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6i",
+      "group": "Disability limiting activities",
+      "source_question": "6i",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Disability limiting activities",
+      "inputs": [
+        {
+          "key": "paper_6i_physical_mental_emotional_developmental_disability_limiting_activities_yes_no",
+          "label": "Physical/mental/emotional/developmental disability limiting activities: yes/no"
+        },
+        {
+          "key": "paper_6i_names_of_people_with_disability",
+          "label": "Names of people with disability"
+        }
+      ],
+      "condition": "Names if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6j",
+      "group": "Disabled person details",
+      "source_question": "6j",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Disabled person details",
+      "inputs": [
+        {
+          "key": "paper_6j_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6j_expected_disability_duration_30_days_or_more_12_months_or_more",
+          "label": "Expected disability duration: 30 days or more, 12 months or more"
+        },
+        {
+          "key": "paper_6j_needs_care_so_someone_else_can_work_attend_school_yes_no",
+          "label": "Needs care so someone else can work/attend school: yes/no"
+        },
+        {
+          "key": "paper_6j_needs_help_with_daily_living_through_personal_assistance_or_medical_facility_yes_no",
+          "label": "Needs help with daily living through personal assistance or medical facility: yes/no"
+        },
+        {
+          "key": "paper_6j_daily_living_help_explanation",
+          "label": "Daily-living help explanation"
+        },
+        {
+          "key": "paper_6j_works_with_medical_expenses_needed_to_keep_working_yes_no",
+          "label": "Works with medical expenses needed to keep working: yes/no"
+        },
+        {
+          "key": "paper_6j_work_related_medical_expense_explanation",
+          "label": "Work-related medical expense explanation"
+        },
+        {
+          "key": "paper_6j_in_medical_facility_nursing_home_yes_no",
+          "label": "In medical facility/nursing home: yes/no"
+        },
+        {
+          "key": "paper_6j_facility_name",
+          "label": "Facility name"
+        }
+      ],
+      "condition": "Repeat for each disabled person in Q6; explanations/facility name on corresponding yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6k",
+      "group": "Care from household member",
+      "source_question": "6k",
+      "source_page": 6,
+      "source_pdf_page": 12,
+      "title": "Care from household member",
+      "inputs": [
+        {
+          "key": "paper_6k_child_disabled_person_needs_care_from_household_member_yes_no",
+          "label": "Child/disabled person needs care from household member: yes/no"
+        },
+        {
+          "key": "paper_6k_care_explanation",
+          "label": "Care explanation"
+        }
+      ],
+      "condition": "Explain if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6l",
+      "group": "College/vocational students",
+      "source_question": "6l",
+      "source_page": 7,
+      "source_pdf_page": 13,
+      "title": "College/vocational students",
+      "inputs": [
+        {
+          "key": "paper_6l_applicant_attends_college_vocational_school_yes_no",
+          "label": "Applicant attends college/vocational school: yes/no"
+        },
+        {
+          "key": "paper_6l_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6l_school_training_name",
+          "label": "School/training name"
+        },
+        {
+          "key": "paper_6l_enrollment_half_time_or_more_less_than_half_time",
+          "label": "Enrollment: Half-time or more, Less than half-time"
+        },
+        {
+          "key": "paper_6l_number_of_units",
+          "label": "Number of units"
+        },
+        {
+          "key": "paper_6l_average_work_hours_per_week",
+          "label": "Average work hours per week"
+        }
+      ],
+      "condition": "Details for applicants attending college/vocational school if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6m",
+      "group": "Pregnancy/teen parent",
+      "source_question": "6m",
+      "source_page": 7,
+      "source_pdf_page": 13,
+      "title": "Pregnancy/teen parent",
+      "inputs": [
+        {
+          "key": "paper_6m_anyone_q6_6b_pregnant_or_teen_parent_yes_no",
+          "label": "Anyone Q6/6b pregnant or teen parent: yes/no"
+        },
+        {
+          "key": "paper_6m_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6m_under_age_20_yes_no",
+          "label": "Under age 20: yes/no"
+        },
+        {
+          "key": "paper_6m_teen_parent_yes_no",
+          "label": "Teen parent: yes/no"
+        },
+        {
+          "key": "paper_6m_school_status_if_under_20_high_school_diploma_ged_attending_regularly_not_attending_regularly",
+          "label": "School status if under 20: high-school diploma, GED, attending regularly, not attending regularly"
+        },
+        {
+          "key": "paper_6m_explanation_if_not_attending_regularly",
+          "label": "Explanation if not attending regularly"
+        },
+        {
+          "key": "paper_6m_due_date_if_known",
+          "label": "Due date if known"
+        },
+        {
+          "key": "paper_6m_number_of_babies_expected",
+          "label": "Number of babies expected"
+        }
+      ],
+      "condition": "Details if yes; school status under age 20; due date if known.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6n",
+      "group": "Cal-Learn history",
+      "source_question": "6n",
+      "source_page": 7,
+      "source_pdf_page": 13,
+      "title": "Cal-Learn history",
+      "inputs": [
+        {
+          "key": "paper_6n_ever_received_cal_learn_bonus_penalty_or_childcare_transportation_other_service_yes_no",
+          "label": "Ever received Cal-Learn bonus/penalty or childcare/transportation/other service: yes/no"
+        },
+        {
+          "key": "paper_6n_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6n_county",
+          "label": "County"
+        },
+        {
+          "key": "paper_6n_dates_received",
+          "label": "Dates received"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6o",
+      "group": "Former foster care",
+      "source_question": "6o",
+      "source_page": 7,
+      "source_pdf_page": 13,
+      "title": "Former foster care",
+      "inputs": [
+        {
+          "key": "paper_6o_anyone_q6_ever_in_foster_care_yes_no",
+          "label": "Anyone Q6 ever in foster care: yes/no"
+        },
+        {
+          "key": "paper_6o_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6o_when",
+          "label": "When"
+        },
+        {
+          "key": "paper_6o_state",
+          "label": "State"
+        },
+        {
+          "key": "paper_6o_age_26_or_younger_and_in_foster_care_on_18th_birthday_yes_no",
+          "label": "Age 26 or younger and in foster care on 18th birthday: yes/no"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6p",
+      "group": "Current foster child",
+      "source_question": "6p",
+      "source_page": 8,
+      "source_pdf_page": 14,
+      "title": "Current foster child",
+      "inputs": [
+        {
+          "key": "paper_6p_foster_child_living_at_home_receiving_services_yes_no",
+          "label": "Foster child living at home receiving services: yes/no"
+        },
+        {
+          "key": "paper_6p_foster_child_name",
+          "label": "Foster child name"
+        },
+        {
+          "key": "paper_6p_placement_under_court_dependency_order_yes_no",
+          "label": "Placement under court dependency order: yes/no"
+        },
+        {
+          "key": "paper_6p_count_foster_child_in_calfresh_case_yes_no",
+          "label": "Count foster child in CalFresh case: yes/no"
+        }
+      ],
+      "condition": "Follow-ups if yes; paper notes income-counting consequence of include/exclude choice, not treated here as current rule.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6q",
+      "group": "California residence",
+      "source_question": "6q",
+      "source_page": 8,
+      "source_pdf_page": 14,
+      "title": "California residence",
+      "inputs": [
+        {
+          "key": "paper_6q_everyone_q6_lives_in_california_and_expects_to_keep_living_here_yes_no",
+          "label": "Everyone Q6 lives in California and expects to keep living here: yes/no"
+        },
+        {
+          "key": "paper_6q_explanation",
+          "label": "Explanation"
+        }
+      ],
+      "condition": "Explain if no.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_6r",
+      "group": "Leaving California",
+      "source_question": "6r",
+      "source_page": 8,
+      "source_pdf_page": 14,
+      "title": "Leaving California",
+      "inputs": [
+        {
+          "key": "paper_6r_anyone_q6_plans_leave_california_more_than_30_days_yes_no",
+          "label": "Anyone Q6 plans leave California more than 30 days: yes/no"
+        },
+        {
+          "key": "paper_6r_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_6r_when_plans_to_leave",
+          "label": "When plans to leave"
+        },
+        {
+          "key": "paper_6r_plans_return_to_california_yes_no",
+          "label": "Plans return to California: yes/no"
+        },
+        {
+          "key": "paper_6r_when_returning",
+          "label": "When returning"
+        }
+      ],
+      "condition": "Details if yes; return date if return yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_7",
+      "group": "Unearned income",
+      "source_question": "7",
+      "source_page": 8,
+      "source_pdf_page": 14,
+      "title": "Unearned income",
+      "inputs": [
+        {
+          "key": "paper_7_anyone_unearned_income_yes_no",
+          "label": "Anyone unearned income: yes/no"
+        },
+        {
+          "key": "paper_7_income_types_checked",
+          "label": "Income types checked"
+        },
+        {
+          "key": "paper_7_other_income_description",
+          "label": "Other income description"
+        },
+        {
+          "key": "paper_7_person_getting_money",
+          "label": "Person getting money"
+        },
+        {
+          "key": "paper_7_from_where",
+          "label": "From where"
+        },
+        {
+          "key": "paper_7_amount",
+          "label": "Amount"
+        },
+        {
+          "key": "paper_7_frequency_once_weekly_monthly_other",
+          "label": "Frequency (once, weekly, monthly, other)"
+        },
+        {
+          "key": "paper_7_expect_continue_yes_no",
+          "label": "Expect continue: yes/no"
+        },
+        {
+          "key": "paper_7_explanation_if_not_continuing",
+          "label": "Explanation if not continuing"
+        }
+      ],
+      "condition": "Details if yes. Types: Social Security disability, SSI/SSP, cash aid, CalWORKs/TANF/GA/GR/CAPI/RCA, room/board from renter, pension, child/spousal support, rental/royalties, Social Security retirement/survivors, per-capita payments, work study/welfare-to-work/other program, notes/contracts/trust deeds/promissory notes sales, veterans education benefits, government/railroad disability/retirement, veteran benefits/military pension, financial aid, money gifts/loans, unemployment/SDI, workers compensation, net farming/fishing, lottery/gambling, help with rent/food/clothing, insurance/legal settlements, private disability/retirement, dividends/interest, strike benefits, other.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_8",
+      "group": "Earned income and work changes",
+      "source_question": "8",
+      "source_page": 9,
+      "source_pdf_page": 15,
+      "title": "Earned income and work changes",
+      "inputs": [
+        {
+          "key": "paper_8_anyone_job_income_yes_no",
+          "label": "Anyone job income: yes/no"
+        },
+        {
+          "key": "paper_8_person_working",
+          "label": "Person working"
+        },
+        {
+          "key": "paper_8_employer_name_address",
+          "label": "Employer name/address"
+        },
+        {
+          "key": "paper_8_employer_phone",
+          "label": "Employer phone"
+        },
+        {
+          "key": "paper_8_hourly_rate",
+          "label": "Hourly rate"
+        },
+        {
+          "key": "paper_8_average_hours_week",
+          "label": "Average hours/week"
+        },
+        {
+          "key": "paper_8_pay_frequency",
+          "label": "Pay frequency"
+        },
+        {
+          "key": "paper_8_total_gross_earned_income_received_this_month",
+          "label": "Total gross earned income received this month"
+        },
+        {
+          "key": "paper_8_expect_continue_yes_no",
+          "label": "Expect continue: yes/no"
+        },
+        {
+          "key": "paper_8_explanation_if_not_continuing",
+          "label": "Explanation if not continuing"
+        },
+        {
+          "key": "paper_8_lost_changed_quit_job_or_reduced_hours_last_60_days_yes_no",
+          "label": "Lost/changed/quit job or reduced hours last 60 days: yes/no"
+        },
+        {
+          "key": "paper_8_work_change_last_year_yes_no",
+          "label": "Work change last year: yes/no"
+        },
+        {
+          "key": "paper_8_county_helped_get_job_yes_no",
+          "label": "County helped get job: yes/no"
+        },
+        {
+          "key": "paper_8_person_with_work_change",
+          "label": "Person with work change"
+        },
+        {
+          "key": "paper_8_date_job_loss_quit_change",
+          "label": "Date job loss/quit/change"
+        },
+        {
+          "key": "paper_8_date_last_pay",
+          "label": "Date last pay"
+        },
+        {
+          "key": "paper_8_reason",
+          "label": "Reason"
+        },
+        {
+          "key": "paper_8_anyone_on_strike_yes_no",
+          "label": "Anyone on strike: yes/no"
+        },
+        {
+          "key": "paper_8_striking_person",
+          "label": "Striking person"
+        },
+        {
+          "key": "paper_8_date_strike_began",
+          "label": "Date strike began"
+        },
+        {
+          "key": "paper_8_strike_date_last_pay",
+          "label": "Strike date last pay"
+        },
+        {
+          "key": "paper_8_strike_reason",
+          "label": "Strike reason"
+        }
+      ],
+      "condition": "Job-income details if yes. Self-employed route to 8a. Work-change/strike details if corresponding yes. Report gross income before deductions.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_8a",
+      "group": "Self-employment",
+      "source_question": "8a",
+      "source_page": 9,
+      "source_pdf_page": 15,
+      "title": "Self-employment",
+      "inputs": [
+        {
+          "key": "paper_8a_person_self_employed",
+          "label": "Person self-employed"
+        },
+        {
+          "key": "paper_8a_business_name",
+          "label": "Business name"
+        },
+        {
+          "key": "paper_8a_business_type",
+          "label": "Business type"
+        },
+        {
+          "key": "paper_8a_business_start_date",
+          "label": "Business start date"
+        },
+        {
+          "key": "paper_8a_gross_monthly_income",
+          "label": "Gross monthly income"
+        },
+        {
+          "key": "paper_8a_expense_method_40_flat_rate_actual_expenses_monthly_average",
+          "label": "Expense method: 40% flat rate, Actual Expenses, Monthly Average"
+        },
+        {
+          "key": "paper_8a_actual_expenses_amount",
+          "label": "Actual expenses amount"
+        },
+        {
+          "key": "paper_8a_monthly_average_amount",
+          "label": "Monthly average amount"
+        },
+        {
+          "key": "paper_8a_net_monthly_income",
+          "label": "Net monthly income"
+        },
+        {
+          "key": "paper_8a_separate_business_expense_list",
+          "label": "Separate business-expense list"
+        }
+      ],
+      "condition": "Self-employed people; paper offers 40% method for CalFresh/cash aid and monthly average for cash aid. If actual expenses chosen, separate list required by paper. These historical choices are not verified current rules.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_9",
+      "group": "In-kind income",
+      "source_question": "9",
+      "source_page": 10,
+      "source_pdf_page": 16,
+      "title": "In-kind income",
+      "inputs": [
+        {
+          "key": "paper_9_housing_rent_utilities_food_clothing_free_or_for_work_yes_no",
+          "label": "Housing/rent/utilities/food/clothing free or for work: yes/no"
+        },
+        {
+          "key": "paper_9_item_housing_or_rent_utilities_food_clothing",
+          "label": "Item: Housing or Rent, Utilities, Food, Clothing"
+        },
+        {
+          "key": "paper_9_free_or_for_work",
+          "label": "Free or for work"
+        },
+        {
+          "key": "paper_9_who_receives_item",
+          "label": "Who receives item"
+        },
+        {
+          "key": "paper_9_value",
+          "label": "Value"
+        },
+        {
+          "key": "paper_9_who_gives_item",
+          "label": "Who gives item"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_10",
+      "group": "Yearly income",
+      "source_question": "10",
+      "source_page": 10,
+      "source_pdf_page": 16,
+      "title": "Yearly income",
+      "inputs": [
+        {
+          "key": "paper_10_total_income_changes_month_to_month_yes_no",
+          "label": "Total income changes month to month: yes/no"
+        },
+        {
+          "key": "paper_10_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_10_total_income_this_year",
+          "label": "Total income this year"
+        },
+        {
+          "key": "paper_10_total_income_next_year_if_expected_different",
+          "label": "Total income next year if expected different"
+        }
+      ],
+      "condition": "Details if yes; next year if different.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_11",
+      "group": "Child/adult care expenses",
+      "source_question": "11",
+      "source_page": 10,
+      "source_pdf_page": 16,
+      "title": "Child/adult care expenses",
+      "inputs": [
+        {
+          "key": "paper_11_pays_care_to_work_school_look_for_job_yes_no",
+          "label": "Pays care to work/school/look for job: yes/no"
+        },
+        {
+          "key": "paper_11_care_recipient",
+          "label": "Care recipient"
+        },
+        {
+          "key": "paper_11_provider_name_address",
+          "label": "Provider name/address"
+        },
+        {
+          "key": "paper_11_amount_paid",
+          "label": "Amount paid"
+        },
+        {
+          "key": "paper_11_frequency",
+          "label": "Frequency"
+        },
+        {
+          "key": "paper_11_someone_helps_pay_care_costs_yes_no",
+          "label": "Someone helps pay care costs: yes/no"
+        },
+        {
+          "key": "paper_11_recipient_whose_care_is_helped",
+          "label": "Recipient whose care is helped"
+        },
+        {
+          "key": "paper_11_who_helps_pay",
+          "label": "Who helps pay"
+        },
+        {
+          "key": "paper_11_amount_of_assistance",
+          "label": "Amount of assistance"
+        },
+        {
+          "key": "paper_11_assistance_frequency",
+          "label": "Assistance frequency"
+        }
+      ],
+      "condition": "Details if paying care; assistance details if someone helps.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_12",
+      "group": "Child support paid",
+      "source_question": "12",
+      "source_page": 10,
+      "source_pdf_page": 16,
+      "title": "Child support paid",
+      "inputs": [
+        {
+          "key": "paper_12_anyone_q6_legally_obligated_to_child_support_including_arrears_yes_no",
+          "label": "Anyone Q6 legally obligated to child support including arrears: yes/no"
+        },
+        {
+          "key": "paper_12_person_paying",
+          "label": "Person paying"
+        },
+        {
+          "key": "paper_12_children_supported",
+          "label": "Children supported"
+        },
+        {
+          "key": "paper_12_amount_paid",
+          "label": "Amount paid"
+        },
+        {
+          "key": "paper_12_frequency",
+          "label": "Frequency"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_13",
+      "group": "Spousal support/alimony paid",
+      "source_question": "13",
+      "source_page": 11,
+      "source_pdf_page": 17,
+      "title": "Spousal support/alimony paid",
+      "inputs": [
+        {
+          "key": "paper_13_anyone_q6_legally_obligated_to_pay_alimony_yes_no",
+          "label": "Anyone Q6 legally obligated to pay alimony: yes/no"
+        },
+        {
+          "key": "paper_13_person_paying",
+          "label": "Person paying"
+        },
+        {
+          "key": "paper_13_amount_paid",
+          "label": "Amount paid"
+        },
+        {
+          "key": "paper_13_frequency",
+          "label": "Frequency"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_14",
+      "group": "Special needs expenses",
+      "source_question": "14",
+      "source_page": 11,
+      "source_pdf_page": 17,
+      "title": "Special needs expenses",
+      "inputs": [
+        {
+          "key": "paper_14_doctor_prescribed_special_diet_yes_no",
+          "label": "Doctor-prescribed special diet: yes/no"
+        },
+        {
+          "key": "paper_14_special_phone_equipment_yes_no",
+          "label": "Special phone/equipment: yes/no"
+        },
+        {
+          "key": "paper_14_housework_no_one_in_home_can_do_yes_no",
+          "label": "Housework no one in home can do: yes/no"
+        },
+        {
+          "key": "paper_14_very_high_utility_use_yes_no",
+          "label": "Very high utility use: yes/no"
+        },
+        {
+          "key": "paper_14_special_laundry_yes_no",
+          "label": "Special laundry: yes/no"
+        },
+        {
+          "key": "paper_14_other_special_need_yes_no",
+          "label": "Other special need: yes/no"
+        },
+        {
+          "key": "paper_14_other_need_description",
+          "label": "Other need description"
+        },
+        {
+          "key": "paper_14_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_14_need_explanation",
+          "label": "Need explanation"
+        }
+      ],
+      "condition": "Name/explanation for person with special medical condition/situation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_15",
+      "group": "Household expenses",
+      "source_question": "15",
+      "source_page": 11,
+      "source_pdf_page": 17,
+      "title": "Household expenses",
+      "inputs": [
+        {
+          "key": "paper_15_anyone_buying_preparing_food_with_applicant_billed_household_expenses_yes_no",
+          "label": "Anyone buying/preparing food with applicant billed household expenses: yes/no"
+        },
+        {
+          "key": "paper_15_rent_house_payment_exists_yes_no",
+          "label": "Rent/house payment exists: yes/no"
+        },
+        {
+          "key": "paper_15_separate_property_tax_insurance_exists_yes_no",
+          "label": "Separate property tax/insurance exists: yes/no"
+        },
+        {
+          "key": "paper_15_separate_heating_cooling_fuel_exists_yes_no",
+          "label": "Separate heating/cooling fuel exists: yes/no"
+        },
+        {
+          "key": "paper_15_telephone_cell_phone_exists_yes_no",
+          "label": "Telephone/cell phone exists: yes/no"
+        },
+        {
+          "key": "paper_15_homeless_shelter_expense_exists_yes_no",
+          "label": "Homeless shelter expense exists: yes/no"
+        },
+        {
+          "key": "paper_15_water_sewage_garbage_exists_yes_no",
+          "label": "Water/sewage/garbage exists: yes/no"
+        },
+        {
+          "key": "paper_15_who_pays_each_expense",
+          "label": "Who pays each expense"
+        },
+        {
+          "key": "paper_15_rent_mortgage_amount_owed",
+          "label": "Rent/mortgage amount owed"
+        },
+        {
+          "key": "paper_15_property_tax_insurance_amount_owed",
+          "label": "Property tax/insurance amount owed"
+        },
+        {
+          "key": "paper_15_frequency_billed",
+          "label": "Frequency billed"
+        },
+        {
+          "key": "paper_15_person_outside_household_helps_pay_yes_no",
+          "label": "Person outside household helps pay: yes/no"
+        },
+        {
+          "key": "paper_15_helper_name",
+          "label": "Helper name"
+        },
+        {
+          "key": "paper_15_help_amount",
+          "label": "Help amount"
+        },
+        {
+          "key": "paper_15_help_frequency",
+          "label": "Help frequency"
+        },
+        {
+          "key": "paper_15_receives_expects_liheap_payments_yes_no",
+          "label": "Receives/expects LIHEAP payments: yes/no"
+        }
+      ],
+      "condition": "Expense details if yes. Exclude HUD/Section 8-paid amounts.",
+      "required_optional": "Paper explicitly says actual heating/cooling, phone, other utilities and homeless shelter amount need not be filled because set allowances; this is paper instruction, not current-policy verification.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_16",
+      "group": "Medical expenses",
+      "source_question": "16",
+      "source_page": 12,
+      "source_pdf_page": 18,
+      "title": "Medical expenses",
+      "inputs": [
+        {
+          "key": "paper_16_food_purchasing_preparing_elderly_60_or_disabled_person_has_out_of_pocket_medical_expense_yes_no",
+          "label": "Food-purchasing/preparing elderly 60+ or disabled person has out-of-pocket medical expense: yes/no"
+        },
+        {
+          "key": "paper_16_expense_categories_checked",
+          "label": "Expense categories checked"
+        },
+        {
+          "key": "paper_16_elderly_disabled_person_name",
+          "label": "Elderly/disabled person name"
+        },
+        {
+          "key": "paper_16_amount",
+          "label": "Amount"
+        },
+        {
+          "key": "paper_16_frequency",
+          "label": "Frequency"
+        },
+        {
+          "key": "paper_16_expense_type",
+          "label": "Expense type"
+        },
+        {
+          "key": "paper_16_will_household_be_reimbursed",
+          "label": "Will household be reimbursed for medical expenses"
+        },
+        {
+          "key": "paper_16_reimbursement_source",
+          "label": "Reimbursement source"
+        },
+        {
+          "key": "paper_16_reimbursement_amount",
+          "label": "Reimbursement amount"
+        }
+      ],
+      "condition": "Details if yes; include expected near-future expenses. Categories listed: medical/dental care, hospitalization/outpatient/nursing, prescribed medicines, health/hospital insurance, Medicare premiums/Medi-Cal share of cost, dentures/hearing aids/prosthetics, attendant maintenance and attendant meals, prescribed OTC medicines, medical transport/lodging, prescribed glasses/contact lenses, prescribed supplies/equipment, service animal expenses. Do not list spouses/children receiving dependent payments for SSI/disability/blindness recipient per paper note.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_17",
+      "group": "Tax-deductible expenses",
+      "source_question": "17",
+      "source_page": 12,
+      "source_pdf_page": 18,
+      "title": "Tax-deductible expenses",
+      "inputs": [
+        {
+          "key": "paper_17_alimony_expense_exists_yes_no",
+          "label": "Alimony expense exists: yes/no"
+        },
+        {
+          "key": "paper_17_student_loan_interest_expense_exists_yes_no",
+          "label": "Student loan interest expense exists: yes/no"
+        },
+        {
+          "key": "paper_17_other_deduction_exists_yes_no",
+          "label": "Other deduction exists: yes/no"
+        },
+        {
+          "key": "paper_17_other_deduction_type",
+          "label": "Other deduction type"
+        },
+        {
+          "key": "paper_17_who_pays",
+          "label": "Who pays"
+        },
+        {
+          "key": "paper_17_frequency",
+          "label": "Frequency"
+        }
+      ],
+      "condition": "If deductible expenses exist; exclude expenses already in self-employment. No amount column in this paper table.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_18",
+      "group": "Other food programs",
+      "source_question": "18",
+      "source_page": 12,
+      "source_pdf_page": 18,
+      "title": "Other food programs",
+      "inputs": [
+        {
+          "key": "paper_18_anyone_q6_receives_food_from_listed_programs_yes_no",
+          "label": "Anyone Q6 receives food from listed programs: yes/no"
+        },
+        {
+          "key": "paper_18_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_18_program_name",
+          "label": "Program name"
+        }
+      ],
+      "condition": "Details if yes; examples elderly/disabled communal dining, Native American reservation food distribution, other food program.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_19",
+      "group": "Institutions/special living settings",
+      "source_question": "19",
+      "source_page": 12,
+      "source_pdf_page": 18,
+      "title": "Institutions/special living settings",
+      "inputs": [
+        {
+          "key": "paper_19_anyone_q6_in_listed_setting_yes_no",
+          "label": "Anyone Q6 in listed setting: yes/no"
+        },
+        {
+          "key": "paper_19_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_19_institution_center_shelter_facility_name",
+          "label": "Institution/center/shelter/facility name"
+        },
+        {
+          "key": "paper_19_expected_release_date_if_applicable",
+          "label": "Expected release date if applicable"
+        }
+      ],
+      "condition": "Details if yes. Settings: homeless shelter, battered-women shelter, Native American reservation, drug/alcohol rehab, correctional/penal institution, blind/disabled group arrangement, federally subsidized housing, psychiatric hospital/mental institution, hospital, long-term care/board-and-care.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_20",
+      "group": "IHSS",
+      "source_question": "20",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "IHSS",
+      "inputs": [
+        {
+          "key": "paper_20_anyone_gets_ihss_yes_no",
+          "label": "Anyone gets IHSS: yes/no"
+        },
+        {
+          "key": "paper_20_person_getting_services",
+          "label": "Person getting services"
+        },
+        {
+          "key": "paper_20_monthly_amount_paid_for_services",
+          "label": "Monthly amount paid for services"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_21",
+      "group": "Food household",
+      "source_question": "21",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Food household",
+      "inputs": [
+        {
+          "key": "paper_21_everyone_q6_buys_prepares_food_with_applicant_yes_no",
+          "label": "Everyone Q6 buys/prepares food with applicant: yes/no"
+        },
+        {
+          "key": "paper_21_names_not_buying_preparing_together",
+          "label": "Names not buying/preparing together"
+        }
+      ],
+      "condition": "Names if no.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_21a",
+      "group": "Older disabled food preparation",
+      "source_question": "21a",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Older disabled food preparation",
+      "inputs": [
+        {
+          "key": "paper_21a_person_age_60_cannot_separately_buy_prepare_food_due_to_disability_yes_no",
+          "label": "Person age 60+ cannot separately buy/prepare food due to disability: yes/no"
+        },
+        {
+          "key": "paper_21a_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_22",
+      "group": "Current health coverage",
+      "source_question": "22",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Current health coverage",
+      "inputs": [
+        {
+          "key": "paper_22_anyone_needing_health_coverage_currently_enrolled_yes_no",
+          "label": "Anyone needing health coverage currently enrolled: yes/no"
+        },
+        {
+          "key": "paper_22_coverage_type_and_covered_person_names",
+          "label": "Coverage type and covered person names"
+        },
+        {
+          "key": "paper_22_employer_insurance_name",
+          "label": "Employer insurance name"
+        },
+        {
+          "key": "paper_22_employer_policy_number",
+          "label": "Employer policy number"
+        },
+        {
+          "key": "paper_22_cobra_yes_no",
+          "label": "COBRA: yes/no"
+        },
+        {
+          "key": "paper_22_retiree_health_plan_yes_no",
+          "label": "Retiree health plan: yes/no"
+        },
+        {
+          "key": "paper_22_state_employee_benefit_plan_yes_no",
+          "label": "State employee benefit plan: yes/no"
+        },
+        {
+          "key": "paper_22_other_health_insurance_name",
+          "label": "Other health insurance name"
+        },
+        {
+          "key": "paper_22_other_policy_number",
+          "label": "Other policy number"
+        },
+        {
+          "key": "paper_22_other_plan_limited_benefit_like_school_accident_yes_no",
+          "label": "Other plan limited-benefit like school accident: yes/no"
+        }
+      ],
+      "condition": "Answer for people needing health coverage. Types: Medicaid/Medi-Cal, CHIP, Medicare, TRICARE (excluding direct care/Line of Duty), VA healthcare, Peace Corps, Employer Insurance, Other; employer/other details conditional on type.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_22a",
+      "group": "Job health coverage offer",
+      "source_question": "22a",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Job health coverage offer",
+      "inputs": [
+        {
+          "key": "paper_22a_anyone_offered_healthcare_from_job_yes_no",
+          "label": "Anyone offered healthcare from job: yes/no"
+        }
+      ],
+      "condition": "If yes complete Appendix A.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_22b",
+      "group": "Health insurance ending",
+      "source_question": "22b",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Health insurance ending",
+      "inputs": [
+        {
+          "key": "paper_22b_insurance_expected_to_end_or_ended_last_90_days_yes_no",
+          "label": "Insurance expected to end or ended last 90 days: yes/no"
+        },
+        {
+          "key": "paper_22b_insurance_company",
+          "label": "Insurance company"
+        },
+        {
+          "key": "paper_22b_person_insured",
+          "label": "Person insured"
+        },
+        {
+          "key": "paper_22b_expiration_date",
+          "label": "Expiration date"
+        },
+        {
+          "key": "paper_22b_reason_ended_will_end",
+          "label": "Reason ended/will end"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_22c",
+      "group": "Recent medical bills",
+      "source_question": "22c",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Recent medical bills",
+      "inputs": [
+        {
+          "key": "paper_22c_wants_help_with_medical_bills_last_three_months_yes_no",
+          "label": "Wants help with medical bills last three months: yes/no"
+        },
+        {
+          "key": "paper_22c_person_names",
+          "label": "Person names"
+        }
+      ],
+      "condition": "Names if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23",
+      "group": "Tax filing gate",
+      "source_question": "23",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Tax filing gate",
+      "inputs": [
+        {
+          "key": "paper_23_anyone_q6_plans_federal_tax_return_next_year_yes_no",
+          "label": "Anyone Q6 plans federal tax return next year: yes/no"
+        }
+      ],
+      "condition": "If yes 23a\u2013e for each filer; if no skip 23f.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23a",
+      "group": "Tax filer repetition",
+      "source_question": "23a",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Tax filer repetition",
+      "inputs": [
+        {
+          "key": "paper_23a_one_record_per_next_year_federal_tax_filer",
+          "label": "One record per next-year federal tax filer"
+        }
+      ],
+      "condition": "Instruction to complete 23b\u2013e per filer; can apply for health insurance without filing.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23b",
+      "group": "Tax filer name",
+      "source_question": "23b",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Tax filer name",
+      "inputs": [
+        {
+          "key": "paper_23b_person_name_planning_federal_tax_return",
+          "label": "Person name planning federal tax return"
+        }
+      ],
+      "condition": "Q23 yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23c",
+      "group": "Joint tax return",
+      "source_question": "23c",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Joint tax return",
+      "inputs": [
+        {
+          "key": "paper_23c_file_jointly_with_spouse_yes_no",
+          "label": "File jointly with spouse: yes/no"
+        },
+        {
+          "key": "paper_23c_spouse_name",
+          "label": "Spouse name"
+        }
+      ],
+      "condition": "Q23 yes; name if joint yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23d",
+      "group": "Tax dependents",
+      "source_question": "23d",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Tax dependents",
+      "inputs": [
+        {
+          "key": "paper_23d_will_claim_dependents_yes_no",
+          "label": "Will claim dependents: yes/no"
+        },
+        {
+          "key": "paper_23d_dependent_names",
+          "label": "Dependent names"
+        }
+      ],
+      "condition": "Q23 yes; names if dependents yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23e",
+      "group": "Dependent relationships",
+      "source_question": "23e",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Dependent relationships",
+      "inputs": [
+        {
+          "key": "paper_23e_relationship_of_each_q23d_dependent_to_filer",
+          "label": "Relationship of each Q23d dependent to filer"
+        }
+      ],
+      "condition": "Dependents listed in 23d.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_23f",
+      "group": "Renewal income-data consent",
+      "source_question": "23f",
+      "source_page": 13,
+      "source_pdf_page": 19,
+      "title": "Renewal income-data consent",
+      "inputs": [
+        {
+          "key": "paper_23f_permit_automatic_eligibility_renewal_using_income_tax_data_5_years_4_years_3_years_2_years_1_year_no",
+          "label": "Permit automatic eligibility renewal using income/tax data: 5 years, 4 years, 3 years, 2 years, 1 year, No"
+        }
+      ],
+      "condition": "Select one consent period or decline; paper states can opt out any time.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_24",
+      "group": "Financial resources",
+      "source_question": "24",
+      "source_page": 14,
+      "source_pdf_page": 20,
+      "title": "Financial resources",
+      "inputs": [
+        {
+          "key": "paper_24_anyone_has_resources_yes_no",
+          "label": "Anyone has resources: yes/no"
+        },
+        {
+          "key": "paper_24_resource_categories_checked",
+          "label": "Resource categories checked"
+        },
+        {
+          "key": "paper_24_other_resource_description",
+          "label": "Other resource description"
+        },
+        {
+          "key": "paper_24_resource_owner_name_and_joint_ownership",
+          "label": "Resource owner name and joint ownership"
+        },
+        {
+          "key": "paper_24_resource_type",
+          "label": "Resource type"
+        },
+        {
+          "key": "paper_24_value",
+          "label": "Value"
+        },
+        {
+          "key": "paper_24_location_bank_company",
+          "label": "Location/bank/company"
+        },
+        {
+          "key": "paper_24_resource_sold_traded_given_transferred_last_30_months_yes_no",
+          "label": "Resource sold/traded/given/transferred last 30 months: yes/no"
+        },
+        {
+          "key": "paper_24_transfer_date",
+          "label": "Transfer date"
+        },
+        {
+          "key": "paper_24_resource_transferred",
+          "label": "Resource transferred"
+        },
+        {
+          "key": "paper_24_resource_value",
+          "label": "Resource value"
+        },
+        {
+          "key": "paper_24_amount_received",
+          "label": "Amount received"
+        },
+        {
+          "key": "paper_24_trade_gift_explanation",
+          "label": "Trade/gift explanation"
+        }
+      ],
+      "condition": "Resource records if yes; transfer details if yes. Categories: checking, savings, safe-deposit box, savings bonds, oil/mining/mineral rights, money market, mutual/trust funds, CD/IRA, cash, notes/mortgages/trust deeds, stocks, bonds, uncashed checks, life/burial insurance, other.",
+      "required_optional": "Paper explicitly requires for cash aid and CalFresh; optional for healthcare and only answer if applicant 65+ or disabled. Historical resource rules not live verified.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_25",
+      "group": "Personal/business property",
+      "source_question": "25",
+      "source_page": 14,
+      "source_pdf_page": 20,
+      "title": "Personal/business property",
+      "inputs": [
+        {
+          "key": "paper_25_anyone_personal_business_property_yes_no",
+          "label": "Anyone personal/business property: yes/no"
+        },
+        {
+          "key": "paper_25_property_categories_checked",
+          "label": "Property categories checked"
+        },
+        {
+          "key": "paper_25_item",
+          "label": "Item"
+        },
+        {
+          "key": "paper_25_listed_for_sale_yes_no",
+          "label": "Listed for sale: yes/no"
+        },
+        {
+          "key": "paper_25_purchase_price_or_current_value",
+          "label": "Purchase price or current value"
+        },
+        {
+          "key": "paper_25_amount_owed",
+          "label": "Amount owed"
+        }
+      ],
+      "condition": "Details if yes. Categories: tools, business inventory, livestock, business equipment, sporting equipment/guns, non-motor boats/trailers, camper shells, personal tools, jewelry/artwork/antiques/collections/musical instruments. Include joint property; paper excludes wedding/engagement rings/family heirlooms; asks other jewelry $100+ and household/personal items more than $500/item.",
+      "required_optional": "Paper says optional for healthcare, only answer if applicant 65+ or disabled; thresholds are historical paper instructions.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_26",
+      "group": "Vehicles gate",
+      "source_question": "26",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Vehicles gate",
+      "inputs": [
+        {
+          "key": "paper_26_anyone_owns_uses_registered_on_motor_vehicle_even_not_running_yes_no",
+          "label": "Anyone owns/uses/registered on motor vehicle even not running: yes/no"
+        }
+      ],
+      "condition": "If yes Appendix E.",
+      "required_optional": "Paper requires cash-aid answer; healthcare optional and only if applicant 65+ or disabled.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_27",
+      "group": "Real property",
+      "source_question": "27",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Real property",
+      "inputs": [
+        {
+          "key": "paper_27_anyone_q6_owns_buying_home_land_property_in_any_state_country_yes_no",
+          "label": "Anyone Q6 owns/buying home/land/property in any state/country: yes/no"
+        },
+        {
+          "key": "paper_27_owner_buyer_name",
+          "label": "Owner/buyer name"
+        },
+        {
+          "key": "paper_27_property_address",
+          "label": "Property address"
+        },
+        {
+          "key": "paper_27_someone_renting_from_owner_yes_no",
+          "label": "Someone renting from owner: yes/no"
+        },
+        {
+          "key": "paper_27_rent_amount_or_not_rented_checkbox",
+          "label": "Rent amount or Not rented checkbox"
+        },
+        {
+          "key": "paper_27_owner_not_living_there_but_expects_return_someday_yes_no",
+          "label": "Owner not living there but expects return someday: yes/no"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Healthcare optional and only if applicant 65+ or disabled per paper.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_28",
+      "group": "Diversion benefits",
+      "source_question": "28",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Diversion benefits",
+      "inputs": [
+        {
+          "key": "paper_28_received_diversion_cash_noncash_from_county_other_state_yes_no",
+          "label": "Received Diversion cash/noncash from county/other state: yes/no"
+        },
+        {
+          "key": "paper_28_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_28_county_state_source",
+          "label": "County/state source"
+        },
+        {
+          "key": "paper_28_amount_received",
+          "label": "Amount received"
+        },
+        {
+          "key": "paper_28_services_received",
+          "label": "Services received"
+        },
+        {
+          "key": "paper_28_estimated_services_value",
+          "label": "Estimated services value"
+        },
+        {
+          "key": "paper_28_date_last_received",
+          "label": "Date last received"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_29",
+      "group": "Duplicate SNAP benefits",
+      "source_question": "29",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Duplicate SNAP benefits",
+      "inputs": [
+        {
+          "key": "paper_29_convicted_fraudulently_receiving_duplicate_snap_benefits_in_any_state_after_september_22_1996_yes_no",
+          "label": "Convicted fraudulently receiving duplicate SNAP benefits in any state after September 22, 1996: yes/no"
+        },
+        {
+          "key": "paper_29_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes; historical question wording retained, not current eligibility interpretation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_30",
+      "group": "SNAP trafficking",
+      "source_question": "30",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "SNAP trafficking",
+      "inputs": [
+        {
+          "key": "paper_30_convicted_trafficking_snap_benefits_500_after_september_22_1996_yes_no",
+          "label": "Convicted trafficking SNAP benefits $500+ after September 22, 1996: yes/no"
+        },
+        {
+          "key": "paper_30_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes; historical question wording retained, not current eligibility interpretation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_31",
+      "group": "SNAP traded for drugs",
+      "source_question": "31",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "SNAP traded for drugs",
+      "inputs": [
+        {
+          "key": "paper_31_found_guilty_trading_snap_for_drugs_after_september_22_1996_yes_no",
+          "label": "Found guilty trading SNAP for drugs after September 22, 1996: yes/no"
+        },
+        {
+          "key": "paper_31_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes; historical question wording retained, not current eligibility interpretation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_32",
+      "group": "SNAP traded for weapons",
+      "source_question": "32",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "SNAP traded for weapons",
+      "inputs": [
+        {
+          "key": "paper_32_found_guilty_trading_snap_for_guns_ammunition_explosives_after_september_22_1996_yes_no",
+          "label": "Found guilty trading SNAP for guns/ammunition/explosives after September 22, 1996: yes/no"
+        },
+        {
+          "key": "paper_32_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes; historical question wording retained, not current eligibility interpretation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_33",
+      "group": "Cash-aid welfare fraud",
+      "source_question": "33",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Cash-aid welfare fraud",
+      "inputs": [
+        {
+          "key": "paper_33_cash_aid_stopped_after_found_guilty_welfare_fraud_yes_no",
+          "label": "Cash aid stopped after found guilty welfare fraud: yes/no"
+        },
+        {
+          "key": "paper_33_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_33_when",
+          "label": "When"
+        },
+        {
+          "key": "paper_33_where",
+          "label": "Where"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_34",
+      "group": "Cash-aid noncooperation/sanctions",
+      "source_question": "34",
+      "source_page": 15,
+      "source_pdf_page": 21,
+      "title": "Cash-aid noncooperation/sanctions",
+      "inputs": [
+        {
+          "key": "paper_34_cash_aid_stopped_for_noncooperation_work_training_sanctions_other_reason_yes_no",
+          "label": "Cash aid stopped for noncooperation/work-training sanctions/other reason: yes/no"
+        },
+        {
+          "key": "paper_34_person_name",
+          "label": "Person name"
+        },
+        {
+          "key": "paper_34_when",
+          "label": "When"
+        },
+        {
+          "key": "paper_34_where",
+          "label": "Where"
+        },
+        {
+          "key": "paper_34_why",
+          "label": "Why"
+        }
+      ],
+      "condition": "Details if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_35",
+      "group": "Fleeing felony prosecution/custody/jail",
+      "source_question": "35",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Fleeing felony prosecution/custody/jail",
+      "inputs": [
+        {
+          "key": "paper_35_hiding_running_to_avoid_felony_attempted_felony_prosecution_custody_jail_yes_no",
+          "label": "Hiding/running to avoid felony/attempted-felony prosecution/custody/jail: yes/no"
+        },
+        {
+          "key": "paper_35_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes; do not interpret current eligibility from historical paper wording.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_36",
+      "group": "Probation/parole violation",
+      "source_question": "36",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Probation/parole violation",
+      "inputs": [
+        {
+          "key": "paper_36_found_by_court_in_violation_of_probation_parole_yes_no",
+          "label": "Found by court in violation of probation/parole: yes/no"
+        },
+        {
+          "key": "paper_36_person_name",
+          "label": "Person name"
+        }
+      ],
+      "condition": "Name if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_37",
+      "group": "Special need payment",
+      "source_question": "37",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Special need payment",
+      "inputs": [
+        {
+          "key": "paper_37_wants_special_payment_for_housing_essential_items_lost_damaged_in_sudden_unusual_event_yes_no",
+          "label": "Wants special payment for housing/essential items lost/damaged in sudden/unusual event: yes/no"
+        },
+        {
+          "key": "paper_37_explanation",
+          "label": "Explanation"
+        }
+      ],
+      "condition": "Explain if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_38a",
+      "group": "CHDP services",
+      "source_question": "38A",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "CHDP services",
+      "inputs": [
+        {
+          "key": "paper_38a_wants_chdp_information_yes_no",
+          "label": "Wants CHDP information: yes/no"
+        },
+        {
+          "key": "paper_38a_wants_chdp_medical_services_yes_no",
+          "label": "Wants CHDP medical services: yes/no"
+        },
+        {
+          "key": "paper_38a_wants_chdp_dental_services_yes_no",
+          "label": "Wants CHDP dental services: yes/no"
+        },
+        {
+          "key": "paper_38a_needs_appointment_transport_help_yes_no",
+          "label": "Needs appointment/transport help: yes/no"
+        }
+      ],
+      "condition": "Answer for applicable selected programs; current live requirement not verified.",
+      "required_optional": "Paper explicitly says Q38 answers do not affect eligibility.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_38b",
+      "group": "Immunization information",
+      "source_question": "38B",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Immunization information",
+      "inputs": [
+        {
+          "key": "paper_38b_wants_immunization_information_yes_no",
+          "label": "Wants immunization information: yes/no"
+        }
+      ],
+      "condition": "Answer for applicable selected programs; current live requirement not verified.",
+      "required_optional": "Paper explicitly says Q38 answers do not affect eligibility.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_38c",
+      "group": "Pregnancy assistance referral",
+      "source_question": "38C",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Pregnancy assistance referral",
+      "inputs": [
+        {
+          "key": "paper_38c_if_pregnant_wants_to_talk_about_doctor_healthy_food_other_help_yes_no",
+          "label": "If pregnant wants to talk about doctor/healthy food/other help: yes/no"
+        }
+      ],
+      "condition": "If pregnant.",
+      "required_optional": "Paper explicitly says Q38 answers do not affect eligibility.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_38d",
+      "group": "Breastfeeding referral",
+      "source_question": "38D",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Breastfeeding referral",
+      "inputs": [
+        {
+          "key": "paper_38d_breastfeeding_child_yes_no",
+          "label": "Breastfeeding child: yes/no"
+        },
+        {
+          "key": "paper_38d_gave_birth_last_12_months_yes_no",
+          "label": "Gave birth last 12 months: yes/no"
+        }
+      ],
+      "condition": "Birth follow-up if breastfeeding yes; Q38C or D yes prompts paper WIC information.",
+      "required_optional": "Paper explicitly says Q38 answers do not affect eligibility.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_38e",
+      "group": "Family planning referral",
+      "source_question": "38E",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Family planning referral",
+      "inputs": [
+        {
+          "key": "paper_38e_wants_free_low_cost_family_planning_services_yes_no",
+          "label": "Wants free/low-cost family planning services: yes/no"
+        }
+      ],
+      "condition": "Answer for applicable selected programs; current live requirement not verified.",
+      "required_optional": "Paper explicitly says Q38 answers do not affect eligibility.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_39",
+      "group": "Third-party liability",
+      "source_question": "39",
+      "source_page": 16,
+      "source_pdf_page": 22,
+      "title": "Third-party liability",
+      "inputs": [
+        {
+          "key": "paper_39_healthcare_applicant_in_workers_compensation_claim_lawsuit_settlement_from_accident_injury_yes_no",
+          "label": "Healthcare applicant in workers compensation claim/lawsuit/settlement from accident/injury: yes/no"
+        },
+        {
+          "key": "paper_39_person_names",
+          "label": "Person names"
+        }
+      ],
+      "condition": "Healthcare applicants; names if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_a1_12",
+      "group": "Employer coverage identity/contact",
+      "source_question": "A1\u201312",
+      "source_page": "Appendix A",
+      "source_pdf_page": 24,
+      "title": "Employer coverage identity/contact",
+      "inputs": [
+        {
+          "key": "paper_a1_12_employee_full_name",
+          "label": "Employee full name"
+        },
+        {
+          "key": "paper_a1_12_employee_ssn",
+          "label": "Employee SSN"
+        },
+        {
+          "key": "paper_a1_12_employer_name",
+          "label": "Employer name"
+        },
+        {
+          "key": "paper_a1_12_employer_ein",
+          "label": "Employer EIN"
+        },
+        {
+          "key": "paper_a1_12_employer_address",
+          "label": "Employer address"
+        },
+        {
+          "key": "paper_a1_12_employer_phone",
+          "label": "Employer phone"
+        },
+        {
+          "key": "paper_a1_12_employer_city",
+          "label": "Employer city"
+        },
+        {
+          "key": "paper_a1_12_employer_state",
+          "label": "Employer state"
+        },
+        {
+          "key": "paper_a1_12_employer_zip",
+          "label": "Employer ZIP"
+        },
+        {
+          "key": "paper_a1_12_coverage_contact_name",
+          "label": "Coverage contact name"
+        },
+        {
+          "key": "paper_a1_12_contact_phone_if_different",
+          "label": "Contact phone if different"
+        },
+        {
+          "key": "paper_a1_12_employer_representative_email",
+          "label": "Employer representative email"
+        }
+      ],
+      "condition": "Only if household person eligible for job coverage; repeat per different employer.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_a13_13a",
+      "group": "Job coverage eligibility",
+      "source_question": "A13/13a",
+      "source_page": "Appendix A",
+      "source_pdf_page": 24,
+      "title": "Job coverage eligibility",
+      "inputs": [
+        {
+          "key": "paper_a13_13a_currently_eligible_or_eligible_in_next_3_months_yes_no",
+          "label": "Currently eligible or eligible in next 3 months: yes/no"
+        },
+        {
+          "key": "paper_a13_13a_waiting_probation_period_enrollment_date",
+          "label": "Waiting/probation period enrollment date"
+        },
+        {
+          "key": "paper_a13_13a_other_people_eligible_soon_eligible_names",
+          "label": "Other people eligible/soon eligible names"
+        }
+      ],
+      "condition": "If A13 no stop Appendix A section; if yes continue; waiting date if applicable.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_a14_14a",
+      "group": "Employer plan characteristics",
+      "source_question": "A14/14a",
+      "source_page": "Appendix A",
+      "source_pdf_page": 24,
+      "title": "Employer plan characteristics",
+      "inputs": [
+        {
+          "key": "paper_a14_14a_plan_meets_minimum_value_standard_yes_no",
+          "label": "Plan meets minimum value standard: yes/no"
+        },
+        {
+          "key": "paper_a14_14a_state_employee_benefit_plan_yes_no",
+          "label": "State employee benefit plan: yes/no"
+        }
+      ],
+      "condition": "A13 yes. Historical paper defines minimum-value standard; no independent eligibility interpretation.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_a15",
+      "group": "Employee-only premium",
+      "source_question": "A15",
+      "source_page": "Appendix A",
+      "source_pdf_page": 24,
+      "title": "Employee-only premium",
+      "inputs": [
+        {
+          "key": "paper_a15_lowest_cost_minimum_value_employee_only_plan_premium",
+          "label": "Lowest-cost minimum-value employee-only plan premium"
+        },
+        {
+          "key": "paper_a15_premium_frequency_weekly_bi_weekly_twice_a_month_monthly_quarterly_yearly",
+          "label": "Premium frequency: Weekly, Bi-weekly, Twice a month, Monthly, Quarterly, Yearly"
+        },
+        {
+          "key": "paper_a15_employer_does_not_offer_wellness_programs_checkbox",
+          "label": "Employer does not offer wellness programs checkbox"
+        }
+      ],
+      "condition": "A13 yes. Paper premium instruction uses maximum tobacco-cessation discount and no other wellness discounts.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_a16",
+      "group": "Next plan-year changes",
+      "source_question": "A16",
+      "source_page": "Appendix A",
+      "source_pdf_page": 24,
+      "title": "Next plan-year changes",
+      "inputs": [
+        {
+          "key": "paper_a16_change_employer_no_longer_provides_coverage_starts_offering_changes_employee_only_lowest_cost_minimum_value_premium_no_expected_changes",
+          "label": "Change: Employer no longer provides coverage, Starts offering/changes employee-only lowest-cost minimum-value premium, No expected changes"
+        },
+        {
+          "key": "paper_a16_new_premium_amount",
+          "label": "New premium amount"
+        },
+        {
+          "key": "paper_a16_new_premium_frequency",
+          "label": "New premium frequency"
+        },
+        {
+          "key": "paper_a16_change_date",
+          "label": "Change date"
+        }
+      ],
+      "condition": "Changes if known; amount/frequency/date for start/change-premium selection.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_b1",
+      "group": "AI/AN person identity",
+      "source_question": "B1",
+      "source_page": "Appendix B",
+      "source_pdf_page": 25,
+      "title": "AI/AN person identity",
+      "inputs": [
+        {
+          "key": "paper_b1_person_first_name",
+          "label": "Person first name"
+        },
+        {
+          "key": "paper_b1_person_middle_name",
+          "label": "Person middle name"
+        },
+        {
+          "key": "paper_b1_person_last_name",
+          "label": "Person last name"
+        }
+      ],
+      "condition": "Q3 yes and health care; Appendix says family spouse/dependents AI/AN; repeat per person.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_b2",
+      "group": "Tribal membership",
+      "source_question": "B2",
+      "source_page": "Appendix B",
+      "source_pdf_page": 25,
+      "title": "Tribal membership",
+      "inputs": [
+        {
+          "key": "paper_b2_federally_recognized_tribe_member_yes_no",
+          "label": "Federally recognized tribe member: yes/no"
+        },
+        {
+          "key": "paper_b2_tribe_name",
+          "label": "Tribe name"
+        }
+      ],
+      "condition": "Tribe name if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_b3",
+      "group": "Indian health services",
+      "source_question": "B3",
+      "source_page": "Appendix B",
+      "source_pdf_page": 25,
+      "title": "Indian health services",
+      "inputs": [
+        {
+          "key": "paper_b3_ever_received_ihs_tribal_health_referral_service_yes_no",
+          "label": "Ever received IHS/tribal health/referral service: yes/no"
+        },
+        {
+          "key": "paper_b3_if_no_eligible_for_ihs_tribal_urban_indian_referral_services_yes_no",
+          "label": "If no, eligible for IHS/tribal/urban Indian/referral services: yes/no"
+        }
+      ],
+      "condition": "Eligibility follow-up if never received service.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_b4",
+      "group": "Specified tribal income",
+      "source_question": "B4",
+      "source_page": "Appendix B",
+      "source_pdf_page": 25,
+      "title": "Specified tribal income",
+      "inputs": [
+        {
+          "key": "paper_b4_yes_specified_income_or_none_to_report",
+          "label": "Yes specified income or None to report"
+        },
+        {
+          "key": "paper_b4_income_amount",
+          "label": "Income amount"
+        },
+        {
+          "key": "paper_b4_income_frequency",
+          "label": "Income frequency"
+        }
+      ],
+      "condition": "Specified income reported in application: natural-resource/usage-rights/lease/royalty tribal per-capita payments; natural-resource/farm/ranch/fish/lease/royalty income from Indian trust land; culturally significant item sales. Amount/frequency if yes.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_c1_11",
+      "group": "Health authorized representative",
+      "source_question": "C1\u201311",
+      "source_page": "Appendix C",
+      "source_pdf_page": 26,
+      "title": "Health authorized representative",
+      "inputs": [
+        {
+          "key": "paper_c1_11_representative_first_middle_last_name",
+          "label": "Representative first/middle/last name"
+        },
+        {
+          "key": "paper_c1_11_street_address",
+          "label": "Street address"
+        },
+        {
+          "key": "paper_c1_11_apartment_suite",
+          "label": "Apartment/suite"
+        },
+        {
+          "key": "paper_c1_11_city",
+          "label": "City"
+        },
+        {
+          "key": "paper_c1_11_state",
+          "label": "State"
+        },
+        {
+          "key": "paper_c1_11_zip",
+          "label": "ZIP"
+        },
+        {
+          "key": "paper_c1_11_phone",
+          "label": "Phone"
+        },
+        {
+          "key": "paper_c1_11_organization_name_if_applicable",
+          "label": "Organization name if applicable"
+        },
+        {
+          "key": "paper_c1_11_id_number_if_applicable",
+          "label": "ID number if applicable"
+        },
+        {
+          "key": "paper_c1_11_applicant_signature",
+          "label": "Applicant signature"
+        },
+        {
+          "key": "paper_c1_11_date",
+          "label": "Date"
+        }
+      ],
+      "condition": "If choosing health-insurance representative. Legally appointed representative submit proof.",
+      "required_optional": "Organization/ID conditional if applicable; signature authorizes representation.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_c_counselor1_4",
+      "group": "Professional application helper",
+      "source_question": "C-counselor1\u20134",
+      "source_page": "Appendix C",
+      "source_pdf_page": 26,
+      "title": "Professional application helper",
+      "inputs": [
+        {
+          "key": "paper_c_counselor1_4_application_start_date",
+          "label": "Application start date"
+        },
+        {
+          "key": "paper_c_counselor1_4_helper_first_middle_last_name_and_suffix",
+          "label": "Helper first/middle/last name and suffix"
+        },
+        {
+          "key": "paper_c_counselor1_4_organization_name",
+          "label": "Organization name"
+        },
+        {
+          "key": "paper_c_counselor1_4_id_number_if_applicable",
+          "label": "ID number if applicable"
+        }
+      ],
+      "condition": "Only certified application counselor/navigator/agent/broker completing application for another person.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_d",
+      "group": "Employment history",
+      "source_question": "D",
+      "source_page": "Appendix D-1/D-2",
+      "source_pdf_page": 27,
+      "title": "Employment history",
+      "inputs": [
+        {
+          "key": "paper_d_adult_name",
+          "label": "Adult name"
+        },
+        {
+          "key": "paper_d_native_american_yes_no",
+          "label": "Native American: yes/no"
+        },
+        {
+          "key": "paper_d_tribe_name",
+          "label": "Tribe name"
+        },
+        {
+          "key": "paper_d_employer_name_address",
+          "label": "Employer name/address"
+        },
+        {
+          "key": "paper_d_own_business_self_employed_yes_no",
+          "label": "Own business/self-employed: yes/no"
+        },
+        {
+          "key": "paper_d_pay_amount",
+          "label": "Pay amount"
+        },
+        {
+          "key": "paper_d_pay_frequency_hourly_daily_weekly_every_two_weeks_monthly",
+          "label": "Pay frequency: Hourly, Daily, Weekly, Every two weeks, Monthly"
+        },
+        {
+          "key": "paper_d_reason_leaving_job",
+          "label": "Reason leaving job"
+        },
+        {
+          "key": "paper_d_hours_worked",
+          "label": "Hours worked"
+        },
+        {
+          "key": "paper_d_hours_period_daily_weekly_monthly",
+          "label": "Hours period: Daily, Weekly, Monthly"
+        },
+        {
+          "key": "paper_d_dates_worked_from_to",
+          "label": "Dates worked from/to"
+        },
+        {
+          "key": "paper_d_county_helped_get_job_yes_no",
+          "label": "County helped get job: yes/no"
+        }
+      ],
+      "condition": "Repeat adult/job over past 24 months. Q6 routes cash aid with more than one adult applying or parent of child applying; Appendix heading says cash aid with two or more adults applying. Preserve this wording difference rather than resolving it.",
+      "required_optional": "Not explicitly marked required or optional at field level.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    },
+    {
+      "key": "paper_e",
+      "group": "Vehicle details",
+      "source_question": "E",
+      "source_page": "Appendix E",
+      "source_pdf_page": 29,
+      "title": "Vehicle details",
+      "inputs": [
+        {
+          "key": "paper_e_vehicle_owner",
+          "label": "Vehicle owner"
+        },
+        {
+          "key": "paper_e_vehicle_user",
+          "label": "Vehicle user"
+        },
+        {
+          "key": "paper_e_used_as_home_business_self_support_disabled_transport_fuel_water_transport_yes_no",
+          "label": "Used as home/business/self-support/disabled transport/fuel-water transport: yes/no"
+        },
+        {
+          "key": "paper_e_used_by_child_under_18_for_school_work_training_job_search_yes_no",
+          "label": "Used by child under 18 for school/work/training/job search: yes/no"
+        },
+        {
+          "key": "paper_e_gift_donation_family_transfer_yes_no",
+          "label": "Gift/donation/family transfer: yes/no"
+        },
+        {
+          "key": "paper_e_transfer_type_gift_donation_family_transfer",
+          "label": "Transfer type: Gift, Donation, Family Transfer"
+        },
+        {
+          "key": "paper_e_dmv_transfer_proof",
+          "label": "DMV transfer proof"
+        },
+        {
+          "key": "paper_e_year_make_model",
+          "label": "Year/make/model"
+        },
+        {
+          "key": "paper_e_license_number",
+          "label": "License number"
+        },
+        {
+          "key": "paper_e_estimated_fair_market_value",
+          "label": "Estimated fair market value"
+        },
+        {
+          "key": "paper_e_value_unknown_needs_help_checkbox",
+          "label": "Value unknown/needs help checkbox"
+        },
+        {
+          "key": "paper_e_value_source_for_sale_ads_car_dealer_kelly_blue_book_mechanic_purchase_price_other",
+          "label": "Value source: For-sale ads, Car Dealer, Kelly blue Book, Mechanic, Purchase price, Other"
+        },
+        {
+          "key": "paper_e_other_value_source",
+          "label": "Other value source"
+        },
+        {
+          "key": "paper_e_amount_owed",
+          "label": "Amount owed"
+        },
+        {
+          "key": "paper_e_debt_unknown_needs_help_checkbox",
+          "label": "Debt unknown/needs help checkbox"
+        },
+        {
+          "key": "paper_e_debt_source_last_bill_lender_statement_estimate_other",
+          "label": "Debt source: Last Bill, Lender statement, Estimate, Other"
+        },
+        {
+          "key": "paper_e_other_debt_source",
+          "label": "Other debt source"
+        },
+        {
+          "key": "paper_e_leased_vehicle_yes_no",
+          "label": "Leased vehicle: yes/no"
+        }
+      ],
+      "condition": "Repeat each owned/used/registered motor vehicle even not running. If special use yes may stop; if child use yes may stop; if transfer yes select type, attach DMV proof and stop (ask County help if missing proof). Remaining details if no stop path.",
+      "required_optional": "Paper MUST answer for cash aid. Healthcare optional and only if applicant 65+ or disabled. Unknown/help choices expressly available for value/debt.",
+      "source_url": "https://www.cdss.ca.gov/cdssweb/entres/forms/English/SAWS2_PLUS.pdf",
+      "verification": "paper_reference_not_live"
+    }
+  ]
+}
