@@ -12,7 +12,7 @@ import type { PacketRoutes } from './contracts.js';
 import type { CaseDetail, CaseSummary, PublicConfig } from '../web/src/lib/types.js';
 import { optionalEnv } from './env.js';
 import { rateLimit } from './rateLimit.js';
-import { getHousehold, getMessages, listCalls, listDocuments, listHouseholds, listSubmissions, getTimeline, saveSubmission } from './store.js';
+import { getHousehold, getMessages, listCalls, listDocuments, listHouseholds, listSubmissions, getTimeline } from './store.js';
 import { checkEligibility } from './eligibility.js';
 import { getAutopilotState } from './autopilot.js';
 import { askStaffQuestion } from './staffAsk.js';
@@ -32,6 +32,9 @@ import { registerVaultRoutes } from './vaultRoutes.js';
 import { registerConversationRoutes } from './caseManager/routes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 import { clientIp } from './clientIp.js';
+import type { Conversation } from './conversation.js';
+import { registerWorkflowRoutes } from './workflow/routes.js';
+import { listHouseholdWorkflows } from './workflow/repo.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
 
@@ -62,10 +65,10 @@ const page = (title: string, body: string): string =>
   `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title>` +
   `<style>body{font:18px/1.5 system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 1.25rem;color:#1a1a1a}</style></head><body><h1>${title}</h1><p>${body}</p></body></html>`;
 
-const EXPIRED = page('Link expired', 'This link has expired. Text Aid for a new one.');
-const PACKET_ERROR = page('Something went wrong', 'We could not load your packet right now. Please try again in a minute or text Aid for help.');
+const EXPIRED = page('Link expired', 'This link has expired. Text Lumin for a new one.');
+const PACKET_ERROR = page('Something went wrong', 'We could not load your packet right now. Please try again in a minute or text Lumin for help.');
 
-export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
+export function createApp(opts: { packet: PacketRoutes; conversation?: Conversation }): Hono<Env> {
   const app = new Hono<Env>();
   const demo = (): boolean => {
     try { return isDemoMode(); } catch { return false; }
@@ -81,6 +84,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   });
 
   app.get('/api/health', (c) => c.json({ ok: true }));
+  app.get('/health', (c) => c.json({ ok: true }));
 
   app.get('/api/public-config', (c) => {
     const body: PublicConfig = {
@@ -150,6 +154,14 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
     }, () => demoCaseDetail(id));
     if (!detail) return c.json({ error: 'Case not found' }, 404);
     return c.json(detail);
+  });
+
+  staff.get('/cases/:id/workflows', async (c) => {
+    const id = c.req.param('id');
+    if (!z.uuid().safeParse(id).success) return c.json({ error: 'Case not found' }, 404);
+    const household = await getHousehold(id);
+    if (!household || household.orgId !== c.var.orgId) return c.json({ error: 'Case not found' }, 404);
+    return c.json(await listHouseholdWorkflows(id));
   });
 
   staff.get('/autopilot', async (c) => {
@@ -232,33 +244,48 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
       await opts.packet.sign(id);
       return c.redirect(`/p/${encodeURIComponent(id)}?t=${encodeURIComponent(t)}&signed=1`, 303);
     } catch (err) {
+      if (err instanceof Error && 'status' in err && err.status === 409) return c.html(page('Finish on the official site', 'Lumin cannot sign this application. Open your review link and continue to the official application site.'), 409);
       console.error('[server] sign failed:', err instanceof Error ? err.message : err);
       return c.html(PACKET_ERROR, 500);
     }
   });
 
   // ── County mock (demo) ──
-  app.post('/county/api/applications', async (c) => {
+  app.post('/county/api/applications', async (c, next) => {
+    if (!demo()) return c.json({ error: 'Not found' }, 404);
+    return next();
+  }, requireStaff, async (c) => {
     const parsed = CountyApplication.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ error: 'Invalid application' }, 400);
     const { householdId, kind, payload } = parsed.data;
-    if (!(await getHousehold(householdId))) return c.json({ error: 'Unknown household' }, 400);
-    const confirmation = `LA-${new Date().getFullYear()}-${randomInt(100000, 1000000)}`;
-    await saveSubmission(householdId, kind, confirmation, payload);
-    return c.json({ confirmation });
+    const household = await getHousehold(householdId);
+    if (!household || household.orgId !== c.var.orgId) return c.json({ error: 'Unknown household' }, 404);
+    const confirmation = `MOCK-${new Date().getFullYear()}-${randomInt(100000, 1000000)}`;
+    // A demo receipt must never enter the real submission ledger.
+    void kind; void payload;
+    return c.json({ confirmation, demo: true, filed: false });
   });
 
-  app.get('/api/county/applications', async (c) => c.json(await listSubmissions()));
+  app.get('/api/county/applications', requireStaff, async (c) => {
+    const households = await listHouseholds(c.var.orgId);
+    const submissions = await Promise.all(households.map(h => listSubmissions(h.id)));
+    return c.json(submissions.flat());
+  });
 
   // ── Self-serve clinic setup ──
   registerOnboardingRoutes(app);
+  app.use('/mock/benefitscal/*', async (c, next) => {
+    if (!demo()) return c.json({ error: 'Not found' }, 404);
+    return next();
+  });
   registerMockBenefitscal(app);
   registerInboxRoutes(app);
   registerKnowledgeRoutes(app);
   registerWebKnowledgeRoutes(app);
   registerVaultRoutes(app);
   registerConversationRoutes(app);
-  app.route('/', createConversationApp(liveConversation(), {
+  registerWorkflowRoutes(app);
+  app.route('/', createConversationApp(opts.conversation ?? liveConversation(), {
     phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
     apiNotFound: false, // Keep later dev/staff routes reachable on the parent app.
   }));
@@ -273,7 +300,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
       return c.html(indexHtml);
     });
   } else {
-    app.get('/', (c) => c.text('Aid API is running. Start the dashboard with: cd web && npm run dev (http://localhost:5173)'));
+    app.get('/', (c) => c.text('Lumin API is running. Start the dashboard with: cd web && npm run dev (http://localhost:5173)'));
   }
 
   app.notFound((c) => c.json({ error: 'Not found' }, 404));

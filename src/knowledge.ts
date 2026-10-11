@@ -238,7 +238,7 @@ export async function answerFromResearch(
 
 export const knowledgeTool = tool({
   description:
-    'Look up how to apply, eligibility rules, documents to bring, or office info for California benefits in Aid\'s sourced research. Returns a short cited answer.',
+    'Look up how to apply, eligibility rules, documents to bring, or office info for California benefits in Lumin\'s sourced research. Returns a short cited answer.',
   inputSchema: z.object({ question: z.string().min(1).max(400) }),
   execute: async ({ question }) => answerFromResearch(question),
 });

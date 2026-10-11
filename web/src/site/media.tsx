@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { SourcesCard } from '../components/Chat'
 import { cx } from '../components/cx'
 import { CaliforniaFlag } from '../components/Flags'
@@ -137,19 +137,27 @@ const stars = Array.from({ length: 70 }, (_, i) => ({
   d: (i % 5) * 0.8,
 }))
 
+function Stars() {
+  return (
+    <>
+      {stars.map((s, i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          className="absolute rounded-full bg-white"
+          style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.s, height: s.s, animation: `twinkle 3.2s ease-in-out ${s.d}s infinite` }}
+        />
+      ))}
+    </>
+  )
+}
+
 export function NightLock() {
   return (
     <MediaTile className="aspect-square bg-[linear-gradient(180deg,#000814_0%,#061a44_60%,#0b2a6b_100%)]" dark>
       {(playing) => (
         <>
-          {stars.map((s, i) => (
-            <span
-              key={i}
-              aria-hidden="true"
-              className="absolute rounded-full bg-white"
-              style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.s, height: s.s, animation: `twinkle 3.2s ease-in-out ${s.d}s infinite` }}
-            />
-          ))}
+          <Stars />
           <LockBadge playing={playing} />
         </>
       )}
@@ -172,8 +180,142 @@ function LockBadge({ playing }: { playing: boolean }) {
           locked ? 'scale-100' : 'scale-95',
         )}
       >
-        <Icon name={locked ? 'lock' : 'lock-open'} size={44} strokeWidth={2} />
+        <Padlock open={!locked} className="size-11" />
       </span>
+    </div>
+  )
+}
+
+// Padlock whose shackle lifts and swings open around its right leg.
+export function Padlock({ open, className, hole = '#ffffff' }: { open: boolean; className?: string; hole?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" aria-hidden="true">
+      <path
+        d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"
+        className="transition-transform duration-500 ease-[cubic-bezier(.34,1.56,.64,1)] [transform-box:fill-box]"
+        style={{ transformOrigin: '100% 100%', transform: open ? 'translateY(-2.5px) rotate(28deg)' : 'none' }}
+      />
+      <rect x="5" y="11" width="14" height="9.5" rx="2.2" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="15.3" r="1.5" fill={hole} stroke="none" />
+    </svg>
+  )
+}
+
+/* ── Home: the private document vault ── */
+
+export function DocumentVault() {
+  const { lang } = useLang()
+  const t = pick(lang, {
+    en: {
+      title: 'Maria’s documents',
+      sub: 'Only you can see these',
+      docs: [
+        ['Pay stub', 'September, $1,850'],
+        ['Driver license', 'Proof of identity'],
+        ['Lease', 'Proof of address'],
+      ],
+      next: 'Next step',
+      nextBody: 'CalFresh interview, Oct 21',
+      lock: 'Lock the vault',
+      unlock: 'Unlock the vault',
+    },
+    es: {
+      title: 'Documentos de Maria',
+      sub: 'Solo tú puedes verlos',
+      docs: [
+        ['Talón de pago', 'Septiembre, $1,850'],
+        ['Licencia de manejo', 'Identidad'],
+        ['Contrato de renta', 'Domicilio'],
+      ],
+      next: 'Siguiente paso',
+      nextBody: 'Entrevista de CalFresh, 21 de oct.',
+      lock: 'Cerrar la bóveda',
+      unlock: 'Abrir la bóveda',
+    },
+  })
+  return (
+    <MediaTile className="aspect-square bg-[linear-gradient(180deg,#000814_0%,#061a44_60%,#0b2a6b_100%)]" dark>
+      {(playing) => (
+        <>
+          <Stars />
+          <Vault t={t} playing={playing} />
+        </>
+      )}
+    </MediaTile>
+  )
+}
+
+type VaultText = { title: string; sub: string; docs: string[][]; next: string; nextBody: string; lock: string; unlock: string }
+const docIcons = ['document', 'user', 'home'] as const
+
+function Vault({ t, playing }: { t: VaultText; playing: boolean }) {
+  // Each loop remounts the card so the arrivals replay; the lock closes when the last document lands.
+  const [loop, setLoop] = useState(0)
+  const [open, setOpen] = useState(false) // finished state until it plays
+  useEffect(() => {
+    if (!playing) return
+    setOpen(true)
+    const shut = setTimeout(() => setOpen(false), 4300)
+    const next = setTimeout(() => setLoop((n) => n + 1), 9000)
+    return () => {
+      clearTimeout(shut)
+      clearTimeout(next)
+    }
+  }, [playing, loop])
+  const shown = open
+  return (
+    <div className="absolute inset-0 flex items-center justify-center p-[11%]">
+      <div key={loop} className="relative w-full max-w-[19rem]">
+        <div className="rounded-[1.6rem] bg-white p-4 text-primary shadow-[0_30px_80px_#0009]">
+          <div className="flex items-center gap-3 pb-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-blue-50 font-serif text-[1.1rem] text-blue-700">M</span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[0.875rem] font-medium tracking-tight">{t.title}</span>
+              <span className="block text-[0.6875rem] text-secondary">{t.sub}</span>
+            </span>
+            <button
+              type="button"
+              aria-label={shown ? t.lock : t.unlock}
+              aria-pressed={!shown}
+              onClick={() => setOpen((o) => !o)}
+              className={cx(
+                'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-300 focus-ring',
+                shown ? 'bg-background-tertiary text-secondary' : 'bg-blue-700 text-white',
+              )}
+            >
+              <Padlock open={shown} className="size-[18px]" hole={shown ? '#eef1f6' : '#002664'} />
+            </button>
+          </div>
+          <ul className="flex flex-col gap-1.5">
+            {t.docs.map(([name, detail], i) => (
+              <li key={name} className="relative flex items-center gap-3 rounded-[0.9rem] bg-[#f4f6fa] p-2">
+                <span
+                  className="vault-doc flex h-10 w-8 shrink-0 items-center justify-center rounded-[6px] bg-white text-blue-700 shadow-[0_2px_6px_#23365c26]"
+                  style={{ '--d': `${0.5 + i * 1.1}s`, '--fx': `${[-120, 110, -90][i]}%`, '--fy': `${[-260, -320, 220][i]}%`, '--fr': `${[-14, 12, -8][i]}deg` } as CSSProperties}
+                >
+                  <Icon name={docIcons[i]} size={15} />
+                </span>
+                <span className="vault-text min-w-0 flex-1" style={{ '--d': `${1.05 + i * 1.1}s` } as CSSProperties}>
+                  <span className="block truncate text-[0.75rem] font-medium">{name}</span>
+                  <span className="block truncate text-[0.625rem] text-secondary">{detail}</span>
+                </span>
+                <span className="vault-check flex size-4 items-center justify-center rounded-full bg-blue-600 text-white" style={{ '--d': `${1.25 + i * 1.1}s` } as CSSProperties}>
+                  <Icon name="check" size={10} strokeWidth={3} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="vault-next mt-3 flex items-center gap-3 rounded-full bg-white/12 py-2 pr-4 pl-2 text-white ring-1 ring-white/20 backdrop-blur-md" style={{ '--d': '4.9s' } as CSSProperties}>
+          <span className="flex size-7 items-center justify-center rounded-full bg-white text-blue-900">
+            <Icon name="clock" size={14} />
+          </span>
+          <span className="text-[0.6875rem] leading-tight">
+            <span className="block text-white/70">{t.next}</span>
+            <span className="block font-medium">{t.nextBody}</span>
+          </span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -256,7 +398,7 @@ function Thread({ msgs, playing, compact }: { msgs: { me: boolean; text: string 
           <span className="flex size-7 items-center justify-center rounded-full bg-blue-700 text-white">
             <Icon name="message" size={14} />
           </span>
-          <span className="text-xs font-medium">Aid</span>
+          <span className="text-xs font-medium">Lumin</span>
         </div>
         {msgs.slice(0, shown).map((m, i) => (
           <p

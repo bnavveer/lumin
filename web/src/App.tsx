@@ -30,7 +30,7 @@ import { GovBanner, BannerDetails } from './components/GovBanner'
 import { Icon } from './components/icons'
 import { Logo, RegionChip } from './components/Logo'
 import { Accordion, CarouselControls, FeatureCard, Hero, LinkCard, SectionHeading, SiteFooter } from './components/Marketing'
-import { Photo, PhotoCredit } from './components/Photo'
+import { Photo } from './components/Photo'
 import { PortalCard, ProgramCard } from './components/Programs'
 import { SiteHeader } from './components/SiteHeader'
 import { heroPhotos, photos } from './data/photos'
@@ -203,7 +203,6 @@ export default function App() {
                 <div className="overflow-hidden rounded-32">
                   <Photo photo={p} sizes="(max-width: 640px) 100vw, 33vw" />
                 </div>
-                <PhotoCredit photo={p} className="mt-2 px-2" />
               </figure>
             ))}
           </div>

@@ -72,6 +72,10 @@ export function ChatComposer({
   const hasText = text.trim().length > 0
   const canSend = (hasText || Boolean(submitEmpty)) && !disabled && !busy
 
+  useEffect(() => {
+    if (autoFocus) ref.current?.focus({ preventScroll: true })
+  }, [autoFocus])
+
   // Grow with the text, including text set from outside (voice input).
   useEffect(() => {
     const el = ref.current
@@ -127,7 +131,6 @@ export function ChatComposer({
           rows={1}
           value={text}
           disabled={disabled}
-          autoFocus={autoFocus}
           aria-placeholder={shownPlaceholder}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}

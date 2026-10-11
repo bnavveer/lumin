@@ -52,7 +52,7 @@ export async function ensureCaseInbox(householdId: string): Promise<CaseInbox> {
   const existing = await getCaseInbox(householdId);
   if (existing) return existing;
   const username = `aid-case-${householdId.replace(/-/g, '').slice(0, 8)}`;
-  const inbox = await createInbox(username, 'Aid caseworker');
+  const inbox = await createInbox(username, 'Lumin caseworker');
   const row = { household_id: householdId, inbox_id: inbox.inbox_id, address: inbox.email };
   const { error } = await db().from('case_inboxes').upsert(row, { onConflict: 'household_id' });
   if (error) fail('ensureCaseInbox', error);

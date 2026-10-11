@@ -129,7 +129,7 @@ function flows(lang: 'en' | 'es'): Flow[] {
         },
         {
           kind: 'text',
-          from: 'Aid',
+          from: 'Lumin',
           body: es ? 'Tu entrevista de CalFresh es mañana a las 10 am. El condado te va a llamar. Responde 1 para cambiarla.' : 'Your CalFresh interview is tomorrow at 10 am. The county will call you. Reply 1 to reschedule.',
           reply: 'OK',
         },

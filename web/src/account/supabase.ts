@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PublicConfig } from '../lib/types'
 
 // Lazy Supabase client. The URL and publishable key come from the server
@@ -12,10 +12,11 @@ export function getSupabase(): Promise<SupabaseClient> {
       if (!r.ok) throw new Error(`public-config ${r.status}`)
       return r.json() as Promise<PublicConfig>
     })
-    .then((cfg) => {
+    .then(async (cfg) => {
       if (!cfg.supabaseUrl || !cfg.supabasePublishableKey) throw new Error('Sign-in is not configured on this server.')
+      const { createClient } = await import('@supabase/supabase-js')
       return createClient(cfg.supabaseUrl, cfg.supabasePublishableKey, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
       })
     })
     .catch((e) => {

@@ -49,7 +49,7 @@ export interface NextStep {
 
 export interface Workflow {
   id: string;
-  householdId: string;
+  householdId: string | null;
   programs: ApplicationProgram[];
   status: WorkflowStatus;
   createdAt: string;
@@ -77,10 +77,15 @@ export interface Me {
 }
 
 // ── HTTP API (all /api/me/* and /api/workflows/* require `Authorization: Bearer <supabase access token>`) ──
-// POST /api/auth/signup            { email, password, firstName?, phone? } -> { ok: true }   (public, rate-limited;
-//                                    client then calls supabase.auth.signInWithPassword)
+// POST /api/auth/signup            { email, password, firstName?, phone? } -> { ok: true, confirmationRequired: boolean }
+//                                    (public, rate-limited; honor email confirmation before password sign-in)
 // GET  /api/me                     -> Me
-// POST /api/me/profile             { firstName?, phone? } -> Me   (links/creates the household by phone)
+// POST /api/me/profile             { firstName?, phone?, screeningAnswers? } -> Me (contact fields never prove ownership)
+// POST /api/me/link-chat           { chatSessionId } -> Me (household links only after that chat's phone confirmation)
+// GET  /api/me/screening           -> saved screening answers
+// GET/POST /api/me/documents       -> private vault list / upload
+// GET /api/me/documents/:id/download -> { url, expiresIn }
+// DELETE /api/me/documents/:id     -> { ok: true }
 // GET  /api/me/suggestions?chatSessionId=  -> ApplicationScreening  (from a web chat session or the household)
 // GET  /api/workflows              -> WorkflowSummary[]
 // POST /api/workflows              { programs: ApplicationProgram[], chatSessionId?: string } -> Workflow
@@ -89,6 +94,8 @@ export interface Me {
 // POST /api/workflows/:id/documents  multipart { file, docType } -> Workflow
 // POST /api/workflows/:id/approve  { stepId, decision: 'approve' | 'decline' } -> Workflow
 // POST /api/workflows/:id/run      { stepId } -> Workflow   (start/retry a step)
+// POST /api/workflows/:id/receipt  { program, confirmation, submittedAt? } -> Workflow (applicant-reported, unverified)
+// GET /api/staff/cases/:id/workflows -> WorkflowSummary[] (staff token and household organization required)
 // Errors: non-2xx with { error: string }.
 export type CreateWorkflowRequest = { programs: ApplicationProgram[]; chatSessionId?: string };
 export type SuggestionsResponse = ApplicationScreening;

@@ -94,7 +94,7 @@ export function createConversation(d: ConversationDeps) {
     if (i.channel === 'web') {
       const since = new Date(t.getTime() - 86_400_000).toISOString();
       if (await d.repo.confirmationsSentSince(i.phone, since) >= MAX_WEB_CONFIRMS_PER_PHONE)
-        return 'Not sent: too many confirmation texts to this number today. Ask them to text Aid directly from that phone instead.';
+        return 'Not sent: too many confirmation texts to this number today. Ask them to text Lumin directly from that phone instead.';
     }
     const body = confirmationText(i.fields, i.channel);
     await d.sendText(i.phone, body);
@@ -194,6 +194,22 @@ export function createConversation(d: ConversationDeps) {
   return {
     requestConfirmation,
 
+    async smsContext(rawPhone: string) {
+      const phone = normalizePhone(rawPhone);
+      const hid = householdId(phone);
+      const [household, intake, awaiting] = await Promise.all([
+        d.getHousehold(hid), d.repo.get(hid), d.repo.latestAwaiting(phone),
+      ]);
+      return { hasConfirmedRecord: Boolean(household), confirmed: Boolean(household && (!intake || intake.status === 'confirmed')), awaitingConfirmation: Boolean(awaiting) };
+    },
+
+    async recordChannelMessage(rawPhone: string, role: 'user' | 'assistant', content: string, options: { mirror?: boolean } = {}) {
+      const hid = householdId(normalizePhone(rawPhone));
+      return serialized(hid, () => options.mirror === false
+        ? d.repo.appendMessage(hid, 'sms', role, content)
+        : record(hid, 'sms', role, content));
+    },
+
     /** A text arrived on our Dial number. Returns the reply that was sent (or null). */
     handleSms(rawFrom: string, body: string, imageUrls: string[] = []): Promise<string | null> {
       const phone = normalizePhone(rawFrom);
@@ -244,7 +260,7 @@ export function createConversation(d: ConversationDeps) {
         await d.repo.save({ ...own, channel: own.householdId ? own.channel : 'voice', fields: merged, status: 'collecting' });
         if (!missingFields(merged).length) { await requestConfirmation(hid); return; }
         const reply = await agentReply(hid, hid, 'voice', {
-          note: `they just hung up a phone call with Aid (transcript above${notes ? `; call notes: ${notes}` : ''}). Text them a short follow-up asking for what is still needed.`,
+          note: `they just hung up a phone call with Lumin (transcript above${notes ? `; call notes: ${notes}` : ''}). Text them a short follow-up asking for what is still needed.`,
         });
         await d.sendText(phone, reply);
       });

@@ -94,7 +94,7 @@ const en = {
     closedBody: 'The phone owner said these answers weren’t theirs.',
     newChat: 'New conversation',
     attachTitle: 'You can’t upload documents in the web chat yet.',
-    attachBody: 'Once you confirm your answers by text, you can text us a photo of it, like a pay stub or ID.',
+    attachBody: 'Sign in and open Documents to save a PDF or photo in your private vault. For a confirmed phone case, you can also send a document by text.',
     voiceUnsupported: 'Voice input doesn’t work in this browser. Try Chrome, Edge or Safari.',
     voiceDenied: 'We couldn’t use your microphone. Check your browser’s permission settings.',
     disclaimer: 'Answers are written by AI and can be wrong. The county makes the final decision on every application.',
@@ -111,7 +111,7 @@ const en = {
   } as Record<string, string[]>,
   home: {
     title: brand.heroTitle,
-    subtitle: 'Tell us about your household. We’ll find every benefit you qualify for.',
+    subtitle: brand.heroSubtitle,
     examples: [
       'I lost my job. What help can I get?',
       'Can I get help paying for groceries?',
@@ -124,23 +124,23 @@ const en = {
     ],
     carousel: { prev: 'Previous example', next: 'Next example', pause: 'Pause', play: 'Play', of: 'of' },
     statement: [
-      n, { chip: 'arrow', label: 'Start a conversation' }, 'uses AI to find every benefit', 'you qualify for in',
-      { chip: 'flag', label: 'California' }, 'California, in plain words.', 'It asks one question at a time',
-      'and keeps', { chip: 'lock', label: 'Private' }, 'your answers private until you say they’re right.',
+      n, { chip: 'arrow', label: 'Start a conversation' }, 'helps you find support for', 'your household in',
+      { chip: 'flag', label: 'California' }, 'California.', 'One conversation, saved answers,',
+      'and', { chip: 'lock', label: 'Private documents' }, 'a private place to finish your applications.',
     ] as Statement,
-    statementPlain: `${n} uses AI to find every benefit you qualify for in California, in plain words. It asks one question at a time and keeps your answers private until you say they’re right.`,
+    statementPlain: `${n} helps you find support for your household in California. One conversation, saved answers, and a private place to finish your applications.`,
     features: [
       {
-        title: 'Five programs, one conversation.',
-        body: 'CalFresh, Medi-Cal, CalWORKs, General Relief and CFAP start with the same questions. Answer them once and we check them all.',
+        title: 'Find programs that fit your life.',
+        body: 'Explore food, health coverage, cash assistance, utility discounts and more. We use your answers to suggest programs and explain what information is still needed.',
         link: 'See how it works',
         href: '/how-it-works',
       },
       {
-        title: 'Nothing counts until you confirm.',
-        body: 'We text you a summary of your answers. Nothing is used until you reply YES.',
-        link: 'Learn about privacy',
-        href: '/privacy',
+        title: 'Keep your paperwork together.',
+        body: 'Create an account to save your answers, upload documents to your private vault, and return to each application’s next step.',
+        link: 'Open your account',
+        href: '/account',
       },
       {
         title: 'Clear answers. Official sources.',
@@ -156,8 +156,8 @@ const en = {
       },
     ] as Feature[],
     more: {
-      title: 'More coming soon',
-      body: 'Going beyond answers: applications sent for you, utility and phone discounts, and every case tracked in one place.',
+      title: 'Less paperwork ahead.',
+      body: 'Next: utility and phone discounts, WIC, and every case tracked in one place.',
       cta: 'See what’s ahead',
     },
   },
@@ -165,14 +165,14 @@ const en = {
     title: [`${n} starts`, 'as a conversation.'],
     intro: [
       `Instead of filling out the same answers on one website after another, you tell us about your household in your own words. ${n} uses AI to ask the right questions and check California’s rules for you. There are no menus to learn or forms to hunt down.`,
-      'Many Californians qualify for more help than they get, because finding out takes hours. We bring CalFresh, Medi-Cal, CalWORKs, General Relief and CFAP into one conversation that’s fast, plain and built around you.',
+      'Start with a conversation. Then create an account to save program matches, organize your documents, and prepare applications. You complete filing on each program’s official site; automated form filling is still in development.',
     ],
     trustTitle: `Why you can trust ${n}`,
     trust: [
       { lead: 'Straight from the source.', body: 'Income limits and benefit amounts come from official California pages, with links to the original sources.' },
-      { lead: 'Free to use. No ads.', body: 'There’s nothing to buy and nothing to sign up for. Who you qualify for is decided by the state’s rules, not by us.' },
-      { lead: 'You check every answer.', body: 'We text you a summary of what you told us. Nothing is used until you reply YES.' },
-      { lead: 'No account required.', body: 'You don’t need a username or password. Your mobile number is all we need to send your summary.' },
+      { lead: 'Free to use. No ads.', body: 'Start a conversation for free. An optional account saves your documents and application progress. Each agency decides eligibility.' },
+      { lead: 'You check every answer.', body: 'Review your saved answers before using them in an application. Reply YES to your text summary to connect a chat to your phone.' },
+      { lead: 'Start without an account.', body: 'Ask questions in chat first. Sign in when you want to save application progress and manage documents.' },
     ] as Tile[],
     doTitle: 'What you can do',
     do: [
@@ -192,7 +192,7 @@ const en = {
   privacy: {
     title: 'Private by design.',
     tiles: [
-      { lead: 'Only what’s needed.', body: 'We ask about nine things, like your county, household size and income. Nothing more.' },
+      { lead: 'Only what’s needed.', body: 'We start with your county, household size and income. Program-specific questions help you prepare the next steps.' },
       { lead: 'You confirm by text.', body: 'Your answers stay a draft until you reply YES to the summary we text you.' },
       { lead: 'No passwords. No SSN.', body: `${n} never asks for your Social Security number, bank logins or passwords in chat.` },
       { lead: 'Immigration status is optional.', body: 'It only helps us find programs that fit. “Prefer not to say” is always fine.' },
@@ -236,9 +236,9 @@ const en = {
     items: [
       { q: `Is ${n} a government website?`, a: `No. ${n} is a prototype and is not run by any government agency. Official California websites end in ca.gov, and BenefitsCal is at benefitscal.com.` },
       { q: 'Does it cost anything?', a: 'No. It’s free, there are no ads, and applying for benefits is always free.' },
-      { q: 'Do I need an account?', a: 'No. We only ask for your mobile number so we can text you a summary of your answers to confirm.' },
-      { q: 'Which programs and counties do you cover?', a: 'CalFresh, Medi-Cal, CalWORKs, General Relief and CFAP, for people in Los Angeles and San Francisco counties. More programs and counties are coming.' },
-      { q: 'Can you apply for me?', a: 'That’s what we’re building. Before anything is sent to an agency, we’ll show you the application and you decide. Until then, we tell you exactly where and how to apply.' },
+      { q: 'Do I need an account?', a: 'You can start chatting without one. Create an account to save your program matches, manage documents and return to your application progress.' },
+      { q: 'Which programs and counties do you cover?', a: 'Screening focuses on Los Angeles and San Francisco. Explore CalFresh, Medi-Cal, CalWORKs, General Relief, CFAP, WIC, CARE/FERA, LifeLine, LIHEAP, IHSS and child care, plus housing referrals. Coverage and next steps vary by program.' },
+      { q: 'Can you apply for me?', a: 'We help you prepare, save documents and find the official application. Automated form filling and submission are still being built. Today you complete and sign on the official site, then save your confirmation reference here.' },
       { q: 'Will my immigration status be shared?', a: 'No one is required to tell us their immigration status, and “prefer not to say” is always fine. We only use it to find programs that fit. Some programs, like Medi-Cal for children and pregnant people, cover people regardless of immigration status.' },
       { q: 'What if an answer is wrong?', a: 'Our estimates follow the state’s published rules, but the county makes the final decision. If something looks wrong, tap the thumbs down on that answer and tell us.' },
       { q: 'Can I ask for someone else?', a: 'Yes. You can help a family member, but the summary text goes to their phone and they confirm it.' },
@@ -380,7 +380,7 @@ const es: Copy = {
   },
   home: {
     title: 'Hola, California',
-    subtitle: 'Cuéntanos sobre tu hogar. Encontraremos todos los beneficios para los que calificas.',
+    subtitle: 'Encuentra beneficios para tu hogar, reúne tus documentos y termina tus solicitudes en un solo lugar.',
     examples: [
       'Perdí mi trabajo. ¿Qué ayuda hay?',
       '¿Me ayudan a pagar la comida?',
@@ -393,21 +393,21 @@ const es: Copy = {
     ],
     carousel: { prev: 'Ejemplo anterior', next: 'Ejemplo siguiente', pause: 'Pausar', play: 'Reproducir', of: 'de' },
     statement: [
-      n, { chip: 'arrow', label: 'Empieza una conversación' }, 'usa IA para encontrar todos los beneficios', 'para los que calificas en',
-      { chip: 'flag', label: 'California' }, 'California, con palabras claras.', 'Hace una pregunta a la vez',
-      'y mantiene', { chip: 'lock', label: 'Privado' }, 'tus respuestas privadas hasta que confirmes que están bien.',
+      n, { chip: 'arrow', label: 'Empieza una conversación' }, 'te ayuda a encontrar apoyo', 'para tu hogar en',
+      { chip: 'flag', label: 'California' }, 'California.', 'Una conversación, respuestas guardadas',
+      'y', { chip: 'lock', label: 'Documentos privados' }, 'un lugar privado para terminar tus solicitudes.',
     ],
-    statementPlain: `${n} usa IA para encontrar todos los beneficios para los que calificas en California, con palabras claras. Hace una pregunta a la vez y mantiene tus respuestas privadas hasta que confirmes que están bien.`,
+    statementPlain: `${n} te ayuda a encontrar apoyo para tu hogar en California. Una conversación, respuestas guardadas y un lugar privado para terminar tus solicitudes.`,
     features: [
       {
-        title: 'Cinco programas, una conversación.',
-        body: 'CalFresh, Medi-Cal, CalWORKs, General Relief y CFAP empiezan con las mismas preguntas. Contéstalas una vez y revisamos todos.',
+        title: 'Programas para tu hogar.',
+        body: 'Explora ayuda para alimentos, salud, dinero en efectivo, servicios públicos y más. Tus respuestas nos ayudan a sugerir programas y explicar qué información falta.',
         link: 'Cómo funciona',
         href: '/how-it-works',
       },
       {
-        title: 'Nada cuenta hasta que confirmes.',
-        body: 'Te enviamos por texto un resumen de tus respuestas. No usamos nada hasta que respondas SÍ.',
+        title: 'Tus documentos, en un lugar.',
+        body: 'Crea una cuenta para guardar tus respuestas, subir documentos privados y retomar los próximos pasos de tus solicitudes.',
         link: 'Sobre la privacidad',
         href: '/privacy',
       },
@@ -426,7 +426,7 @@ const es: Copy = {
     ],
     more: {
       title: 'Muy pronto, más',
-      body: 'Más allá de las respuestas: solicitudes enviadas por ti, descuentos de luz y teléfono, y todos tus casos en un solo lugar.',
+      body: 'Lo próximo: descuentos de luz y teléfono, WIC y todos tus casos en un solo lugar.',
       cta: 'Lo que viene',
     },
   },
@@ -439,9 +439,9 @@ const es: Copy = {
     trustTitle: `Por qué puedes confiar en ${n}`,
     trust: [
       { lead: 'Directo de la fuente.', body: 'Los límites de ingresos y los montos vienen de páginas oficiales de California, con enlaces a las fuentes originales.' },
-      { lead: 'Gratis. Sin anuncios.', body: 'No hay nada que comprar ni registrarse. Para qué calificas lo deciden las reglas del estado, no nosotros.' },
-      { lead: 'Tú revisas cada respuesta.', body: 'Te enviamos por texto un resumen de lo que nos dijiste. No usamos nada hasta que respondas SÍ.' },
-      { lead: 'No necesitas cuenta.', body: 'No necesitas usuario ni contraseña. Solo tu número de celular para enviarte el resumen.' },
+      { lead: 'Gratis. Sin anuncios.', body: 'Empieza gratis en el chat. Una cuenta opcional guarda tus documentos y progreso. Cada agencia decide la elegibilidad.' },
+      { lead: 'Tú revisas cada respuesta.', body: 'Revisa tus respuestas antes de usarlas en una solicitud. Confirma el resumen por texto para conectar el chat a tu teléfono.' },
+      { lead: 'Empieza sin una cuenta.', body: 'Pregunta primero en el chat. Inicia sesión para guardar tus documentos y el progreso de tus solicitudes.' },
     ],
     doTitle: 'Lo que puedes hacer',
     do: [
@@ -461,7 +461,7 @@ const es: Copy = {
   privacy: {
     title: 'Privado desde el diseño.',
     tiles: [
-      { lead: 'Solo lo necesario.', body: 'Preguntamos unas nueve cosas, como tu condado, cuántos viven contigo y tus ingresos. Nada más.' },
+      { lead: 'Solo lo necesario.', body: 'Empezamos con tu condado, el tamaño de tu hogar y tus ingresos. Después preguntamos lo necesario para cada programa.' },
       { lead: 'Confirmas por texto.', body: 'Tus respuestas son un borrador hasta que respondas SÍ al resumen que te enviamos.' },
       { lead: 'Sin contraseñas. Sin SSN.', body: `${n} nunca pide tu número de Seguro Social, datos del banco ni contraseñas en el chat.` },
       { lead: 'El estatus migratorio es opcional.', body: 'Solo nos ayuda a encontrar programas que te sirvan. “Prefiero no decir” siempre está bien.' },
@@ -505,7 +505,7 @@ const es: Copy = {
     items: [
       { q: `¿${n} es un sitio del gobierno?`, a: `No. ${n} es un prototipo y no lo maneja ninguna agencia del gobierno. Los sitios oficiales de California terminan en ca.gov, y BenefitsCal está en benefitscal.com.` },
       { q: '¿Cuesta algo?', a: 'No. Es gratis, no tiene anuncios, y solicitar beneficios siempre es gratis.' },
-      { q: '¿Necesito una cuenta?', a: 'No. Solo pedimos tu número de celular para enviarte por texto un resumen de tus respuestas y que lo confirmes.' },
+      { q: '¿Necesito una cuenta?', a: 'Puedes empezar en el chat sin una cuenta. Crea una para guardar tus opciones, administrar documentos y retomar tus solicitudes.' },
       { q: '¿Qué programas y condados cubren?', a: 'CalFresh, Medi-Cal, CalWORKs, General Relief y CFAP, para personas en los condados de Los Ángeles y San Francisco. Vienen más programas y condados.' },
       { q: '¿Pueden solicitar por mí?', a: 'Eso es lo que estamos construyendo. Antes de enviar algo a una agencia, te mostraremos la solicitud y tú decides. Mientras tanto, te decimos exactamente dónde y cómo solicitar.' },
       { q: '¿Van a compartir mi estatus migratorio?', a: 'Nadie tiene que decirnos su estatus migratorio, y “prefiero no decir” siempre está bien. Solo lo usamos para encontrar programas que te sirvan. Algunos programas, como Medi-Cal para niños y embarazadas, cubren a personas sin importar su estatus migratorio.' },

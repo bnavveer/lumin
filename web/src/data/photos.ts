@@ -1,7 +1,6 @@
 // Generated from /tmp/ca-photos-raw/credits.json, then hand-edited alt text.
 // Images are in /public/photos with a film look from scripts/vintage.py.
-// All public domain, CC0 or CC BY 2.0. CC BY photos need the credit shown
-// near the photo (use <PhotoCredit>).
+// Source and license metadata for the site’s photographs.
 
 export type PhotoInfo = {
   id: string

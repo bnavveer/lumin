@@ -1,0 +1,408 @@
+[
+  {
+    "name": "State Disability Insurance (SDI)",
+    "level": "state",
+    "agency": "California Employment Development Department (EDD)",
+    "category": "Work and disability",
+    "who": "Workers who are unable to do their regular work for at least 8 consecutive days because of a non-work illness, injury, or pregnancy, and who earned at least $300 in the base period with SDI withheld (EDD). A licensed health professional must certify the disability. Paid SDI deductions come from wages, so this is for people with recent covered work.",
+    "benefit": "Partial wage replacement while unable to work. Third-party guides list a 2026 weekly maximum of $1,765 and up to 52 weeks (U), which should be checked against EDD.",
+    "apply_where": "Directly with EDD, online through SDI Online or by mail. No local office is needed.",
+    "apply_web": [
+      ["EDD: Am I eligible for DI benefits", "https://edd.ca.gov/en/disability/Am_I_Eligible_for_DI_Benefits"],
+      ["EDD: Disability insurance claim process", "https://edd.ca.gov/en/disability/DI_Claim_Process/"]
+    ],
+    "apply_phone": ["1-800-480-3287 (U, from third-party listing)"],
+    "form": "DE 2501 (Claim for Disability Insurance Benefits)",
+    "auto_via": [],
+    "status_2026": "Active (EDD program). Filing window is no earlier than day 9 and no later than day 49 after disability begins (per EDD claim page).",
+    "source": "https://edd.ca.gov/en/disability/Am_I_Eligible_for_DI_Benefits",
+    "confidence": "high"
+  },
+  {
+    "name": "Department of Rehabilitation (Vocational Rehabilitation Services)",
+    "level": "state",
+    "agency": "California Department of Rehabilitation (DOR)",
+    "category": "Work and disability",
+    "who": "Adults with a physical or mental disability that is a barrier to employment who want job training or placement help. No income limit is stated on the DOR page. Recipients of SSI or SSDI are reported as automatically eligible (U, older DB101 source).",
+    "benefit": "Vocational counseling, job training, job placement, and an Individualized Plan for Employment (IPE). Some services may have costs (U).",
+    "apply_where": "Local DOR office. Return the completed form in person or by mail. Email and online applications are not accepted.",
+    "apply_web": [
+      ["DOR: How to apply", "https://www.dor.ca.gov/Home/HowToApply"],
+      ["DOR: Forms", "https://www.dor.ca.gov/Home/Forms"]
+    ],
+    "apply_phone": ["916-324-1313 (U, from ca.gov services page)"],
+    "form": "DR 222 (Vocational Rehabilitation Services Application)",
+    "auto_via": ["SSI (federal, U)", "SSDI (federal, U)"],
+    "status_2026": "Active, but DOR is in Order of Selection. New eligible applicants are placed on a waiting list. Existing IPEs are unaffected.",
+    "source": "https://www.dor.ca.gov/Home/HowToApply",
+    "confidence": "high"
+  },
+  {
+    "name": "Regional Centers (Developmental Services)",
+    "level": "state",
+    "agency": "California Department of Developmental Services (DDS), delivered through 21 regional centers",
+    "category": "Work and disability",
+    "who": "People with a developmental disability that began before age 18 and is likely to continue indefinitely. Examples include autism, cerebral palsy, intellectual disability, and epilepsy. No income limit applies to eligibility. Children under 3 may get Early Start services (U).",
+    "benefit": "Service coordination and an Individual Program Plan (IPP). Services are purchased or arranged, including day programs, respite, supported living, and behavioral services (U).",
+    "apply_where": "Your local regional center. Each center has its own intake line and intake email. A formal application must come from the adult applicant, parent, conservator, or guardian. Anyone may refer.",
+    "apply_web": [
+      ["DDS FAQ on autism (references regional centers)", "https://www.dds.ca.gov/wp-content/uploads/2024/08/DDS_FAQ_Autism.pdf"]
+    ],
+    "apply_phone": ["(916) 654-1690 (DDS, to find your regional center by zip code, U)"],
+    "form": "Regional center intake application (form varies by center; U)",
+    "auto_via": [],
+    "status_2026": "Active. Regional centers are state-funded and run intake for every county.",
+    "source": "https://www.dds.ca.gov/wp-content/uploads/2024/08/DDS_FAQ_Autism.pdf",
+    "confidence": "medium"
+  },
+  {
+    "name": "California Children's Services (CCS)",
+    "level": "state",
+    "agency": "California Department of Health Care Services (DHCS), administered by county CCS programs",
+    "category": "Health",
+    "who": "Children under 21 with a CCS-eligible medical condition, such as birth defects, cystic fibrosis, cerebral palsy, heart disease, cancer, hemophilia, or HIV/AIDS. Family income is generally limited to under $40,000 a year (U, county and state summaries), with exceptions, including children needing diagnostic services and children on full-scope Medi-Cal with no share of cost. Residency rules vary by source (county or state).",
+    "benefit": "Diagnosis, treatment, and specialty care for the CCS condition, including care coordination through CCS medical teams.",
+    "apply_where": "Your county CCS office. Anyone can make a referral, including a parent, school nurse, or doctor. The family may also be asked to apply for Medi-Cal.",
+    "apply_web": [
+      ["DHCS: California Children's Services", "https://www.dhcs.ca.gov/services/ccs/"],
+      ["Santa Clara County: CCS", "https://publichealth.santaclaracounty.gov/programs-and-services/california-childrens-services-ccs"]
+    ],
+    "apply_phone": ["Your county CCS office (number varies by county)"],
+    "form": "Application to Determine CCS Program Eligibility (form number U)",
+    "auto_via": ["Medi-Cal (income-exempt for some children, U)"],
+    "status_2026": "Active. Administered by county CCS programs.",
+    "source": "https://www.lacare.org/providers/faqs/ccs",
+    "confidence": "medium"
+  },
+  {
+    "name": "Every Woman Counts (EWC)",
+    "level": "state",
+    "agency": "California Department of Health Care Services (DHCS), Breast and Cervical Cancer Treatment Program",
+    "category": "Health",
+    "who": "Uninsured or underinsured California residents with household income at or below 200% of the federal poverty level. Age 40 or older for a clinical breast exam and mammogram, or 21 or older for a Pap test. Not eligible for Medi-Cal. For 2025-26, the single-person limit was $31,300 a year, or $2,608 a month (U). The 2026 table was not verified.",
+    "benefit": "Free breast and cervical cancer screening, diagnostic follow-up, and referral to treatment.",
+    "apply_where": "Through a participating EWC provider or county clinic. Applications can be completed in person at participating sites.",
+    "apply_web": [
+      ["DHCS: Every Woman Counts", "https://www.dhcs.ca.gov/services/every-woman-counts/"]
+    ],
+    "apply_phone": ["Contact your local EWC provider (U)"],
+    "form": "EWC Recipient Application (DHCS form, number U)",
+    "auto_via": [],
+    "status_2026": "Active (DHCS program). 2026 income table not verified.",
+    "source": "https://www.dhcs.ca.gov/services/every-woman-counts/",
+    "confidence": "medium"
+  },
+  {
+    "name": "AIDS Drug Assistance Program (ADAP)",
+    "level": "state",
+    "agency": "California Department of Public Health (CDPH), Office of AIDS",
+    "category": "Health",
+    "who": "California residents age 18 or older with a positive HIV/AIDS diagnosis, who are not fully covered by Medi-Cal or another third-party payer. Income is capped at 500% of the federal poverty level by most sources, using modified adjusted gross income. One CDPH page lists 600% (older, U). Applicants above 400% FPL may have a monthly cost share (U).",
+    "benefit": "Free FDA-approved HIV medications. Medications are dispensed through the program.",
+    "apply_where": "Local ADAP enrollment site. Contact your county ADAP coordinator to find the nearest site.",
+    "apply_web": [
+      ["CDPH: ADAP eligibility", "https://www.cdph.ca.gov/Programs/CID/DOA/pages/OA_adap_eligibility.aspx"]
+    ],
+    "apply_phone": ["Your county ADAP coordinator (U)"],
+    "form": "ADAP enrollment application (form number U)",
+    "auto_via": [],
+    "status_2026": "Active (CDPH program). Income cap disputed across sources and 2026 table not verified.",
+    "source": "https://www.cdph.ca.gov/Programs/CID/DOA/pages/OA_adap_eligibility.aspx",
+    "confidence": "low"
+  },
+  {
+    "name": "Genetically Handicapped Persons Program (GHPP)",
+    "level": "state",
+    "agency": "California Department of Health Care Services (DHCS)",
+    "category": "Health",
+    "who": "California residents age 21 or older with a GHPP-covered genetic disease, such as hemophilia or cystic fibrosis. Younger applicants may qualify if found financially ineligible for CCS. One source says there is no income limit (U). Income verification (DHCS 4000 B) is still required.",
+    "benefit": "Coverage for treatment of covered genetic diseases, including medications, clinic services, and related care (U).",
+    "apply_where": "Directly with DHCS. Submit by email or by mail.",
+    "apply_web": [
+      ["GHPP application (DHCS 4000 A/B)", "https://www.dhcs.ca.gov/services/ghpp/Documents/GHPP-Application-DHCS4000AB.pdf"]
+    ],
+    "apply_phone": ["(916) 713-8400 (U)"],
+    "form": "DHCS 4000 A (eligibility) and DHCS 4000 B (income verification)",
+    "auto_via": [],
+    "status_2026": "Active (DHCS program). Forms dated 2025 on DHCS site.",
+    "source": "https://www.dhcs.ca.gov/services/ghpp/Documents/GHPP-Application-DHCS4000AB.pdf",
+    "confidence": "medium"
+  },
+  {
+    "name": "Medi-Cal Dental (Denti-Cal)",
+    "level": "state",
+    "agency": "California Department of Health Care Services (DHCS)",
+    "category": "Health",
+    "who": "Anyone enrolled in full-scope Medi-Cal, including children, adults, seniors, and people with disabilities. Dental is a Medi-Cal benefit, so eligibility is the Medi-Cal eligibility. Secondary sources say income is typically at or below 138% FPL (U).",
+    "benefit": "Dental services covered by Medi-Cal. Adults 21 and older have some services capped at $1,800 a year (U). Children have no annual cap (U).",
+    "apply_where": "No separate application. Apply for Medi-Cal through the county social services office or online, then find a Denti-Cal provider.",
+    "apply_web": [
+      ["DHCS: Dental application information", "https://www.dhcs.ca.gov/providers-partners/dental-application-information/"],
+      ["Denti-Cal provider finder", "https://dental.dhcs.ca.gov/"]
+    ],
+    "apply_phone": ["1-800-322-6384 (Denti-Cal customer line, U)"],
+    "form": "No separate form. Medi-Cal application (single streamlined application)",
+    "auto_via": ["Medi-Cal"],
+    "status_2026": "Active. This is a Medi-Cal benefit, not a separate program.",
+    "source": "https://www.dhcs.ca.gov/providers-partners/dental-application-information/",
+    "confidence": "medium"
+  },
+  {
+    "name": "Medical Baseline Allowance",
+    "level": "state",
+    "agency": "California Public Utilities Commission (CPUC). Administered by the investor-owned utilities (PG&E, SCE, SDG&E).",
+    "category": "Bills and phone",
+    "who": "Residential electric or gas customers who use power-dependent medical equipment or have a qualifying medical condition, certified by a doctor. No income limit.",
+    "benefit": "Extra monthly allotment of energy at the lowest baseline rate, plus advance notice of Public Safety Power Shutoffs.",
+    "apply_where": "Your utility (PG&E, SCE, or SDG&E), not a state office. Apply online or by mail. A doctor completes part of the form.",
+    "apply_web": [
+      ["PG&E: Medical Baseline Program", "https://www.pge.com/en/account/billing-and-assistance/financial-assistance/medical-baseline-program.html"],
+      ["SCE: Medical Baseline", "https://www.sce.com/residential/assistance/medical-baseline"]
+    ],
+    "apply_phone": ["PG&E 1-800-743-5000 (U)", "SCE 1-800-655-4555 (U)"],
+    "form": "PG&E Medical Baseline Program Application, Part A (utility form, U)",
+    "auto_via": [],
+    "status_2026": "Active. Recertification every 2 to 4 years depending on the condition (U, PG&E form).",
+    "source": "https://www.pge.com/en/account/billing-and-assistance/financial-assistance/medical-baseline-program.html",
+    "confidence": "medium"
+  },
+  {
+    "name": "Clean Cars 4 All (Clean Vehicle Assistance)",
+    "level": "state",
+    "agency": "California Air Resources Board (CARB), administered by participating local air districts and the statewide Driving Clean Assistance Program",
+    "category": "Transportation",
+    "who": "California residents who are registered owners of their vehicle and have household income at or below 300% of the federal poverty level, the state baseline (U). Some districts set lower limits (for example, 225% FPL in Sacramento, U).",
+    "benefit": "Grant to replace an older vehicle with a cleaner one, including zero-emission options. Grant size varies by source (up to $12,000 for a ZEV, U).",
+    "apply_where": "Your local air district's website or mail-in form. Residents outside participating districts apply through the statewide Driving Clean Assistance Program.",
+    "apply_web": [
+      ["CARB: Clean Cars 4 All", "https://ww2.arb.ca.gov/our-work/programs/clean-cars-4-all/about"],
+      ["Sacramento Clean Cars 4 All", "https://www.airquality.org/SacCleanCars4All"]
+    ],
+    "apply_phone": ["Your air district (U)"],
+    "form": "Varies by district (U)",
+    "auto_via": [],
+    "status_2026": "Active in five participating air districts plus the statewide DCAP (U). Funding and 2026 deadlines not verified.",
+    "source": "https://ww2.arb.ca.gov/our-work/programs/clean-cars-4-all/about",
+    "confidence": "medium"
+  },
+  {
+    "name": "DMV Reduced-Fee and No-Fee ID Card",
+    "level": "state",
+    "agency": "California Department of Motor Vehicles (DMV)",
+    "category": "Taxes and legal",
+    "who": "Reduced fee: people who meet the income rules of a qualifying government or nonprofit assistance program, such as those verified on form DL 937. No fee: people who are homeless under the McKinney-Vento Act, including homeless youth and people fleeing domestic violence. Senior no-fee ID card for age 62 or older. Medi-Cal enrollment does not qualify for the reduced fee (U, 211 listing).",
+    "benefit": "Reduced or waived fee for a California state ID card (non-driver ID).",
+    "apply_where": "In person at a DMV office, with the verification form completed by the assistance agency (for reduced fee) or a homeless services provider or county (for no fee).",
+    "apply_web": [
+      ["DMV: ID cards", "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/identification-id-cards/"]
+    ],
+    "apply_phone": [],
+    "form": "DL 937 (reduced fee verification). No-fee form is DL 933 per secondary sources (U).",
+    "auto_via": [],
+    "status_2026": "Active. Fees are on the DMV Licensing Fees page (not verified).",
+    "source": "https://www.dmv.ca.gov/portal/driver-licenses-identification-cards/identification-id-cards/",
+    "confidence": "high"
+  },
+  {
+    "name": "California Renter's Credit",
+    "level": "state",
+    "agency": "California Franchise Tax Board (FTB)",
+    "category": "Taxes and legal",
+    "who": "California residents who paid rent on their main home for at least half the year and whose adjusted gross income is under the limit. For 2025, the limit was $53,994 for single or married-filing-separately filers and $107,987 for joint, head of household, or qualifying surviving spouse filers (FTB, per secondary sources, U). A bill (AB 838) to change this credit is pending (U).",
+    "benefit": "$60 for single or married filing separately, or $120 for joint, head of household, or qualifying surviving spouse filers.",
+    "apply_where": "Claim it on your California income tax return. There is no separate application.",
+    "apply_web": [
+      ["FTB: Nonrefundable renter's credit", "https://www.ftb.ca.gov/file/personal/credits/nonrefundable-renters-credit.html"]
+    ],
+    "apply_phone": ["FTB (phone number not verified)"],
+    "form": "California Form 540 or 540 2EZ (U)",
+    "auto_via": [],
+    "status_2026": "Active. Income limits for 2026 tax year not verified.",
+    "source": "https://www.ftb.ca.gov/file/personal/credits/nonrefundable-renters-credit.html",
+    "confidence": "medium"
+  },
+  {
+    "name": "Property Tax Postponement (Seniors, Blind, or Disabled)",
+    "level": "state",
+    "agency": "California State Controller's Office (SCO)",
+    "category": "Housing",
+    "who": "Homeowners who are age 62 or older, blind, or disabled. Must own and occupy the home as their principal residence, hold at least 40% equity, and have no reverse mortgage on the property. Income limit for 2026-27 is reported as $57,002 (U, secondary sources, not verified on SCO site).",
+    "benefit": "Property taxes are postponed, not forgiven. The deferred amount becomes a lien repaid when the home is sold or transferred. Interest is reported as 5% or 7% a year (U, sources conflict).",
+    "apply_where": "Claim form filed with the State Controller's Office (U, county involvement not verified).",
+    "apply_web": [
+      ["SCO: Property tax postponement", "https://www.sco.ca.gov/aud_ptp.html"]
+    ],
+    "apply_phone": ["1-800-952-5661 (U)"],
+    "form": "Property Tax Postponement claim form (form number U)",
+    "auto_via": [],
+    "status_2026": "Active (U). Application window reported as October 1, 2026 to February 10, 2027. Limited funding, first come first served (U).",
+    "source": "https://www.sco.ca.gov/aud_ptp.html",
+    "confidence": "low"
+  },
+  {
+    "name": "CalKIDS",
+    "level": "state",
+    "agency": "State Treasurer's Office and ScholarShare Investment Board (with CSAC support)",
+    "category": "Kids and school",
+    "who": "Children born in California (on or after July 1, 2023 for the $100 deposit). Public school students in grades 1 to 12 identified as low-income or English learners under the LCFF. Foster youth and unhoused youth receive additional deposits. Accounts are automatic.",
+    "benefit": "$100 deposit for newborns (U, born on or after July 1, 2023). $500 deposit for low-income students in grades 1 to 12. Additional $500 for foster youth and $500 for homeless youth. Funds can be used for college or career training.",
+    "apply_where": "Automatic. Families claim the account online at calkids.org.",
+    "apply_web": [
+      ["CalKIDS", "https://calkids.org/"],
+      ["CalKIDS eligibility and claim (governor press release, Aug 2026)", "https://www.gov.ca.gov/2026/08/21/free-money-for-kids-governor-newsom-and-first-partner-celebrate-one-million-families-claim-calkids-baby-bonds-accounts/"]
+    ],
+    "apply_phone": [],
+    "form": "None (online claim)",
+    "auto_via": ["LCFF low-income student status (school designation, U)"],
+    "status_2026": "Active. Over 1 million accounts claimed by August 2026 (governor's office). The 2026 ScholarShare promotion closed May 31, 2026.",
+    "source": "https://www.gov.ca.gov/2026/08/21/free-money-for-kids-governor-newsom-and-first-partner-celebrate-one-million-families-claim-calkids-baby-bonds-accounts/",
+    "confidence": "high"
+  },
+  {
+    "name": "Chafee Grant (Foster Youth Education and Training)",
+    "level": "state",
+    "agency": "California Student Aid Commission (CSAC), with CDSS for the federal ETV program",
+    "category": "Kids and school",
+    "who": "Current or former foster youth who were wards of the court or in foster care and were ages 16 to 18 when in care. Must not have turned 26 by July 1 of the award year, be enrolled at least half-time, and make satisfactory academic progress.",
+    "benefit": "Up to $4,500 for 2026-27 ($2,250 per semester or $1,500 per quarter). Funding is limited.",
+    "apply_where": "Online. Complete the one-time Chafee application, then file the FAFSA or California Dream Act Application each year.",
+    "apply_web": [
+      ["Chafee Grant application", "https://chafee.csac.ca.gov/index.html"],
+      ["CSAC: Chafee Grant", "https://www.csac.ca.gov/chafee"],
+      ["CDSS: Chafee ETV", "https://www.cdss.ca.gov/inforesources/foster-care/chafee-education-and-training-vouchers-program"]
+    ],
+    "apply_phone": ["(888) 294-0153, option 3 (CSAC)"],
+    "form": "Chafee Grant online application (no paper form)",
+    "auto_via": [],
+    "status_2026": "Active. 2026-27 application opened October 1, 2025 and is accepted until July 31.",
+    "source": "https://chafee.csac.ca.gov/index.html",
+    "confidence": "high"
+  },
+  {
+    "name": "Housing and Disability Advocacy Program (HDAP)",
+    "level": "state",
+    "agency": "California Department of Social Services (CDSS), administered by counties",
+    "category": "Housing",
+    "who": "People who are experiencing homelessness or at risk of homelessness and are likely eligible for disability benefits (SSI, SSDI, or others). Counties may set priorities within that group.",
+    "benefit": "Disability benefits advocacy for SSI, SSDI, veterans' benefits, and CAPI, plus housing help such as finding, securing, and keeping housing.",
+    "apply_where": "Your county social services office or its contracted provider. CDSS can connect you to the county point of contact.",
+    "apply_web": [
+      ["CDSS: Housing and Disability Advocacy Program", "https://cdss.ca.gov/inforesources/cdss-programs/housing-programs/housing-and-disability-advocacy-program"]
+    ],
+    "apply_phone": ["(916) 651-5155 (CDSS Housing and Homelessness Division)"],
+    "form": "County intake (no state form)",
+    "auto_via": [],
+    "status_2026": "Active, delivered by counties. Local availability varies.",
+    "source": "https://cdss.ca.gov/inforesources/cdss-programs/housing-programs/housing-and-disability-advocacy-program",
+    "confidence": "medium"
+  },
+  {
+    "name": "Home Safe",
+    "level": "state",
+    "agency": "California Department of Social Services (CDSS), administered by counties and tribal agencies",
+    "category": "Housing",
+    "who": "Current Adult Protective Services (APS) clients, or people in the APS intake process, who are homeless or at imminent risk of homelessness because of elder or dependent abuse, neglect, self-neglect, or financial exploitation. Participation is voluntary.",
+    "benefit": "Housing-related supports such as rental assistance and case management to get and keep housing (U).",
+    "apply_where": "Your county APS office, or a tribal social services agency for tribal members.",
+    "apply_web": [
+      ["CDSS: Home Safe", "https://www.cdss.ca.gov/inforesources/cdss-programs/housing-programs/home-safe-program"]
+    ],
+    "apply_phone": ["(916) 651-5155 (CDSS Housing and Homelessness Division)"],
+    "form": "None (county APS referral)",
+    "auto_via": [],
+    "status_2026": "Winding down. State funds were available through June 30, 2026. Counties may have scaled back, so check locally.",
+    "source": "https://www.cdss.ca.gov/inforesources/cdss-programs/housing-programs/home-safe-program",
+    "confidence": "medium"
+  },
+  {
+    "name": "Bringing Families Home (BFH)",
+    "level": "state",
+    "agency": "California Department of Social Services (CDSS), administered by counties",
+    "category": "Housing",
+    "who": "Families involved with the child welfare system who are experiencing homelessness. Eligibility is set by the county child welfare agency.",
+    "benefit": "Rapid rehousing and housing supports to help families get and keep housing and to support reunification.",
+    "apply_where": "Through your county child welfare agency (county social worker).",
+    "apply_web": [
+      ["CDSS: Bringing Families Home", "https://cdss.ca.gov/inforesources/cdss-programs/housing-programs/bringing-families-home-program"]
+    ],
+    "apply_phone": ["(916) 651-5155 (CDSS Housing and Homelessness Division)"],
+    "form": "None (county referral)",
+    "auto_via": [],
+    "status_2026": "Active but funding is one-time and running out. $40M is available through June 30, 2026 and another $40M through June 30, 2027 (U). Counties are cutting back.",
+    "source": "https://cdss.ca.gov/inforesources/cdss-programs/housing-programs/bringing-families-home-program",
+    "confidence": "medium"
+  },
+  {
+    "name": "Victim Compensation (CalVCB)",
+    "level": "state",
+    "agency": "California Victim Compensation Board (CalVCB)",
+    "category": "Taxes and legal",
+    "who": "California residents who were victims of a violent crime, or non-residents victimized in California. Must cooperate with police and prosecutors and must not have committed a felony at the time of the crime. No income limit. Some exceptions apply for domestic violence, human trafficking, and sexual assault. Filing deadline is generally 7 years, and up to age 28 for victims age 21 or younger (U, FAQ).",
+    "benefit": "Reimbursement for medical and mental health care, lost income, funeral and burial costs, and relocation or other crime-related costs (U). CalVCB pays last after insurance.",
+    "apply_where": "Online through CalVCB Online, or by paper application. Victim advocates can help.",
+    "apply_web": [
+      ["CalVCB Online", "https://online.victims.ca.gov/"],
+      ["CalVCB: FAQ", "https://victims.ca.gov/for-victims/frequently-asked-questions"]
+    ],
+    "apply_phone": ["800-777-9229 (U)"],
+    "form": "CalVCB application (online or paper, form number U)",
+    "auto_via": [],
+    "status_2026": "Active. A new regulation takes effect January 1, 2027 (U).",
+    "source": "https://victims.ca.gov/for-victims/frequently-asked-questions",
+    "confidence": "high"
+  },
+  {
+    "name": "CalAIM Community Supports",
+    "level": "state",
+    "agency": "California Department of Health Care Services (DHCS), delivered through Medi-Cal managed care plans",
+    "category": "Health",
+    "who": "Medi-Cal members enrolled in managed care who meet their plan's criteria, such as people experiencing homelessness or with high needs. Plans choose which of the 14 DHCS-approved services to offer in each county (U).",
+    "benefit": "Non-medical services such as housing transition and navigation, housing deposits, nutrition supports, and recuperative care (U).",
+    "apply_where": "Through your Medi-Cal managed care plan, not a separate state application. Check the plan or county list of Community Supports elections.",
+    "apply_web": [
+      ["DHCS: Enhanced Care Management and Community Supports resources", "https://www.dhcs.ca.gov/calaim-transforming-medi-cal/enhanced-care-management-and-community-supports/resources-ecm-resources/"]
+    ],
+    "apply_phone": ["Your Medi-Cal plan's member services line (U)"],
+    "form": "None (plan referral)",
+    "auto_via": ["Medi-Cal"],
+    "status_2026": "Active. The CalAIM 1115 waiver runs through December 31, 2026, and a renewal was submitted May 12, 2026 (U).",
+    "source": "https://www.dhcs.ca.gov/calaim-transforming-medi-cal/enhanced-care-management-and-community-supports/resources-ecm-resources/",
+    "confidence": "medium"
+  },
+  {
+    "name": "Caregiver Resource Centers",
+    "level": "state",
+    "agency": "California Department of Aging (CDA), delivered through Area Agencies on Aging",
+    "category": "Health",
+    "who": "Family caregivers of older adults or adults with conditions such as Alzheimer's, stroke, or Parkinson's (U). California has 11 centers. Income rules not verified.",
+    "benefit": "Caregiver education, counseling, respite, and support services at no cost to eligible families (U).",
+    "apply_where": "Through your local Area Agency on Aging. The CDA Information Line routes you to the right office.",
+    "apply_web": [
+      ["CDA: Caring for the Caregivers", "https://aging.ca.gov/Aging_Resources/Caring_for_the_Caregivers/"]
+    ],
+    "apply_phone": ["1-800-510-2020 (CDA Information Line)"],
+    "form": "None (intake through Area Agency on Aging)",
+    "auto_via": [],
+    "status_2026": "Active (U). Not checked against current CDA listings.",
+    "source": "https://aging.ca.gov/Aging_Resources/Caring_for_the_Caregivers/",
+    "confidence": "low"
+  },
+  {
+    "name": "Senior Legal Hotline",
+    "level": "state",
+    "agency": "California Department of Aging (CDA) funded legal services for older Californians (U)",
+    "category": "Taxes and legal",
+    "who": "Californians age 60 or older. Advice covers topics such as powers of attorney and elder abuse (U).",
+    "benefit": "Free legal advice and referral (U).",
+    "apply_where": "Call the hotline, or contact your Area Agency on Aging for a legal services referral.",
+    "apply_web": [
+      ["CDA: Legal services overview", "https://www.aging.ca.gov/Providers_and_Partners/Legal_Services/Legal_Services_Overview"]
+    ],
+    "apply_phone": ["1-800-510-2020 (CDA, U)", "1-800-222-1753 (third-party listing, U, not verified)"],
+    "form": "None",
+    "auto_via": [],
+    "status_2026": "Uncertain. A CBS News report (undated) says the Senior Legal Hotline lost state and federal funding. Verify before relying on it.",
+    "source": "https://www.aging.ca.gov/Providers_and_Partners/Legal_Services/Legal_Services_Overview",
+    "confidence": "low"
+  }
+]

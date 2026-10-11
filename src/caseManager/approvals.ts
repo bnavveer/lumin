@@ -1,4 +1,4 @@
-// Human-in-the-loop approvals by text. Aid PROPOSES consequential actions; only an explicit YES
+// Human-in-the-loop approvals by text. Lumin PROPOSES consequential actions; only an explicit YES
 // (from the person, or staff on the dashboard) executes them. Texting YES is never a legal signature:
 // submit/renewal approvals send the signed packet link and the person signs there.
 import type { ConversationDeps } from './deps.js';
@@ -15,8 +15,8 @@ export function describeAction(kind: ApprovalKind, payload: Record<string, unkno
   const programs = Array.isArray(payload.programs) ? (payload.programs as string[]).map((p) => PROGRAM_LABEL[p] ?? p) : [];
   const progText = programs.length ? programs.join(' + ') : 'benefits';
   switch (kind) {
-    case 'submit_application': return `I'm ready to submit your ${progText} application.`;
-    case 'run_filler': return `I can fill out your ${progText} application on BenefitsCal for you (I stop before the signature).`;
+    case 'submit_application': return `I can help you review your ${progText} application steps and open the official filing site.`;
+    case 'run_filler': return `I can prepare a review of your saved ${progText} answers. You will finish and sign on the official site.`;
     case 'call_office': return payload.purpose === 'reschedule_interview'
       ? 'I can call the county to reschedule your interview.'
       : 'I can call the county office for you.';
@@ -38,7 +38,7 @@ export async function proposeAction(
   if (existing && existing.kind === kind) return existing; // don't stack duplicate asks
   // What the person approves is ALWAYS the deterministic text for `kind`; model text is only a quoted note.
   const a = await deps.repo.createApproval(hid, kind, approvalText(kind, payload, description), { ...payload, ...(description ? { note: description } : {}) });
-  await deps.repo.addTimeline(hid, `Aid asked to: ${a.description}`);
+  await deps.repo.addTimeline(hid, `Lumin asked to: ${a.description}`);
   return a;
 }
 
@@ -46,16 +46,16 @@ async function execute(deps: ConversationDeps, a: Approval): Promise<string[]> {
   const hid = a.householdId;
   switch (a.kind) {
     case 'submit_application': {
-      await deps.repo.addTimeline(hid, 'Approved by text: submit application (waiting for signature)');
-      return [`Thank you! Last step: please review and sign here. This is your legal signature, so read it first: ${deps.packetUrl(hid)}`];
+      await deps.repo.addTimeline(hid, 'Approved by text: review application steps (not submitted)');
+      return [`Review your saved answers and official filing links here: ${deps.packetUrl(hid)}. Finish and sign on the official site. No application has been submitted by Lumin.`];
     }
     case 'start_renewal': {
       await deps.repo.addTimeline(hid, 'Renewal started by text');
-      return [`Okay! I filled in your renewal from what I already have. Please check it and sign here: ${deps.packetUrl(hid)}`];
+      return [`Review the information we have here: ${deps.packetUrl(hid)}. Complete your renewal and signature with the county. Lumin has not filed a renewal.`];
     }
     case 'run_filler': {
-      await deps.repo.addTimeline(hid, 'Approved by text: fill BenefitsCal application');
-      return ["On it! I'm filling out your application now. I will stop before the signature page and text you a link to sign."];
+      await deps.repo.addTimeline(hid, 'Approved by text: prepare application review');
+      return [`Your review and official application links are here: ${deps.packetUrl(hid)}. Lumin's automatic form filler is a demo only; finish your real application on the official site.`];
     }
     case 'call_office': {
       const purpose = typeof a.payload.purpose === 'string' ? a.payload.purpose : 'status_check';
@@ -64,13 +64,13 @@ async function execute(deps: ConversationDeps, a: Approval): Promise<string[]> {
         await deps.repo.addTimeline(hid, `Calling county office (${purpose.replace('_', ' ')})`);
         return ["Calling the county now. I'll text you as soon as I know more."];
       } catch {
-        await deps.repo.addTimeline(hid, `County call queued for caseworker (${purpose.replace('_', ' ')})`);
-        return ["Okay! I've queued the call to the county. I'll text you when it's done."];
+        await deps.repo.addTimeline(hid, `County call could not be placed; assistance needed (${purpose.replace('_', ' ')})`);
+        return ["I couldn't place that call. Please contact your county office, or ask your caseworker for help. No call has been made."];
       }
     }
     case 'share_documents': {
       await deps.repo.addTimeline(hid, 'Approved by text: reuse documents for another program');
-      return ['Done. I will reuse your documents so you do not have to send them again.'];
+      return ['Your permission to reuse documents is saved. No documents have been sent to an agency yet.'];
     }
   }
 }

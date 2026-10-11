@@ -194,7 +194,7 @@ export function Collage() {
             <span className="flex size-6 items-center justify-center rounded-full bg-blue-700 text-white">
               <Icon name="message" size={12} />
             </span>
-            <span className="text-[0.6875rem] font-medium">Aid</span>
+            <span className="text-[0.6875rem] font-medium">Lumin</span>
           </div>
           <p className="rounded-[1rem] bg-[#eef0f3] px-3 py-2 text-[0.8125rem] leading-snug">{t.sms}</p>
         </Card>

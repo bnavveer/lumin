@@ -4,6 +4,8 @@
 const KEY = 'aid.fixtures'
 
 export function fixturesOn(): boolean {
+  // Sample accounts must never bypass authentication in a deployed build.
+  if (!import.meta.env.DEV) return false
   try {
     const q = new URLSearchParams(location.search).get('fixtures')
     if (q === '1') sessionStorage.setItem(KEY, '1')

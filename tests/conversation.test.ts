@@ -64,7 +64,7 @@ describe('text (Dial SMS)', () => {
   it('a question while waiting does not cancel the pending confirmation', async () => {
     t.setScript(async turn => { await turn.tools.saveAnswers(full); return await turn.tools.sendConfirmationText(); });
     await t.conv.handleSms(PHONE, 'answers…');
-    t.setScript(async () => 'It is Aid, the benefits helper.');
+    t.setScript(async () => 'It is Lumin, the benefits helper.');
     await t.conv.handleSms(PHONE, 'who is this?');
     t.setScript(async () => 'Great.');
     await t.conv.handleSms(PHONE, 'yes');

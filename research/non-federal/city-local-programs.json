@@ -1,0 +1,381 @@
+[
+  {
+    "name": "SFPUC Customer Assistance Program (CAP) - water and sewer discount",
+    "level": "utility",
+    "city": "San Francisco",
+    "agency": "San Francisco Public Utilities Commission (SFPUC)",
+    "category": "Bills and phone",
+    "who": "One SFPUC water and sewer account in your name; full-time residence at the address; individually metered residential single-family account (not fire service, multi-unit residential, irrigation, commercial or wholesale); not claimed as a dependent on someone else's tax return. 2026 combined gross household income limits: 40% discount tier $34,050 (1 person), $38,900 (2), $43,750 (3), $48,650 (4); 25% discount tier $56,750 (1), $64,850 (2), $72,950 (3), $81,050 (4).",
+    "benefit": "25% or 40% off the SFPUC water and sewer bill. Discount lasts 36 months, then you must reapply. CAP enrollees are exempt from water shutoffs and liens.",
+    "apply_where": "Online application linked from the CAP page (income verified through TransUnion), or print and mail the paper form, or pick up at the SFPUC Customer Service Counter, 525 Golden Gate Ave, 1st Floor, San Francisco. Applicants already receiving SF Human Services Agency benefits can authorize income verification on the paper form. If denied, you must wait three months before a new paper application.",
+    "apply_web": [
+      ["SFPUC CAP program page", "https://www.sfpuc.gov/node/1501"],
+      ["SFPUC CAP application FY 2026-2027 (PDF)", "https://www.sfpuc.gov/es/sites/default/files/accounts-and-services/CAP/CAP-App-EN.pdf"]
+    ],
+    "apply_phone": ["(415) 551-3000 (Mon-Fri 8am-5pm, except holidays; request mailed paper application)"],
+    "form": "CAP application (online form, or printable PDF)",
+    "auto_via": ["SF Human Services Agency benefits can be used to verify income"],
+    "status_2026": "Active. 2026 income limits are published on the SFPUC page. Processing takes 3-4 weeks.",
+    "source": "https://www.sfpuc.gov/node/1501",
+    "confidence": "high"
+  },
+  {
+    "name": "EBMUD Customer Assistance Program (CAP) - water and wastewater discount",
+    "level": "utility",
+    "city": "Oakland (East Bay Municipal Utility District service area)",
+    "agency": "East Bay Municipal Utility District (EBMUD)",
+    "category": "Bills and phone",
+    "who": "Household meets CAP income guidelines (single-family residents: $67,900 or less for 1-2 persons, $76,400 for 3, $84,850 for 4, $91,650 for 5, $98,450 for 6, plus $6,800 per additional person) (U - income table on page has no year label; confirm current year). Bill in your name; residential account with an individual water meter; not claimed as a dependent on someone else's tax return; one account per household.",
+    "benefit": "50% off the standard bimonthly service charge; 50% off home water use up to 1,050 gallons per person per month; 35% off wastewater service and flow charges. Enrollment lasts up to two years (you are notified two months before expiration). Not retroactive.",
+    "apply_where": "Apply online at ebmud.com/cap (confirmation email includes an Application/Confirmation ID; reply to that email with documents, per EBMUD instructions). Or download the form and mail, email (cap@ebmud.com), or fax (510) 287-0299. Pick up in person at EBMUD Customer Information Desk, 375 11th St., Oakland, ground floor.",
+    "apply_web": [
+      ["EBMUD CAP", "https://www.ebmud.com/cap"]
+    ],
+    "apply_phone": ["(510) 287-0468 (Mon-Fri 8am-4:30pm)", "866-403-2683 (U - listed in a search summary of the EBMUD page; confirm)"],
+    "form": "EBMUD CAP application (online or downloadable)",
+    "auto_via": [],
+    "status_2026": "Active. Program page lists the income table without a year label (U).",
+    "source": "https://www.ebmud.com/cap",
+    "confidence": "high"
+  },
+  {
+    "name": "San Jose Water Customer Assistance Program (CAP) - water bill discount",
+    "level": "utility",
+    "city": "San Jose (and other San Jose Water service areas)",
+    "agency": "San Jose Water (investor-owned utility, regulated by the CPUC)",
+    "category": "Bills and phone",
+    "who": "Bill in your name (or submetered mobile-home tenant); household gross income from all sources at or under the June 1, 2026 to May 31, 2027 limits: $43,280 (1-2 persons), $54,640 (3), $66,000 (4), $77,360 (5), $88,720 (6), $100,080 (7), $111,440 (8), plus $11,360 per additional person (from tariff Schedule CAP AL626, June 2026). Not claimed as a dependent. Enrollment in PG&E CARE or a CPUC-authorized income declaration is required; declaration renews every two years.",
+    "benefit": "15% discount on the total water bill.",
+    "apply_where": "Apply through sjwater.com (CAP page). Reapply when you move; notify San Jose Water within 30 days if you become ineligible.",
+    "apply_web": [
+      ["San Jose Water CAP", "https://sjwater.com/CAP"],
+      ["Schedule CAP AL626 (June 2026 tariff, PDF)", "https://www.sjwater.com/media/y1xkt3sl/schedule-cap-al626-june-2026.pdf"]
+    ],
+    "apply_phone": [],
+    "form": "CPUC-authorized income eligibility declaration (U - form not retrieved)",
+    "auto_via": ["PG&E CARE enrollment (satisfies the declaration requirement per the tariff)"],
+    "status_2026": "Active. Tariff effective June 1, 2026.",
+    "source": "https://www.sjwater.com/media/y1xkt3sl/schedule-cap-al626-june-2026.pdf",
+    "confidence": "medium"
+  },
+  {
+    "name": "LA Metro LIFE (Low Income Fare is Easy)",
+    "level": "transit",
+    "city": "Los Angeles County (valid on Metro and 16 participating agencies, including Long Beach Transit)",
+    "agency": "LA County Metropolitan Transportation Authority (Metro)",
+    "category": "Transportation",
+    "who": "Age 18 or older and head of household. Income limits (U - from a secondary source; official page lists them without a year): $58,300 (1 person), $66,650 (2), $74,950 (3), $83,300 (4), plus $6,650 per additional person. Or enrolled in CalFresh/EBT/SNAP, Medi-Cal, SSI, General Relief or other public assistance. Photo ID for each applicant listed; LA County residency needed.",
+    "benefit": "First 90 days: free unlimited rides on Metro and participating agencies. After that choose 20 free rides per month (rides roll over) or discounted passes (up to $24 off a monthly pass or EZ Pass). Reduced Fare TAP discounts can be combined. South LA and Pomona ZIP codes get 6 extra months of free rides.",
+    "apply_where": "Apply online at taptogo.net (LIFE application, under 10 minutes). Paper applications and in-person help at Metro Customer Centers, community events, or International Institute of Los Angeles offices (Southwest LA 323-870-8567; Northwest Van Nuys 818-527-4464; Southeast El Monte 818-244-2550).",
+    "apply_web": [
+      ["LIFE program page", "https://www.metro.net/projects/life/"],
+      ["LIFE application (TAP To Go)", "https://taptogo.net"]
+    ],
+    "apply_phone": ["213-922-2378"],
+    "form": "Online LIFE application; paper application available by email lifeinfo@metro.net",
+    "auto_via": ["CalFresh/EBT/SNAP", "Medi-Cal", "SSI", "General Relief", "Social Security or SSDI (U - from a secondary source)", "TANF (U)"],
+    "status_2026": "Active per Metro page (U on whether 2026 income table is current).",
+    "source": "https://www.metro.net/projects/life/",
+    "confidence": "high"
+  },
+  {
+    "name": "Clipper START (Bay Area income-based discount) and SF Muni Lifeline Pass",
+    "level": "transit",
+    "city": "San Francisco and the 9-county Bay Area",
+    "agency": "Bay Area transit agencies via MTC Clipper program; SFMTA for Muni Lifeline Pass",
+    "category": "Transportation",
+    "who": "Household adjusted gross income at or under 200% of federal poverty level. 2026 limits per SFMTA page: $31,920 (1 person), $43,280 (2), $66,000 (4); $11,360 more per person beyond the table (U - the 3-person figure is printed with a typo on the page; confirm). Live in the Bay Area (U). Age rules in older materials (ages 19-64) are unverified for 2026.",
+    "benefit": "Muni Lifeline monthly pass at $43 (50% off a regular Muni monthly pass) for the full calendar month; Clipper START also offers single-ride discounts.",
+    "apply_where": "Apply at clipperstartcard.com; provide proof of identity and income. CalFresh recipients can sign in with Login.gov. Medi-Cal, EBT or WIC card copies can be used as proof. Otherwise complete the Income Verification Form. SFMTA Customer Service Center: 11 South Van Ness Ave, San Francisco.",
+    "apply_web": [
+      ["Clipper START", "https://clipperstartcard.com"],
+      ["SFMTA Lifeline Pass", "https://www.sfmta.com/lifeline"]
+    ],
+    "apply_phone": [],
+    "form": "Clipper START online application; Income Verification Form (paper)",
+    "auto_via": ["Medi-Cal", "CalFresh/EBT", "WIC"],
+    "status_2026": "Active per SFMTA 2026 page. SFMTA says the Lifeline pass is moving to Clipper START (timing unclear, U).",
+    "source": "https://www.sfmta.com/lifeline",
+    "confidence": "medium"
+  },
+  {
+    "name": "Free Muni for youth (under 19)",
+    "level": "transit",
+    "city": "San Francisco",
+    "agency": "SFMTA",
+    "category": "Transportation",
+    "who": "Youth under 19 (U - an SFMTA podcast page says 18 and younger; a climate profile says under 19). Ages 19-22 who are English learners or in special education (U). No income or residency test per 2021 SFMTA announcement.",
+    "benefit": "Free rides on Muni buses, streetcars and metro trains. Cable cars not covered for non-residents (per 2021 notice).",
+    "apply_where": "No application as of 2021 announcement. Check SFMTA for current rules.",
+    "apply_web": [
+      ["SFMTA Young People Ride Muni Free", "https://www.sfmta.com/blog/young-people-ride-muni-free"]
+    ],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Unverified (U). Last confirmed funding was through FY2024; no 2026 notice found.",
+    "source": "https://www.sfmta.com/blog/young-people-ride-muni-free",
+    "confidence": "low"
+  },
+  {
+    "name": "Youth Opportunity Pass (free transit for youth)",
+    "level": "transit",
+    "city": "San Diego (region)",
+    "agency": "San Diego MTS and SANDAG (Youth PRONTO)",
+    "category": "Transportation",
+    "who": "Youth 18 and under (MTS page says ages 6-18 with a Youth PRONTO card or app account; U). Children 5 and under ride free without a card. Proof of age required (school ID, birth certificate or government photo ID).",
+    "benefit": "Free rides on MTS and NCTD. Pass valid until 19th birthday (U).",
+    "apply_where": "Create a Youth PRONTO app account or get a Youth PRONTO card; send proof of age.",
+    "apply_web": [
+      ["MTS Youth Ride Free with PRONTO", "https://sdmts.com/youth-opportunity-pass"],
+      ["SANDAG Youth Opportunity Pass", "https://www.sandag.org/YOP"]
+    ],
+    "apply_phone": [],
+    "form": "Youth PRONTO account or card; proof-of-age upload",
+    "auto_via": [],
+    "status_2026": "Active. Hoodline (June 2026) reports SANDAG extended it through June 2027 (U). Older MTS pages still show June 30, 2026 end date.",
+    "source": "https://sdmts.com/youth-opportunity-pass",
+    "confidence": "medium"
+  },
+  {
+    "name": "Tenant Right to Counsel (TRC) - free eviction defense",
+    "level": "city",
+    "city": "San Francisco",
+    "agency": "City and County of San Francisco (funded through the Eviction Defense Collaborative and partner nonprofits)",
+    "category": "Housing",
+    "who": "Tenants facing an eviction notice or unlawful detainer complaint in San Francisco. Not limited by income in the admin code provision (U).",
+    "benefit": "Free attorney representation or litigation help in an eviction case. Coverage starts 30 days after the eviction notice, or at service of the complaint, whichever is first. Program reports 93% success rate (advocate figures).",
+    "apply_where": "Contact the Eviction Defense Collaborative or your tenant rights group; apply through the TRC intake process.",
+    "apply_web": [
+      ["SF Admin Code ch. 58 (TRC)", "https://gocodebook.com/library/us/ca/san-francisco-admin/title-4-supplemental-provisions-sec.-43.15.25.-liberal-construction/chapter-58-right-to-counsel-in-civil-matters/sec.-58.4.-provision-of-legal-representation-for-tenants-facing-eviction"],
+      ["BayLegal TRC summary", "https://baylegal.org/tenant-right-to-counsel-prevents-homelessness/"]
+    ],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Active. A TRC Coordinator job posting shows the program operating with July 1, 2026 start (U).",
+    "source": "https://baylegal.org/tenant-right-to-counsel-prevents-homelessness/",
+    "confidence": "medium"
+  },
+  {
+    "name": "Stay Housed LA (eviction defense and short-term rental assistance)",
+    "level": "city",
+    "city": "Los Angeles",
+    "agency": "Los Angeles Housing Department (LAHD) and LA County (joint program); Legal Aid Foundation of Los Angeles is the main legal provider",
+    "category": "Housing",
+    "who": "Low-income tenants facing an unlawful detainer case. Rental assistance is reserved for income-eligible households (U - exact income limit not verified).",
+    "benefit": "Free limited or full-scope legal representation in eviction cases; short-term rental assistance to settle or prevent eviction; other supportive services.",
+    "apply_where": "Contact Stay Housed LA intake through LAHD or the Legal Aid Foundation of Los Angeles.",
+    "apply_web": [
+      ["LA Housing Department", "https://housing.lacity.gov"]
+    ],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Active. LA City Council approved LAHD contracts in March 2026 for a 15-month initial funding period (U).",
+    "source": "https://www.libertyhill.org/news/blog/stay-housed-la-contract-approved",
+    "confidence": "medium"
+  },
+  {
+    "name": "Keep Oakland Housed",
+    "level": "city",
+    "city": "Oakland",
+    "agency": "City of Oakland with nonprofit partners (Bay Area Community Services, Catholic Charities of the East Bay, East Bay Community Law Center)",
+    "category": "Housing",
+    "who": "Households at or below 50% of area median income facing eviction or homelessness (U - from older program materials).",
+    "benefit": "Eviction legal representation and up to $7,000 in rent or financial help paid to landlord or vendor.",
+    "apply_where": "Call 211 or contact a partner agency.",
+    "apply_web": [
+      ["Keep Oakland Housed (older site)", "https://keepoaklandhoused.org"]
+    ],
+    "apply_phone": ["211"],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Unverified (U). No 2026 source found confirming it is operating.",
+    "source": "https://prizeforcities.org/database/keep-oakland-housed",
+    "confidence": "low"
+  },
+  {
+    "name": "San Diego Housing Commission Housing Choice Voucher (Section 8) waitlist",
+    "level": "local agency",
+    "city": "San Diego",
+    "agency": "San Diego Housing Commission (SDHC)",
+    "category": "Housing",
+    "who": "Would apply by income and need. Waitlist closed.",
+    "benefit": "Section 8 voucher (rent subsidy). Applications submitted before closing remain active.",
+    "apply_where": "Closed to new applicants since Feb 1, 2026 at 11:59 p.m.",
+    "apply_web": [
+      ["SDHC wait list portal", "https://www.sdhc.org/housing-opportunities/help-with-your-rent/wait-list-portal/"]
+    ],
+    "apply_phone": ["619-578-7640 (SDHC Wait List Call Center)"],
+    "form": "Waitlist portal (closed)",
+    "auto_via": [],
+    "status_2026": "Closed since Feb 1, 2026. No selections since Aug 2022; list over 76,000 (per news reporting).",
+    "source": "https://www.sdhc.org/housing-opportunities/help-with-your-rent/wait-list-portal/",
+    "confidence": "high"
+  },
+  {
+    "name": "Housing Authority of the County of San Diego Section 8 waitlist",
+    "level": "local agency",
+    "city": "San Diego County (including some cities)",
+    "agency": "Housing Authority of the County of San Diego",
+    "category": "Housing",
+    "who": "Income-eligible households. Waitlist closed.",
+    "benefit": "Section 8 voucher.",
+    "apply_where": "Closed effective Feb 20, 2026 (per Hoodline, U).",
+    "apply_web": [],
+    "apply_phone": [],
+    "form": "None",
+    "auto_via": [],
+    "status_2026": "Closed (U).",
+    "source": "https://hoodline.com/2026/02/san-diego-slams-door-on-section-8-as-rent-aid-cash-runs-out/",
+    "confidence": "low"
+  },
+  {
+    "name": "Los Angeles HACLA Section 8 waitlist and public housing list",
+    "level": "local agency",
+    "city": "Los Angeles",
+    "agency": "Housing Authority of the City of Los Angeles (HACLA)",
+    "category": "Housing",
+    "who": "Income-eligible households. Section 8 waitlist last opened by lottery in October 2022 (30,000 selected). Public housing has a city-wide waitlist.",
+    "benefit": "Section 8 voucher or public housing unit.",
+    "apply_where": "All Section 8 and public housing management moved to the Rent Cafe portal on Jan 1, 2026 (U). Phone 213-252-2500 (U).",
+    "apply_web": [
+      ["HACLA", "https://www.hacla.org"]
+    ],
+    "apply_phone": ["213-252-2500 (U)"],
+    "form": "Rent Cafe portal (U)",
+    "auto_via": [],
+    "status_2026": "Section 8 closed (U). Public housing list reported open (U, conflicting sources). Verify directly.",
+    "source": "https://affordablehousinghub.org/housing/california/los-angeles-county/los-angeles/housing-authority-of-the-city-of-los-angeles-304-authority",
+    "confidence": "low"
+  },
+  {
+    "name": "Oakland Housing Authority Section 8 and public housing waitlists",
+    "level": "local agency",
+    "city": "Oakland",
+    "agency": "Housing Authority of the City of Oakland (OHA)",
+    "category": "Housing",
+    "who": "Income-eligible households. Section 8 list opened by lottery in January 2025 (5,000 selected) (U).",
+    "benefit": "Section 8 voucher or public housing unit.",
+    "apply_where": "Check oakha.org (U). Public housing pre-applications ran March 16 to March 29, 2026 for some sites (U).",
+    "apply_web": [
+      ["OHA", "https://oakha.org"]
+    ],
+    "apply_phone": [],
+    "form": "Online pre-application (U)",
+    "auto_via": [],
+    "status_2026": "Section 8 closed (U). Public housing March 2026 window passed (U).",
+    "source": "https://affordablehousingonline.com/open-section-8-waiting-lists/California/Oakland",
+    "confidence": "low"
+  },
+  {
+    "name": "Sacramento Housing and Redevelopment Agency (SHRA) waitlists",
+    "level": "local agency",
+    "city": "Sacramento",
+    "agency": "Sacramento Housing and Redevelopment Agency (SHRA)",
+    "category": "Housing",
+    "who": "Income-eligible households.",
+    "benefit": "Section 8 voucher or public housing unit.",
+    "apply_where": "Check shra.org. Third-party trackers say not accepting applications (U).",
+    "apply_web": [
+      ["SHRA", "https://www.shra.org"]
+    ],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Section 8 closed (U). Some public housing lists may be open (U).",
+    "source": "https://affordablehousingonline.com/open-section-8-waiting-lists/California/Sacramento",
+    "confidence": "low"
+  },
+  {
+    "name": "Fresno Housing Authority waitlists",
+    "level": "local agency",
+    "city": "Fresno",
+    "agency": "Housing Authority of the City of Fresno / Housing Authority of Fresno County",
+    "category": "Housing",
+    "who": "Income-eligible households.",
+    "benefit": "Section 8 voucher or public housing unit.",
+    "apply_where": "Check the official housing authority website or call (U).",
+    "apply_web": [],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Section 8 closed (U). Public housing interest list opened July 7, 2026 and closed July 28, 2026 (U).",
+    "source": "https://affordablehousingonline.com/open-section-8-waiting-lists/California/Fresno",
+    "confidence": "low"
+  },
+  {
+    "name": "Long Beach Housing Authority waitlists",
+    "level": "local agency",
+    "city": "Long Beach",
+    "agency": "Housing Authority of the City of Long Beach",
+    "category": "Housing",
+    "who": "Income-eligible households.",
+    "benefit": "Section 8 voucher or public housing unit.",
+    "apply_where": "Check the Long Beach Housing Authority site or call (U).",
+    "apply_web": [],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Section 8 closed (U). Public housing list was scheduled to reopen Sept 15, 2026 for accessible and 2-bedroom units (U); current status unknown.",
+    "source": "https://affordablehousinghub.org/waiting-list-announcements/waiting-list-openings-september-14-2026",
+    "confidence": "low"
+  },
+  {
+    "name": "SF DAHLIA affordable housing lottery portal",
+    "level": "city",
+    "city": "San Francisco",
+    "agency": "Mayor's Office of Housing and Community Development (MOHCD)",
+    "category": "Housing",
+    "who": "Income limits vary by listing (BMR and 100% affordable units). Lottery preferences apply for SF residents, certain city workers and others.",
+    "benefit": "Chance at a below-market rent or affordable unit through a lottery.",
+    "apply_where": "Create an account and apply to open listings on the DAHLIA portal.",
+    "apply_web": [
+      ["DAHLIA portal", "https://housing.sfgov.org"],
+      ["How the affordable housing lottery works", "https://www.sf.gov/information/how-affordable-housing-lottery-works"]
+    ],
+    "apply_phone": [],
+    "form": "Online DAHLIA application",
+    "auto_via": [],
+    "status_2026": "Active portal. Most 2026 listings found have closed; check housing.sfgov.org for open listings (e.g., Brightwell West had an expected late April 2026 window, U).",
+    "source": "https://www.sf.gov/information/how-affordable-housing-lottery-works",
+    "confidence": "high"
+  },
+  {
+    "name": "Access Housing LA (affordable listings and open waitlists)",
+    "level": "city",
+    "city": "Los Angeles",
+    "agency": "Los Angeles Housing Department (LAHD)",
+    "category": "Housing",
+    "who": "Income-based listings; many are not federally funded and do not require ID or proof of residency (per portal FAQ). Affordability can be up to 50% of income.",
+    "benefit": "Search and apply to affordable and accessible housing listings and open waitlists citywide.",
+    "apply_where": "Online portal; questions to lahd.achp@lacity.org or (213) 808-8550 (per May 2026 LAHD post, U).",
+    "apply_web": [
+      ["Access Housing LA FAQ", "https://access.housing.lacity.gov/faq"]
+    ],
+    "apply_phone": ["(213) 808-8550 (U)"],
+    "form": "Online listing application",
+    "auto_via": [],
+    "status_2026": "Active (U).",
+    "source": "https://access.housing.lacity.gov/faq",
+    "confidence": "medium"
+  },
+  {
+    "name": "LA BIG:LEAP guaranteed income pilot (and successor STAY SAFE)",
+    "level": "city",
+    "city": "Los Angeles",
+    "agency": "City of Los Angeles (Council District funding; Community Investment for Families Department)",
+    "category": "Cash",
+    "who": "Original BIG:LEAP was for households below the poverty line. Successor STAY SAFE (2025 council action, U) targets survivors of intimate partner violence and transitional-age foster youth ages 16-24.",
+    "benefit": "Original pilot paid $1,000 per month for 12 months (Jan 2022 to Mar 2023). STAY SAFE expected to pay $1,000 per month for two years to about 83 participants (U).",
+    "apply_where": "Not applicable. Original pilot ended. Check LA City Council or CIFD for STAY SAFE enrollment (U).",
+    "apply_web": [],
+    "apply_phone": [],
+    "form": "None listed",
+    "auto_via": [],
+    "status_2026": "Original BIG:LEAP ended in March 2023. STAY SAFE launch status in 2026 not verified (U).",
+    "source": "https://abc7.com/post/los-angeles-city-council-unanimously-votes-allocate-2m-guaranteed-income-program/17458432/",
+    "confidence": "low"
+  }
+]

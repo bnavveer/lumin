@@ -31,7 +31,7 @@ export function chatApi(conv: Conversation): Hono {
       return c.json(await conv.handleWeb(id.data, body.data.text));
     } catch (err) {
       console.error('[chat] turn failed', err);
-      return c.json({ error: 'Aid had a problem answering. Please try again.' }, 502);
+      return c.json({ error: 'Lumin had a problem answering. Please try again.' }, 502);
     }
   });
 

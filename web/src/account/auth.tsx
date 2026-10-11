@@ -11,7 +11,7 @@ type AuthValue = {
   user: Pick<User, 'id' | 'email'> | null
   loading: boolean
   getToken: () => Promise<string | null>
-  signUp: (input: SignUpInput) => Promise<void>
+  signUp: (input: SignUpInput) => Promise<boolean>
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
 }
@@ -54,8 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     const sb = await getSupabase()
-    const { error } = await sb.auth.signInWithPassword({ email, password })
+    const { data, error } = await sb.auth.signInWithPassword({ email, password })
     if (error) throw new ApiError(401, error.message)
+    setSession(data.session)
   }, [])
 
   const signUp = useCallback(
@@ -64,19 +65,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(input),
-      })
+      }).catch(() => { throw new ApiError(0, 'Could not reach Lumin. Check your connection and try again.') })
       if (!res.ok) {
         const body = (await res.json().catch(() => null)) as { error?: string } | null
         throw new ApiError(res.status, body?.error ?? 'Could not create your account.')
       }
+      const body = await res.json() as { confirmationRequired?: boolean }
+      if (body.confirmationRequired) return true
       await signIn(input.email, input.password)
+      return false
     },
     [signIn],
   )
 
   const signOut = useCallback(async () => {
     const sb = await getSupabase()
-    await sb.auth.signOut()
+    const { error } = await sb.auth.signOut()
+    if (error) throw new ApiError(0, error.message)
     setSession(null)
   }, [])
 

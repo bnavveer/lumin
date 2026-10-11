@@ -11,14 +11,14 @@ describe('combined app', () => {
   it('serves the browser app and public phone config without exposing environment values', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'aid-web-test-'));
     try {
-      writeFileSync(join(dir, 'index.html'), '<html><body>Aid frontend</body></html>');
+      writeFileSync(join(dir, 'index.html'), '<html><body>Lumin frontend</body></html>');
       const app = createApp({} as Conversation, { phone: '+12135550100', webRoot: dir });
       expect(await (await app.request('/api/config')).json()).toEqual({ phone: '+12135550100' });
       expect(await (await app.request('/health')).json()).toEqual({ ok: true });
       for (const route of ['/chat', '/privacy-policy', '/terms']) {
         const response = await app.request(route);
         expect(response.status).toBe(200);
-        expect(await response.text()).toContain('Aid frontend');
+        expect(await response.text()).toContain('Lumin frontend');
       }
       expect((await app.request('/api/not-a-route')).status).toBe(404);
       expect((await app.request('/assets/missing.js')).status).toBe(404);

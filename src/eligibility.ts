@@ -85,7 +85,7 @@ function section8(h: Household): ProgramMatch {
   if (onePerson === undefined) return match('section8', 'needs_info', null, 'We are confirming this county’s income limit.');
   const limit = Math.round((onePerson / P.HUD_SIZE_ADJ[1]) * P.HUD_SIZE_ADJ[Math.min(h.size, 8)]);
   if (h.monthlyIncome * 12 > limit) return match('section8', 'not_eligible', null, `Section 8 is for income under about $${limit.toLocaleString()}/yr.`);
-  return match('section8', 'likely', null, 'You are under the income limit. Waitlists are often closed; Aid will watch them and call for you.');
+  return match('section8', 'likely', null, 'You are under the income limit. Waitlists are often closed; Lumin will watch them and call for you.');
 }
 
 export function checkEligibility(h: Household): ProgramMatch[] {

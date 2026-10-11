@@ -98,7 +98,7 @@ export function demoCases(): CaseSummary[] {
 
 const MARIA_SMS: Array<[Message['role'], string, number]> = [
   ['user', 'hi i heard you can help with food stamps', 26 * HOUR],
-  ['assistant', 'Hi, I am Aid. I help families find benefits like food, health coverage and cash aid. Which county do you live in?', 26 * HOUR - MIN],
+  ['assistant', 'Hi, I am Lumin. I help families find benefits like food, health coverage and cash aid. Which county do you live in?', 26 * HOUR - MIN],
   ['user', 'los angeles', 26 * HOUR - 2 * MIN],
   ['assistant', 'Thanks. How many people live in your home, and how many are under 18?', 26 * HOUR - 3 * MIN],
   ['user', 'me and my 2 kids so 3', 26 * HOUR - 4 * MIN],
@@ -150,18 +150,18 @@ export function demoAutopilot(): AutopilotState {
 const TAG = ' (demo data)';
 const ANSWERS: Array<[RegExp, string]> = [
   [/submit|time|baseline|fast|hours|how long/i,
-    'Aid households submitted in a median of 1.4 hours versus 312 hours for the baseline cohort, and 100% of 64 Aid households submitted versus 75% of 60 baseline households. That is roughly 220 times faster.'],
+    'Lumin households submitted in a median of 1.4 hours versus 312 hours for the baseline cohort, and 100% of 64 Lumin households submitted versus 75% of 60 baseline households. That is roughly 220 times faster.'],
   [/interview|missed|no.?show/i,
-    'Only 3.1% of Aid households missed their county interview, compared with 30% in the baseline cohort. Rosa is the one open interview right now, and Aid is nudging her to confirm.'],
+    'Only 3.1% of Lumin households missed their county interview, compared with 30% in the baseline cohort. Rosa is the one open interview right now, and Lumin is nudging her to confirm.'],
   [/doc|paper|id\b|paystub|stub/i,
-    'James has had three documents outstanding for 3 days, and Carlos has sent his ID but still owes one more. Aid sends a text reminder once a case sits idle for more than 48 hours.'],
+    'James has had three documents outstanding for 3 days, and Carlos has sent his ID but still owes one more. Lumin sends a text reminder once a case sits idle for more than 48 hours.'],
   [/renew|recert/i,
-    'No renewals are due in the next 30 days in this demo cohort. Aid starts renewals 45 days before the certification period ends so the 30% baseline lapse rate does not repeat.'],
+    'No renewals are due in the next 30 days in this demo cohort. Lumin starts renewals 45 days before the certification period ends so the 30% baseline lapse rate does not repeat.'],
   [/wait|section ?8|housing|voucher/i,
-    'Marcus is on the Section 8 watch: the LA County waitlist was closed when Aid last called 14 days ago. Aid rechecks every two weeks and will text him the moment it opens.'],
+    'Marcus is on the Section 8 watch: the LA County waitlist was closed when Lumin last called 14 days ago. Lumin rechecks every two weeks and will text him the moment it opens.'],
 ];
 const DEFAULT_ANSWER =
-  'Aid is tracking 8 households in this demo, with 4 needing a follow-up today: an interview confirmation, a document reminder, one application ready to submit, and a waitlist check. Ask about submission time, interviews, documents, renewals or the waitlist for details.';
+  'Lumin is tracking 8 households in this demo, with 4 needing a follow-up today: an interview confirmation, a document reminder, one application ready to submit, and a waitlist check. Ask about submission time, interviews, documents, renewals or the waitlist for details.';
 
 export function demoAnswer(q: string): string {
   const hit = ANSWERS.find(([re]) => re.test(q));

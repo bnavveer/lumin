@@ -1,4 +1,4 @@
-// Live web knowledge for Aid: local resources near a ZIP and cited web answers, via Exa + a small LLM.
+// Live web knowledge for Lumin: local resources near a ZIP and cited web answers, via Exa + a small LLM.
 import { tool } from 'ai';
 import type { Context, Hono } from 'hono';
 import { z } from 'zod';

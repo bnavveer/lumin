@@ -64,7 +64,7 @@ describe('agent message building', () => {
 
   it('drops a leading assistant message and attaches photos to the newest message', () => {
     const msgs = buildMessages({ ...base, imageUrls: ['https://media.example/p.jpg'], history: [
-      { channel: 'sms', role: 'assistant', content: 'Aid: please check your info', at: '' },
+      { channel: 'sms', role: 'assistant', content: 'Lumin: please check your info', at: '' },
       { channel: 'sms', role: 'user', content: '[photo]', at: '' },
     ] });
     expect(msgs[0].role).toBe('user');

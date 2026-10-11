@@ -1,15 +1,20 @@
 import 'dotenv/config';
 import { serve } from '@hono/node-server';
-import { fileURLToPath } from 'node:url';
-import { liveConversation, startDialChannels } from './channels.js';
-import { createApp } from './app.js';
+import { liveConversation, startDialChannels, sendProactiveText } from './channels.js';
+import { createApp } from './server.js';
+import { packetRoutes } from './packet.js';
+import { setOutbox, setProactiveMessage, startAutopilotLoop } from './demoRunner.js';
+import { proactiveMessage } from './caseManager/engine.js';
 
 const conv = liveConversation();
-const app = createApp(conv, {
-  phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
-  webRoot: fileURLToPath(new URL('../web/dist/', import.meta.url)),
+setProactiveMessage(proactiveMessage);
+setOutbox(async (householdId, phone, text) => {
+  await sendProactiveText(householdId, phone, text);
+  await conv.recordChannelMessage(phone, 'assistant', text, { mirror: false });
 });
+const app = createApp({ packet: packetRoutes, conversation: conv });
 
 const port = Number(process.env.PORT ?? 3000);
-serve({ fetch: app.fetch, port }, () => console.log(`[aid] chat API on http://localhost:${port}/api/chat`));
+serve({ fetch: app.fetch, port }, () => console.log(`[aid] website, chat, applicant and staff APIs on http://localhost:${port}`));
 if (process.env.DIAL_ENABLED !== 'false') void startDialChannels(conv);
+if (process.env.AUTOPILOT_ENABLED === 'true') startAutopilotLoop();

@@ -84,7 +84,7 @@ async function loadOrCreate(
       immigrationStatus: 'unknown', childrenAreCitizens: true,
     };
     await repo.upsertHousehold(household);
-    await repo.addTimeline(household.id, 'Started texting Aid');
+    await repo.addTimeline(household.id, 'Started texting Lumin');
     isNew = true;
   }
   const [stored, owner] = await Promise.all([repo.getState(household.id), org ? Promise.resolve(org) : repo.orgById(household.orgId)]);

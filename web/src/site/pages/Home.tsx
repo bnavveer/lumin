@@ -4,18 +4,19 @@ import { cx } from '../../components/cx'
 import { CaliforniaFlag } from '../../components/Flags'
 import { Icon } from '../../components/icons'
 import { CarouselControls } from '../../components/Marketing'
-import { Photo, PhotoCredit } from '../../components/Photo'
+import { Photo } from '../../components/Photo'
 import { heroPhotos } from '../../data/photos'
 import { setPendingAttach } from '../chat/useChat'
 import { useSpeech } from '../chat/useSpeech'
 import { Collage } from '../collage'
-import { Banner, composerLabels, Dock, Footer, Header, SkipLink, useStartChat } from '../chrome'
+import { composerLabels, Dock, Footer, Header, SkipLink, useStartChat } from '../chrome'
 import type { Chip, Statement as StatementTokens } from '../copy'
 import { pillClass, Reveal } from '../blocks'
 import { useInView, usePlaying, useReducedMotion } from '../hooks'
 import { useLang } from '../lang'
-import { NightLock, ProgramMosaic, SourceBadges, TextThread } from '../media'
+import { DocumentVault, Padlock, ProgramMosaic, SourceBadges, TextThread } from '../media'
 import { Link, useRouter } from '../router'
+import { ApplicationGuide } from './ApplicationGuide'
 
 export function Home() {
   const { t } = useLang()
@@ -23,10 +24,10 @@ export function Home() {
   return (
     <>
       <SkipLink />
-      <Banner className="bg-white" />
       <main id="main" tabIndex={-1} className="outline-none">
         <HomeHero composerRef={heroRef} />
-        <Statement tokens={t.home.statement} plain={t.home.statementPlain} />
+        <ApplicationGuide />
+        <Statement tokens={t.home.statement} />
         <Features />
         <More />
       </main>
@@ -67,7 +68,6 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
     })
   }, [index, count])
 
-  const current = slides[index]
   return (
     <div className="px-8 max-mobile:px-0">
       <section
@@ -147,7 +147,6 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
                 onNext={() => setIndex((i) => (i + 1) % count)}
               />
             </div>
-            <PhotoCredit photo={current} className="mx-auto mt-5 max-w-[30rem] opacity-80" />
           </div>
         </div>
       </section>
@@ -157,37 +156,68 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
 
 /* ── The big statement that sharpens as you scroll ── */
 
-function ChipIcon({ chip }: { chip: Chip }) {
-  const base = 'mx-[0.08em] inline-flex h-[0.86em] translate-y-[0.1em] items-center justify-center overflow-hidden rounded-full align-baseline'
+// Chips sit on the x-height so they read as part of the sentence. The arrow
+// opens the chat; the lock opens and closes; the flag waves.
+const chipBase =
+  'mx-[0.08em] inline-flex h-[0.86em] -translate-y-[0.04em] items-center justify-center overflow-hidden rounded-full align-middle'
+
+function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
+  const start = useStartChat()
+  const [open, setOpen] = useState(false)
+  const [waves, setWaves] = useState(0)
   if (chip === 'flag')
     return (
-      <span className={cx(base, 'w-[1.3em] bg-white ring-1 ring-border-tertiary')}>
-        <CaliforniaFlag width={64} className="h-full w-full scale-[1.15] object-cover" />
-      </span>
+      <button
+        type="button"
+        aria-label={label}
+        onClick={() => setWaves((n) => n + 1)}
+        className={cx(chipBase, 'w-[1.3em] cursor-pointer bg-white ring-1 ring-border-tertiary transition-transform duration-300 ease-out-quint hover:scale-105 focus-ring')}
+      >
+        <span key={waves} className={cx('h-full w-full', waves > 0 && 'animate-[flag-wave_.9s_var(--ease-out-quint)]')}>
+          <CaliforniaFlag width={64} className="h-full w-full scale-[1.15] object-cover" />
+        </span>
+      </button>
     )
   if (chip === 'lock')
     return (
-      <span className={cx(base, 'w-[0.86em] bg-[radial-gradient(circle_at_30%_30%,#ffe0f2,#ffb3d9_45%,#c9b8ff)] text-[#7b2a5a]')}>
-        <Icon name="lock" size={28} strokeWidth={2} className="h-[0.45em] w-[0.45em]" />
-      </span>
+      <button
+        type="button"
+        aria-label={label}
+        aria-pressed={open}
+        onClick={() => setOpen((o) => !o)}
+        className={cx(
+          chipBase,
+          'w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_30%,#ffe0f2,#ffb3d9_45%,#c9b8ff)] text-[#7b2a5a] transition-transform duration-300 ease-out-quint hover:scale-105 active:scale-95 focus-ring',
+        )}
+      >
+        <Padlock open={open} className="h-[0.5em] w-[0.5em]" hole="#ffd3ea" />
+      </button>
     )
   return (
-    <span className={cx(base, 'w-[0.86em] bg-[radial-gradient(circle_at_30%_25%,#8fb8ff,#2f6bff_55%,#0b2a8f)] text-white shadow-[0_8px_24px_#2f6bff40]')}>
-      <Icon name="arrow-right" size={28} strokeWidth={2.25} className="h-[0.42em] w-[0.42em]" />
-    </span>
+    <button
+      type="button"
+      aria-label={label}
+      onClick={() => start('')}
+      className={cx(
+        chipBase,
+        'group w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_25%,#8fb8ff,#2f6bff_55%,#0b2a8f)] text-white shadow-[0_8px_24px_#2f6bff40] transition-[scale,box-shadow] duration-300 ease-out-quint hover:scale-105 hover:shadow-[0_10px_30px_#2f6bff66] active:scale-95 focus-ring',
+      )}
+    >
+      <Icon name="arrow-right" size={28} strokeWidth={2.25} className="h-[0.42em] w-[0.42em] transition-transform duration-300 ease-out-quint group-hover:translate-x-[0.06em]" />
+    </button>
   )
 }
 
-function Statement({ tokens, plain }: { tokens: StatementTokens; plain: string }) {
+function Statement({ tokens }: { tokens: StatementTokens }) {
   const ref = useRef<HTMLParagraphElement>(null)
   const reduced = useReducedMotion()
   const [progress, setProgress] = useState(reduced ? 1 : 0)
 
   // Split into words; chips count as one word each.
-  const words: ({ w: string } | { chip: Chip })[] = []
+  const words: ({ w: string } | { chip: Chip; label: string })[] = []
   for (const tok of tokens) {
     if (typeof tok === 'string') tok.split(' ').filter(Boolean).forEach((w) => words.push({ w }))
-    else words.push({ chip: tok.chip })
+    else words.push({ chip: tok.chip, label: tok.label })
   }
 
   useEffect(() => {
@@ -218,10 +248,8 @@ function Statement({ tokens, plain }: { tokens: StatementTokens; plain: string }
 
   return (
     <section className="mx-auto max-w-[62rem] px-6 pt-48 pb-40 max-mobile:px-5 max-mobile:pt-28 max-mobile:pb-24">
-      <p className="sr-only">{plain}</p>
       <p
         ref={ref}
-        aria-hidden="true"
         className="text-center font-serif text-[clamp(2.25rem,5.4vw,4.25rem)] leading-[1.08] tracking-[-0.04em] [font-variation-settings:'opsz'_72] text-balance"
       >
         {words.map((w, i) => {
@@ -230,7 +258,7 @@ function Statement({ tokens, plain }: { tokens: StatementTokens; plain: string }
           const style = { opacity: 0.12 + 0.88 * local, filter: local < 1 ? `blur(${(1 - local) * 6}px)` : undefined }
           return (
             <span key={i} style={style} className="transition-[opacity,filter] duration-150">
-              {'chip' in w ? <ChipIcon chip={w.chip} /> : w.w}{' '}
+              {'chip' in w ? <ChipIcon chip={w.chip} label={w.label} /> : w.w}{' '}
             </span>
           )
         })}
@@ -243,7 +271,7 @@ function Statement({ tokens, plain }: { tokens: StatementTokens; plain: string }
 
 function Features() {
   const { t } = useLang()
-  const media = [<ProgramMosaic key="m" />, <NightLock key="n" />, <SourceBadges key="s" />, <TextThread key="t" className="aspect-square" />]
+  const media = [<ProgramMosaic key="m" />, <DocumentVault key="v" />, <SourceBadges key="s" />, <TextThread key="t" className="aspect-square" />]
   return (
     <section className="mx-auto flex max-w-[60rem] flex-col gap-28 px-6 max-mobile:gap-20 max-mobile:px-5">
       {t.home.features.map((f, i) => (
