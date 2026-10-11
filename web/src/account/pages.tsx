@@ -17,6 +17,9 @@ import type {
   WorkflowSummary,
 } from '../../../shared/workflow'
 import { Button } from '../components/Button'
+import { cx } from '../components/cx'
+import { Icon } from '../components/icons'
+import { AuthField, AuthLayout, authPrimary, authQuiet, PasswordField } from './AuthLayout'
 import { Page } from '../site/chrome'
 import { Link, useRouter } from '../site/router'
 import { makeApi, request } from './api'
@@ -156,6 +159,7 @@ export function AuthPage({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [confirmation, setConfirmation] = useState(false)
+  const [sentTo, setSentTo] = useState('')
   useEffect(() => {
     if (!auth.loading && auth.user) navigate(next, { replace: true })
   }, [auth.loading, auth.user, next, navigate])
@@ -175,6 +179,7 @@ export function AuthPage({
           phone: String(values.get('phone') ?? '').trim() || undefined,
         })
         if (confirmationRequired) {
+          setSentTo(email)
           setConfirmation(true)
           return
         }
@@ -188,132 +193,90 @@ export function AuthPage({
   }
   if (confirmation)
     return (
-      <AccountShell
-        title="Check your email."
-        intro="Open the confirmation link in your email to finish creating your account, then return here to sign in."
-      >
-        <Link
-          className={linkClass}
-          href={`/login?next=${encodeURIComponent(next)}`}
-        >
-          Go to sign in
-        </Link>
-      </AccountShell>
+      <AuthLayout title="Check your email." showPerks={false} photo="bixby-bridge">
+        <div className="flex items-start gap-4 rounded-[1.5rem] bg-white p-5 ring-1 ring-[#0e21291a]">
+          <span className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-700">
+            <Icon name="mail" size={22} />
+            <span className="absolute -top-0.5 -right-0.5 size-3 rounded-full bg-poppy ring-2 ring-white" />
+          </span>
+          <p className="type-body-m">
+            We sent a confirmation link to <span className="font-medium [overflow-wrap:anywhere]">{sentTo || 'your email'}</span>. Open it to finish creating your account, then come back here to sign in.
+          </p>
+        </div>
+        <p className="mt-4 type-body-s text-secondary">Don’t see it in a few minutes? Check your spam or promotions folder.</p>
+        <div className="mt-8 flex flex-col gap-3">
+          <Link className={authPrimary} href={`/login?next=${encodeURIComponent(next)}`}>
+            Go to sign in
+          </Link>
+          <button type="button" className={authQuiet} onClick={() => setConfirmation(false)}>
+            Use a different email
+          </button>
+        </div>
+      </AuthLayout>
     )
   return (
-    <AccountShell
-      title={
-        staff
-          ? 'Staff sign in'
-          : signup
-            ? 'Keep your next steps together.'
-            : 'Welcome back.'
-      }
+    <AuthLayout
+      photo={staff ? 'cable-car' : signup ? 'golden-gate' : 'lake-tahoe'}
+      showPerks={!staff}
+      title={staff ? 'Staff sign in' : signup ? 'Keep your next steps together.' : 'Welcome back.'}
       intro={
         staff
-          ? 'Sign in with the account your clinic has invited. Access is limited to your clinic’s cases.'
+          ? 'Sign in with the account your clinic invited. You’ll only see your clinic’s cases.'
           : signup
-            ? 'Save your program matches, organize documents, and see what to do next. The county decides eligibility.'
-            : 'Sign in to check your saved programs and application preparation.'
+            ? 'Save your program matches, keep your documents in one place, and see what to do next.'
+            : 'Sign in to see your saved programs and where each application stands.'
       }
     >
-      <div className="max-w-[30rem]">
-        {error && <ErrorNotice message={error} />}
-        <form onSubmit={submit} className="space-y-5">
-          {signup && (
-            <label className="block">
-              First name <span className="text-secondary">(optional)</span>
-              <input
-                name="firstName"
-                autoComplete="given-name"
-                maxLength={80}
-                className={fieldClass}
-              />
-            </label>
-          )}
-          <label className="block">
-            Email
-            <input
-              type="email"
-              name="email"
-              required
-              autoComplete="email"
-              maxLength={254}
-              className={fieldClass}
-            />
-          </label>
-          <label className="block">
-            Password
-            <input
-              type="password"
-              name="password"
-              required
-              minLength={signup ? 8 : 1}
-              maxLength={128}
-              autoComplete={signup ? 'new-password' : 'current-password'}
-              className={fieldClass}
-            />
-            {signup && (
-              <span className="mt-2 block type-body-s text-secondary">
-                Use at least 8 characters.
-              </span>
-            )}
-          </label>
-          {signup && (
-            <label className="block">
-              Phone <span className="text-secondary">(optional)</span>
-              <input
-                type="tel"
-                name="phone"
-                autoComplete="tel"
-                placeholder="+1 213 555 0123"
-                maxLength={24}
-                className={fieldClass}
-              />
-              <span className="mt-2 block type-body-s text-secondary">
-                You can add a contact number later in your account.
-              </span>
-            </label>
-          )}
-          <Button
-            type="submit"
-            size="lg"
-            disabled={busy || auth.loading}
-            className="w-full"
-          >
-            {busy
-              ? signup
-                ? 'Creating account…'
-                : 'Signing in…'
-              : signup
-                ? 'Create account'
-                : 'Sign in'}
-          </Button>
-        </form>
-        {!staff && (
-          <p className="mt-6 type-body-s">
-            {signup ? 'Already have an account? ' : 'New to Lumin? '}
-            <Link
-              className={linkClass}
-              href={`${signup ? '/login' : '/signup'}?next=${encodeURIComponent(next)}`}
-            >
-              {signup ? 'Sign in' : 'Create an account'}
-            </Link>
-          </p>
+      {error && <ErrorNotice message={error} />}
+      <form onSubmit={submit} className="flex flex-col gap-5">
+        {signup && <AuthField label="First name" name="firstName" autoComplete="given-name" maxLength={80} optional />}
+        <AuthField label="Email" type="email" name="email" required autoComplete="email" maxLength={254} inputMode="email" />
+        <PasswordField
+          label="Password"
+          name="password"
+          required
+          minLength={signup ? 8 : 1}
+          maxLength={128}
+          autoComplete={signup ? 'new-password' : 'current-password'}
+          hint={signup ? 'At least 8 characters.' : undefined}
+        />
+        {signup && (
+          <AuthField
+            label="Mobile number"
+            type="tel"
+            name="phone"
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder="(213) 555-0123"
+            maxLength={24}
+            optional
+            hint="For text updates about your applications. You can add it later."
+          />
         )}
-        <p className="mt-5 type-body-s text-secondary">
-          By continuing, you agree to our{' '}
-          <Link className={linkClass} href="/terms">
-            terms
-          </Link>{' '}
-          and{' '}
-          <Link className={linkClass} href="/privacy-policy">
-            privacy policy
+        <button type="submit" disabled={busy || auth.loading} className={cx(authPrimary, 'mt-2')}>
+          {busy ? (signup ? 'Creating account…' : 'Signing in…') : signup ? 'Create account' : 'Sign in'}
+        </button>
+      </form>
+      {!staff && (
+        <p className="mt-6 text-center type-body-s text-secondary">
+          {signup ? 'Already have an account? ' : 'New to Lumin? '}
+          <Link className={linkClass} href={`${signup ? '/login' : '/signup'}?next=${encodeURIComponent(next)}`}>
+            {signup ? 'Sign in' : 'Create an account'}
           </Link>
-          .
         </p>
-      </div>
-    </AccountShell>
+      )}
+      <p className="mt-6 border-t border-[#0e21291a] pt-5 text-center type-label-s leading-normal text-tertiary">
+        By continuing, you agree to our{' '}
+        <Link className="rounded-4 underline underline-offset-2 focus-ring" href="/terms">
+          terms
+        </Link>{' '}
+        and{' '}
+        <Link className="rounded-4 underline underline-offset-2 focus-ring" href="/privacy-policy">
+          privacy policy
+        </Link>
+        .
+      </p>
+    </AuthLayout>
   )
 }
 
@@ -334,25 +297,27 @@ export function RequireAccount({
     )
   if (!user)
     return (
-      <AccountShell
+      <AuthLayout
+        photo={staff ? 'cable-car' : 'venice-palms-sunset'}
+        showPerks={!staff}
         title={staff ? 'Staff access' : 'Your applications, in one place.'}
-        intro="Sign in to open your saved information. If you were checking programs in chat, your next steps will be here after you sign in."
+        intro={
+          staff
+            ? 'Sign in with the account your clinic invited.'
+            : 'Sign in to see your saved answers and next steps. If you started in chat, everything carries over once you sign in.'
+        }
       >
-        <Link
-          className="inline-flex rounded-full bg-blue-700 px-6 py-3 text-white focus-ring"
-          href={`${staff ? '/staff/login' : '/login'}?next=${encodeURIComponent(path + search)}`}
-        >
-          Sign in
-        </Link>
-        {!staff && (
-          <Link
-            className={`${linkClass} ml-6`}
-            href={`/signup?next=${encodeURIComponent(path + search)}`}
-          >
-            Create an account
+        <div className="flex gap-3 max-mobile:flex-col">
+          <Link className={cx(authPrimary, 'flex-1 max-mobile:flex-none')} href={`${staff ? '/staff/login' : '/login'}?next=${encodeURIComponent(path + search)}`}>
+            Sign in
           </Link>
-        )}
-      </AccountShell>
+          {!staff && (
+            <Link className={cx(authQuiet, 'flex-1 max-mobile:flex-none')} href={`/signup?next=${encodeURIComponent(path + search)}`}>
+              Create an account
+            </Link>
+          )}
+        </div>
+      </AuthLayout>
     )
   return children
 }

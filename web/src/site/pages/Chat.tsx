@@ -315,6 +315,9 @@ const asks: Record<string, RegExp> = {
 
 function suggestReplies(t: Copy, view: Omit<WebView, 'messages'>, last: string): string[] {
   if (view.status !== 'collecting' || !last.trim().endsWith('?')) return []
-  const field = view.missing.find((f) => asks[f]?.test(last))
+  // Only the question itself counts, not the sentences before it
+  // ("Only the county decides… What's your first name?" must not offer counties).
+  const question = last.trim().split(/(?<=[.!?])\s+|\n+/).filter((x) => x.trim().endsWith('?')).pop() ?? ''
+  const field = view.missing.find((f) => asks[f]?.test(question))
   return field ? (t.replies[field] ?? []) : []
 }

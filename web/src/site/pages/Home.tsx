@@ -53,7 +53,7 @@ function HomeHero() {
     <div className="px-6 max-mobile:px-0">
       <section
         aria-label={t.home.title}
-        className="relative isolate mx-auto max-w-[96rem] overflow-hidden rounded-[3rem] bg-[linear-gradient(180deg,var(--color-fog)_0%,#f3f1ea_48%,var(--color-sand)_100%)] pb-6 max-mobile:rounded-[2rem] max-mobile:rounded-t-none max-mobile:pb-3"
+        className="relative mx-auto max-w-[96rem] overflow-hidden rounded-[3rem] bg-[linear-gradient(180deg,var(--color-fog)_0%,#f3f1ea_48%,var(--color-sand)_100%)] pb-6 max-mobile:rounded-[2rem] max-mobile:rounded-t-none max-mobile:pb-3"
       >
         <Header className="!max-w-none px-12 pt-8 max-mobile:px-4 max-mobile:pt-4" />
 
@@ -65,11 +65,11 @@ function HomeHero() {
         <div className="relative mx-6 aspect-[16/7.2] overflow-hidden rounded-[2.25rem] bg-[#c9d6d4] shadow-[0_30px_80px_-20px_#12323d59] max-[1100px]:aspect-[16/10] max-mobile:mx-3 max-mobile:aspect-[4/5.4] max-mobile:rounded-[1.75rem]">
           <HeroStage holding={holding} onIndex={setIndex} prevLabel={t.home.carousel.prev} nextLabel={t.home.carousel.next} />
 
-          {/* The slot keeps the bar's place in the photo; the bar itself docks to the bottom of the screen */}
+          {/* The slot keeps the bar's place in the photo; the bar itself docks to the top of the screen */}
           <div ref={slot} className="absolute inset-x-0 bottom-[5rem] mx-auto w-[min(46rem,calc(100%-2rem))] max-mobile:bottom-[4.5rem]">
           <div
             ref={bar}
-            className={cx(docked ? 'fixed inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-40 mx-auto w-[min(46rem,calc(100%-2rem))]' : 'relative')}
+            className={cx(docked ? 'fixed inset-x-0 top-[calc(1rem+env(safe-area-inset-top))] z-[70] mx-auto w-[min(46rem,calc(100%-2rem))]' : 'relative')}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           >
@@ -104,7 +104,7 @@ function HomeHero() {
           <div
             aria-hidden="true"
             className={cx(
-              'pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32 bg-gradient-to-t from-white via-white/80 to-transparent transition-opacity duration-500',
+              'pointer-events-none fixed inset-x-0 top-0 z-[69] h-28 bg-gradient-to-b from-white via-white/75 to-transparent transition-opacity duration-500',
               docked ? 'opacity-100' : 'opacity-0',
             )}
           />
@@ -118,8 +118,8 @@ function HomeHero() {
 }
 
 // Once the hero's chat bar scrolls off the top, the same bar (with whatever was
-// typed) glides down and docks at the bottom of the screen; scrolling back up
-// glides it back into the photo. FLIP: measure where it was, let it move,
+// typed) slides down into a docked spot at the top of the screen, above
+// everything else on the page; scrolling back up returns it to the photo. FLIP: measure where it was, let it move,
 // then animate from the old spot to the new one.
 function useDockOnScroll() {
   const slot = useRef<HTMLDivElement>(null)
