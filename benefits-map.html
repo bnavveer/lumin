@@ -1,0 +1,969 @@
+<title>Benefits Eligibility Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column; the income ladder is the centerpiece, followed by the gateway diagram and life-situation doors. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #142030;
+  --muted: #586678;
+  --line: #d8dee6;
+  --accent: #1756b8;
+  --accent-soft: #e3ecfa;
+  --ok: #1b7643;
+  --ok-soft: #dff1e6;
+  --warn: #9a5c00;
+  --warn-soft: #f8ecd6;
+  --off: #a2acb8;
+  --bar-off: #e6eaef;
+  --g1: #1756b8;
+  --g2: #0f8a7a;
+  --g3: #8a3fb5;
+  --g4: #b85a17;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141b; --surface: #161f29; --ink: #e5eaf0; --muted: #9ba8b7; --line: #2a3644;
+    --accent: #79abff; --accent-soft: #1b2b45; --ok: #5fcf8d; --ok-soft: #173326; --warn: #e6aa55; --warn-soft: #3a2c15;
+    --off: #5e6b7a; --bar-off: #222d39; --g1: #79abff; --g2: #4fd1bd; --g3: #c58cf0; --g4: #f0a060;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141b; --surface: #161f29; --ink: #e5eaf0; --muted: #9ba8b7; --line: #2a3644;
+  --accent: #79abff; --accent-soft: #1b2b45; --ok: #5fcf8d; --ok-soft: #173326; --warn: #e6aa55; --warn-soft: #3a2c15;
+  --off: #5e6b7a; --bar-off: #222d39; --g1: #79abff; --g2: #4fd1bd; --g3: #c58cf0; --g4: #f0a060;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 64px; display: grid; gap: 48px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.2; }
+h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 16px; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.muted { color: var(--muted); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+header { display: grid; gap: 14px; }
+.lede { font-size: 17px; }
+.fpl-strip { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.fpl-strip b { color: var(--ink); font-weight: 600; }
+section { display: grid; gap: 18px; }
+.sec-head { display: grid; gap: 6px; }
+
+/* Calculator */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; padding: 20px; border-bottom: 1px solid var(--line); }
+.field { display: grid; gap: 6px; align-content: start; }
+.field label.lbl, .field .lbl { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+input[type="number"], select {
+  font: inherit; font-family: var(--font-mono); color: var(--ink); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; width: 100%;
+}
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.checks { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.chk { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 14px; background: var(--bg); user-select: none; }
+.chk input { accent-color: var(--accent); margin: 0; }
+.chk:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.example-note { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.summary { padding: 16px 20px; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: baseline; border-bottom: 1px solid var(--line); }
+.summary .big { font-size: 28px; font-weight: 800; color: var(--ok); }
+.ladder { padding: 8px 20px 20px; overflow-x: auto; }
+.ladder-inner { min-width: 620px; position: relative; padding-bottom: 26px; }
+.axis, .row { display: grid; grid-template-columns: 230px 1fr 132px; gap: 14px; align-items: center; }
+.axis { font-size: 11px; color: var(--muted); padding-block: 10px 6px; }
+.axis-track { position: relative; height: 30px; }
+.tick { position: absolute; top: 0; transform: translateX(-50%); text-align: center; white-space: nowrap; line-height: 1.3; }
+.tick:first-child { transform: none; text-align: left; }
+.tick:last-child { transform: translateX(-100%); text-align: right; }
+.row { padding-block: 7px; border-top: 1px solid var(--line); }
+.row .name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.row .what { font-size: 12.5px; color: var(--muted); line-height: 1.35; font-weight: 400; }
+.track { position: relative; height: 16px; }
+.bar { position: absolute; top: 0; height: 16px; border-radius: 3px; background: var(--bar-off); }
+.bar .cap { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); white-space: nowrap; }
+.row.likely .bar { background: var(--ok); }
+.row.likely .bar .cap { color: var(--surface); }
+.row.needs .bar { background: var(--warn-soft); outline: 1px dashed var(--warn); outline-offset: -1px; }
+.row.needs .bar .cap { color: var(--warn); }
+.row.over .name { color: var(--muted); }
+.marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); pointer-events: none; }
+.marker-wrap { position: absolute; top: 0; bottom: 0; left: calc(230px + 14px); right: calc(132px + 14px); pointer-events: none; }
+.marker-label { position: absolute; bottom: -22px; transform: translateX(-50%); background: var(--accent); color: var(--surface); font-family: var(--font-mono); font-size: 11px; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.pill { justify-self: start; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; line-height: 1.3; }
+.likely .pill { background: var(--ok-soft); color: var(--ok); }
+.needs .pill { background: var(--warn-soft); color: var(--warn); }
+.over .pill { background: var(--bar-off); color: var(--muted); }
+.row .note { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); margin-top: -2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 0 20px 18px; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* Gateway diagram */
+figure { margin: 0; display: grid; gap: 12px; }
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 640px; height: auto; color: var(--ink); }
+figcaption { font-size: 13.5px; color: var(--muted); max-width: 72ch; }
+.n-src rect { stroke-width: 1.5; }
+.n-dst rect { fill: var(--bg); stroke: var(--line); }
+.svg-t { fill: var(--ink); font-family: var(--font-body); font-size: 13px; font-weight: 600; }
+.svg-s { fill: var(--muted); font-family: var(--font-body); font-size: 11px; }
+.svg-h { fill: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; }
+.e { fill: none; stroke-width: 1.6; opacity: 0.85; }
+.e.opt { stroke-dasharray: 5 4; }
+.c1 { stroke: var(--g1); } .c2 { stroke: var(--g2); } .c3 { stroke: var(--g3); } .c4 { stroke: var(--g4); }
+.f1 { fill: var(--g1); } .f2 { fill: var(--g2); } .f3 { fill: var(--g3); } .f4 { fill: var(--g4); }
+.src1 rect { stroke: var(--g1); fill: var(--surface); } .src2 rect { stroke: var(--g2); fill: var(--surface); }
+.src3 rect { stroke: var(--g3); fill: var(--surface); } .src4 rect { stroke: var(--g4); fill: var(--surface); }
+
+/* Doors */
+.doors { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.door { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.door h3 { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.door h3 .tag { font-family: var(--font-mono); font-size: 11px; font-weight: 400; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+.door ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.door li { display: grid; gap: 1px; font-size: 14px; }
+.door li b { font-weight: 600; }
+.door li span { color: var(--muted); font-size: 13px; }
+
+/* Changes + apply */
+.changes { display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.chg { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 14px 18px; border-top: 1px solid var(--line); }
+.chg:first-child { border-top: 0; }
+.chg .when { font-family: var(--font-mono); font-size: 12px; color: var(--warn); padding-top: 2px; }
+.chg p { font-size: 14px; }
+.apply { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.apply div { border-top: 2px solid var(--accent); padding-top: 10px; display: grid; gap: 4px; font-size: 14px; }
+.apply b { font-weight: 600; }
+.copyline { display: inline-flex; gap: 8px; align-items: center; }
+.copyline button { font: inherit; font-size: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 5px; padding: 2px 8px; cursor: pointer; }
+.sources { font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; }
+.sources ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.sources a { color: var(--accent); word-break: break-word; }
+a { color: var(--accent); }
+@media (max-width: 640px) {
+  .chg { grid-template-columns: 1fr; gap: 4px; }
+  .wrap { padding-block: 28px 48px; gap: 40px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar, .marker, .marker-label { transition: left 0.25s ease, width 0.25s ease, background-color 0.2s; }
+}
+
+/* California */
+.offices { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.office { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.office.feature { grid-column: 1 / -1; border-color: var(--accent); background: linear-gradient(var(--accent-soft), var(--accent-soft)) top / 100% 4px no-repeat, var(--surface); }
+.office-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; }
+.office .contact { font-size: 13px; color: var(--accent); overflow-wrap: anywhere; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.small { font-size: 13px; }
+.tbl-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table.cmp { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 14px; }
+.cmp th { text-align: left; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.cmp td { padding: 10px 16px; border-top: 1px solid var(--line); vertical-align: top; }
+.cmp td:first-child { font-weight: 600; white-space: nowrap; }
+.cmp td:nth-child(2) { color: var(--muted); }
+.cmp b { color: var(--ok); font-weight: 600; }
+
+/* Where to apply */
+.row details.ap { grid-column: 1 / -1; position: relative; z-index: 1; margin-top: -2px; }
+.ap summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 600; width: max-content; }
+.ap-body { margin-top: 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; font-size: 13.5px; }
+.ap-body p, .route p { margin: 0; }
+.links a { color: var(--accent); }
+.phones { font-size: 12.5px; }
+.facts { margin: 0; display: grid; gap: 4px; font-size: 13px; }
+.facts div { display: grid; grid-template-columns: 76px 1fr; gap: 10px; }
+.facts dt { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; padding-top: 2px; }
+.facts dd { margin: 0; min-width: 0; }
+#apply-list { display: grid; gap: 28px; }
+.ap-group { display: grid; gap: 10px; }
+.ap-cat { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-family: var(--font-mono); font-weight: 500; }
+.ap-item { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; display: grid; gap: 10px; min-width: 0; }
+.ap-item h4 { margin: 0; font-size: 15px; font-weight: 600; text-wrap: balance; }
+.ca-tag { font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; margin-left: 4px; white-space: nowrap; }
+.routes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 24px; }
+.route { display: grid; gap: 4px; font-size: 13.5px; min-width: 0; overflow-wrap: anywhere; align-content: start; }
+.route:not(.primary) { color: var(--muted); }
+.route-h { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; color: var(--muted); }
+.route.primary .route-h { color: var(--ok); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">U.S. low-income benefits · 2026 rules · <a href="#california">California guide</a></div>
+    <h1>What one person can qualify for</h1>
+    <p class="lede">Almost every program uses the same yardstick: the federal poverty line. Put in your household size and yearly income, and the ladder below shows which programs your income fits under. It also shows which ones need something extra, like kids, a pregnancy, age or a disability.</p>
+    <div class="fpl-strip">
+      <span>2026 poverty line: <b class="mono">$15,960</b> for 1 person</span>
+      <span><b class="mono">+$5,680</b> per extra person</span>
+      <span>Figures are for the 48 contiguous states and D.C.; Alaska and Hawaii are higher</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="ladder-h">
+    <div class="sec-head">
+      <h2 id="ladder-h">The income ladder</h2>
+      <p class="muted">Each bar runs from $0 to that program's income limit, drawn to scale. The blue line is your income. A green bar means you likely qualify. A dashed bar means your income fits but the program also needs something else.</p>
+    </div>
+    <div class="panel">
+      <div class="inputs">
+        <div class="field">
+          <label class="lbl" for="size">People in household</label>
+          <select id="size">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="lbl" for="income">Yearly income before taxes ($)</label>
+          <input id="income" type="number" min="0" step="500" value="18000" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label class="lbl" for="where">Where do you live?</label>
+          <select id="where">
+            <option value="ca" selected>California</option>
+            <option value="us">Another state</option>
+          </select>
+        </div>
+        <div class="field" id="expansion-field">
+          <label class="lbl" for="expansion">Did your state expand Medicaid?</label>
+          <select id="expansion">
+            <option value="yes">Yes (40 states + D.C.)</option>
+            <option value="no">No: AL, FL, GA, KS, MS, SC, TN, TX, WI, WY</option>
+          </select>
+        </div>
+        <div class="checks" role="group" aria-label="Your situation">
+          <label class="chk"><input type="checkbox" id="c-working" checked> I work</label>
+          <label class="chk"><input type="checkbox" id="c-pregnant"> Pregnant</label>
+          <label class="chk"><input type="checkbox" id="c-under5"> Child under 5</label>
+          <label class="chk"><input type="checkbox" id="c-school"> School-age kids</label>
+          <label class="chk"><input type="checkbox" id="c-60"> Age 60+</label>
+          <label class="chk"><input type="checkbox" id="c-65"> 65+ or on Medicare</label>
+          <label class="chk"><input type="checkbox" id="c-disabled"> Disabled or blind</label>
+        </div>
+        <p class="example-note">Pre-filled with an example (one working adult in California earning $18,000). Change it to your own numbers. Nothing you type leaves this page.</p>
+      </div>
+      <div class="summary" aria-live="polite">
+        <span><span class="big mono" id="n-likely">0</span> programs you likely qualify for</span>
+        <span class="muted" id="n-needs"></span>
+        <span class="muted mono" id="pct-line"></span>
+      </div>
+      <div class="ladder">
+        <div class="ladder-inner" id="ladder">
+          <div class="axis"><span>Program</span><div class="axis-track" id="ticks"></div><span>Status</span></div>
+          <div id="rows"></div>
+          <div class="marker-wrap"><div class="marker" id="marker"><span class="marker-label" id="marker-label"></span></div></div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--ok)"></i>Likely qualify</span>
+        <span><i class="sw" style="background:var(--warn-soft);outline:1px dashed var(--warn);outline-offset:-1px"></i>Income fits, needs something else</span>
+        <span><i class="sw" style="background:var(--bar-off)"></i>Over the limit</span>
+      </div>
+    </div>
+    <p class="muted" style="font-size:13px">This is a screening guide, not a decision. Offices count income differently (some use monthly income or subtract rent and childcare first), and states can set higher limits. If you're close to a line, apply anyway.</p>
+  </section>
+
+  <section id="california" aria-labelledby="ca-h">
+    <div class="sec-head">
+      <div class="eyebrow">California</div>
+      <h2 id="ca-h">Where to go in California</h2>
+      <p class="muted">Most help in California comes through one front door: <b>BenefitsCal</b>, the online application for your county's social services office. One application there can cover CalFresh, Medi-Cal and CalWORKs together. Everything else goes through the office listed below.</p>
+    </div>
+    <div class="offices">
+      <div class="office feature">
+        <div class="office-head"><h3>BenefitsCal / county social services</h3><span class="contact"><span class="mono">benefitscal.com</span> · CalFresh helpline <span class="mono">1-877-847-3663</span></span></div>
+        <div class="chips">
+          <span>CalFresh (food)</span><span>Medi-Cal (health)</span><span>CalWORKs (cash for families)</span><span>CalWORKs child care, Stage 1</span><span>CalWORKs Homeless Assistance</span><span>General Relief (county cash)</span><span>CAPI (cash for immigrants)</span><span>CFAP (food for immigrants)</span><span>Medicare Savings Programs</span><span>IHSS in-home care (form SOC 295)</span>
+        </div>
+        <p class="muted small">You can also walk into your county office. Use "Find an Office" on BenefitsCal. Medi-Cal doesn't require an interview to apply.</p>
+      </div>
+      <div class="office">
+        <h3>Social Security</h3>
+        <span class="contact"><span class="mono">ssa.gov/ssi</span> · <span class="mono">1-800-772-1213</span></span>
+        <div class="chips"><span>SSI/SSP ($1,233.94/mo)</span><span>Extra Help (drugs)</span></div>
+      </div>
+      <div class="office">
+        <h3>Covered California</h3>
+        <span class="contact"><span class="mono">coveredca.com</span> · <span class="mono">(800) 300-1506</span></span>
+        <div class="chips"><span>Marketplace plans</span><span>State subsidy to 165% FPL</span></div>
+        <p class="muted small">Open enrollment for 2027 coverage starts Nov 1, 2026. The same application also screens you for Medi-Cal.</p>
+      </div>
+      <div class="office">
+        <h3>Local WIC office</h3>
+        <span class="contact">Find one on the CDPH WIC page (<span class="mono">cdph.ca.gov</span>)</span>
+        <div class="chips"><span>WIC</span></div>
+        <p class="muted small">Bring a pay stub from the last 30 days. Being on Medi-Cal or CalFresh counts as proof of income.</p>
+      </div>
+      <div class="office">
+        <h3>Your gas / electric company</h3>
+        <span class="contact"><span class="mono">pge.com/care</span> · <span class="mono">sce.com</span> · <span class="mono">sdge.com</span> · <span class="mono">socalgas.com</span></span>
+        <div class="chips"><span>CARE (30%+ off)</span><span>FERA (18% off)</span><span>Medical Baseline</span></div>
+        <p class="muted small">A short online form. Being on Medi-Cal, CalFresh, SSI or WIC qualifies you for CARE.</p>
+      </div>
+      <div class="office">
+        <h3>CSD local energy agency</h3>
+        <span class="contact"><span class="mono">csd.ca.gov/energybills</span> → "Find Services in Your Area"</span>
+        <div class="chips"><span>HEAP bill payment</span><span>Weatherization</span></div>
+      </div>
+      <div class="office">
+        <h3>Local housing authority</h3>
+        <span class="contact"><span class="mono">hacla.org</span> · <span class="mono">lacda.org</span> · <span class="mono">sdhc.org</span> · <span class="mono">sfha.org</span> · <span class="mono">oakha.org</span> · <span class="mono">shra.org</span></span>
+        <div class="chips"><span>Section 8 vouchers</span><span>Public housing</span></div>
+        <p class="muted small">Waitlists open rarely. The LA city list (HACLA) last opened in Oct 2022. Apply to every open list in your area. In 2026 the 50% income limit for 1 person in LA County was $58,300.</p>
+      </div>
+      <div class="office">
+        <h3>Your school district</h3>
+        <span class="contact">The district enrollment office</span>
+        <div class="chips"><span>Free meals for all</span><span>Transitional Kindergarten</span><span>State Preschool</span></div>
+        <p class="muted small">TK is free for kids who turn 4 by Sept 1. State Preschool is open to incomes up to 115% of state median income.</p>
+      </div>
+      <div class="office">
+        <h3>At tax time</h3>
+        <span class="contact"><span class="mono">ftb.ca.gov</span> · free filing at a VITA site</span>
+        <div class="chips"><span>CalEITC</span><span>Young Child Tax Credit ($1,189)</span><span>Foster Youth Tax Credit</span></div>
+        <p class="muted small">You must file a California return to get these, even if you earn too little to owe tax.</p>
+      </div>
+      <div class="office">
+        <h3>College aid</h3>
+        <span class="contact"><span class="mono">studentaid.gov</span> (FAFSA) · <span class="mono">dream.csac.ca.gov</span> (CA Dream Act)</span>
+        <div class="chips"><span>Cal Grant (to $15,588 at UC)</span><span>College Promise fee waiver</span><span>Pell Grant</span></div>
+      </div>
+      <div class="office">
+        <h3>211</h3>
+        <span class="contact">Call or text <span class="mono">211</span> · <span class="mono">211la.org</span> in LA County</span>
+        <div class="chips"><span>Shelter / Coordinated Entry</span><span>Food banks</span><span>Eviction help</span></div>
+        <p class="muted small">In LA, eviction help: Stay Housed LA, <span class="mono">(888) 694-0040</span>.</p>
+      </div>
+      <div class="office">
+        <h3>Free legal help</h3>
+        <span class="contact"><span class="mono">lawhelpca.org</span></span>
+        <div class="chips"><span>Evictions</span><span>Benefit denials</span><span>Immigration</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="apply" aria-labelledby="apply-h">
+    <div class="sec-head">
+      <h2 id="apply-h">Where to apply, benefit by benefit</h2>
+      <p class="muted">The first column follows the "Where do you live?" setting in the calculator. Each ladder row above also has a "Where to apply" link. Not sure where to start? Call or text <b class="mono" id="t211">211</b> <span class="copyline"><button type="button" id="copy211">Copy</button></span> for free local help.</p>
+    </div>
+    <div id="apply-list"></div>
+    <p class="muted small">Links and phone numbers were checked in October 2026. A few came from search results because the agency's own site wouldn't load. If one doesn't work, search the program name plus your county.</p>
+  </section>
+
+  <section aria-labelledby="cavs-h">
+    <div class="sec-head">
+      <h2 id="cavs-h">What California adds on top of federal rules</h2>
+      <p class="muted">California pays more than the federal minimum, and it runs its own programs for people the federal rules leave out.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table class="cmp">
+        <thead><tr><th>Help with</th><th>Federal rule</th><th>In California</th></tr></thead>
+        <tbody>
+          <tr><td>Food</td><td>SNAP: up to 130% FPL, asset test</td><td><b>CalFresh: up to 200% FPL</b> (≈ $2,660/mo for 1), no asset test, and SSI recipients can get it too</td></tr>
+          <tr><td>School meals</td><td>Free up to 130% FPL</td><td><b>Free for every public school student</b>, at any income</td></tr>
+          <tr><td>Disability / 65+ cash</td><td>SSI: $994/mo</td><td><b>SSI/SSP: $1,233.94/mo</b> ($2,098.83 for a couple)</td></tr>
+          <tr><td>Health</td><td>Medicaid adults to 138% (if the state expanded)</td><td><b>Medi-Cal:</b> adults 138%, kids 266%, pregnancy 213% (MCAP to 322%)</td></tr>
+          <tr><td>Immigrants left out</td><td>SSI and SNAP restricted</td><td><b>CAPI</b> cash for people 65+, blind or disabled; <b>CFAP</b> food for many lawfully present immigrants</td></tr>
+          <tr><td>Health insurance cost</td><td>ACA subsidy 100–400%</td><td>Plus <b>state help up to 165%</b> FPL (about $45/mo on average)</td></tr>
+          <tr><td>Phone</td><td>Lifeline $9.25/mo</td><td>Plus <b>California LifeLine up to $19/mo</b> (up to $28.25 combined). Enroll in each separately.</td></tr>
+          <tr><td>Energy bills</td><td>LIHEAP up to 150% FPL</td><td><b>HEAP</b> up to 60% of state median income (≈ $39,980 for 1), plus <b>CARE</b> (30%+ off) and <b>FERA</b> (18% off) on every bill</td></tr>
+          <tr><td>Cash for families</td><td>TANF, set by state</td><td><b>CalWORKs</b> about $1,175/mo for a family of 3 in high-cost counties, 60-month limit</td></tr>
+          <tr><td>Adults with no kids</td><td>No federal cash</td><td>County <b>General Relief</b>, e.g. $221/mo in LA County</td></tr>
+          <tr><td>Tax refunds</td><td>EITC, Child Tax Credit</td><td>Plus <b>CalEITC</b> and the <b>Young Child Tax Credit</b> (up to $1,189 with a child under 6)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="cachg-h">
+    <div class="sec-head">
+      <h2 id="cachg-h">California changes in 2026–2027</h2>
+      <p class="muted">State budget cuts and the 2025 federal law hit California programs this year. Some changes haven't started yet.</p>
+    </div>
+    <div class="changes">
+      <div class="chg"><span class="when">Jan 2026</span><p><b>Medi-Cal asset limit is back</b> for seniors and people with disabilities: $130,000 for 1 person, +$65,000 for each extra person. Most working-age adults still have no asset test.</p></div>
+      <div class="chg"><span class="when">Jan 2026</span><p><b>Undocumented adults 19+ can't newly enroll</b> in full Medi-Cal. People already on it keep it if they renew on time. Children and pregnant people are not affected.</p></div>
+      <div class="chg"><span class="when">Apr–Jun 2026</span><p><b>CalFresh tightened.</b> Refugees, asylees and some other immigrants lost federal eligibility (about 72,000 people, per the LAO). The 80-hour work rule for adults 18–64 without a child under 14 began in most counties.</p></div>
+      <div class="chg"><span class="when">Jul 2026</span><p><b>Routine dental ends</b> for undocumented adults on Medi-Cal (one state page says 2027). The <b>CalFresh fruit-and-vegetable bonus</b> is paused because its funding ran out.</p></div>
+      <div class="chg"><span class="when">Jan 1, 2027</span><p><b>Medi-Cal work rule and renewals every 6 months</b> start for expansion adults aged 19–64.</p></div>
+      <div class="chg"><span class="when">Jul 1, 2027</span><p><b>$30/month Medi-Cal premium</b> starts for undocumented adults aged 19–59.</p></div>
+      <div class="chg"><span class="when">Oct 2027</span><p><b>CFAP food aid for undocumented adults 55+</b> is now scheduled for this date, after delays. It still needs budget funding.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="gate-h">
+    <div class="sec-head">
+      <h2 id="gate-h">One "yes" opens other doors</h2>
+      <p class="muted">Once you're approved for one of four "gateway" programs, other programs often skip their own income check and accept that approval as proof. So apply for SNAP or Medicaid first.</p>
+    </div>
+    <figure>
+      <div class="diagram">
+        <svg viewBox="0 0 720 430" role="img" aria-label="Being on SNAP, Medicaid, SSI, or TANF automatically qualifies you for other programs: SNAP unlocks free school meals, Summer EBT, WIC, Lifeline, and often LIHEAP; Medicaid unlocks WIC, Lifeline, and Extra Help; SSI unlocks SNAP, Medicaid, Extra Help, Lifeline, Head Start, and often LIHEAP; TANF unlocks SNAP, school meals, Summer EBT, WIC, Head Start, and often LIHEAP.">
+          <defs>
+            <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f1"/></marker>
+            <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f2"/></marker>
+            <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f3"/></marker>
+            <marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f4"/></marker>
+          </defs>
+          <text x="20" y="14" class="svg-h">IF YOU'RE ON…</text>
+          <text x="500" y="14" class="svg-h">…YOU AUTO-QUALIFY FOR</text>
+
+          <!-- edges: SNAP (65) -->
+          <path class="e c1" marker-end="url(#a1)" d="M200,65 C350,65 350,47 494,47"/>
+          <path class="e c1" marker-end="url(#a1)" d="M200,65 C350,65 350,91 494,91"/>
+          <path class="e c1" marker-end="url(#a1)" d="M200,65 C350,65 350,135 494,135"/>
+          <path class="e c1" marker-end="url(#a1)" d="M200,65 C350,65 350,179 494,179"/>
+          <path class="e c1 opt" marker-end="url(#a1)" d="M200,65 C350,65 350,223 494,223"/>
+          <!-- Medicaid (155) -->
+          <path class="e c2" marker-end="url(#a2)" d="M200,155 C350,155 350,135 494,135"/>
+          <path class="e c2" marker-end="url(#a2)" d="M200,155 C350,155 350,179 494,179"/>
+          <path class="e c2" marker-end="url(#a2)" d="M200,155 C350,155 350,399 494,399"/>
+          <!-- SSI (245) -->
+          <path class="e c3" marker-end="url(#a3)" d="M200,245 C350,245 350,179 494,179"/>
+          <path class="e c3 opt" marker-end="url(#a3)" d="M200,245 C350,245 350,223 494,223"/>
+          <path class="e c3" marker-end="url(#a3)" d="M200,245 C350,245 350,267 494,267"/>
+          <path class="e c3" marker-end="url(#a3)" d="M200,245 C350,245 350,311 494,311"/>
+          <path class="e c3" marker-end="url(#a3)" d="M200,245 C350,245 350,355 494,355"/>
+          <path class="e c3" marker-end="url(#a3)" d="M200,245 C350,245 350,399 494,399"/>
+          <!-- TANF (335) -->
+          <path class="e c4" marker-end="url(#a4)" d="M200,335 C350,335 350,47 494,47"/>
+          <path class="e c4" marker-end="url(#a4)" d="M200,335 C350,335 350,91 494,91"/>
+          <path class="e c4" marker-end="url(#a4)" d="M200,335 C350,335 350,135 494,135"/>
+          <path class="e c4 opt" marker-end="url(#a4)" d="M200,335 C350,335 350,223 494,223"/>
+          <path class="e c4" marker-end="url(#a4)" d="M200,335 C350,335 350,267 494,267"/>
+          <path class="e c4" marker-end="url(#a4)" d="M200,335 C350,335 350,311 494,311"/>
+
+          <!-- gateway nodes -->
+          <g class="n-src src1"><rect x="20" y="40" width="180" height="50" rx="8"/><text x="34" y="61" class="svg-t">SNAP</text><text x="34" y="78" class="svg-s">food stamps</text></g>
+          <g class="n-src src2"><rect x="20" y="130" width="180" height="50" rx="8"/><text x="34" y="151" class="svg-t">Medicaid</text><text x="34" y="168" class="svg-s">health coverage</text></g>
+          <g class="n-src src3"><rect x="20" y="220" width="180" height="50" rx="8"/><text x="34" y="241" class="svg-t">SSI</text><text x="34" y="258" class="svg-s">disabled, blind or 65+</text></g>
+          <g class="n-src src4"><rect x="20" y="310" width="180" height="50" rx="8"/><text x="34" y="331" class="svg-t">TANF</text><text x="34" y="348" class="svg-s">cash aid for families</text></g>
+
+          <!-- unlocked nodes: centers 47 + 44i -->
+          <g class="n-dst"><rect x="500" y="30" width="200" height="34" rx="6"/><text x="512" y="52" class="svg-t">Free school meals</text></g>
+          <g class="n-dst"><rect x="500" y="74" width="200" height="34" rx="6"/><text x="512" y="96" class="svg-t">Summer EBT ($120/child)</text></g>
+          <g class="n-dst"><rect x="500" y="118" width="200" height="34" rx="6"/><text x="512" y="140" class="svg-t">WIC (income test)</text></g>
+          <g class="n-dst"><rect x="500" y="162" width="200" height="34" rx="6"/><text x="512" y="184" class="svg-t">Lifeline phone/internet</text></g>
+          <g class="n-dst"><rect x="500" y="206" width="200" height="34" rx="6"/><text x="512" y="228" class="svg-t">LIHEAP energy help</text></g>
+          <g class="n-dst"><rect x="500" y="250" width="200" height="34" rx="6"/><text x="512" y="272" class="svg-t">Head Start</text></g>
+          <g class="n-dst"><rect x="500" y="294" width="200" height="34" rx="6"/><text x="512" y="316" class="svg-t">SNAP</text></g>
+          <g class="n-dst"><rect x="500" y="338" width="200" height="34" rx="6"/><text x="512" y="360" class="svg-t">Medicaid (most states)</text></g>
+          <g class="n-dst"><rect x="500" y="382" width="200" height="34" rx="6"/><text x="512" y="404" class="svg-t">Extra Help (drug costs)</text></g>
+
+          <line x1="20" y1="396" x2="48" y2="396" class="e opt" style="stroke:var(--muted)"/>
+          <text x="56" y="400" class="svg-s">dashed = state decides whether it counts</text>
+        </svg>
+      </div>
+      <figcaption>Each arrow means "approval for the program on the left counts as proof for the program on the right." SSI and TANF unlock the most. A family on SNAP is usually certified for free school meals with no application at all.</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="doors-h">
+    <div class="sec-head">
+      <h2 id="doors-h">Doors that depend on your situation</h2>
+      <p class="muted">Some programs aren't tied to the poverty line, or only open for certain people. Check every card that fits you.</p>
+    </div>
+    <div class="doors">
+      <div class="door">
+        <h3>Anyone with low income <span class="tag">base</span></h3>
+        <ul>
+          <li><b>SNAP (food stamps)</b><span>Up to $306/mo for 1 person, $1,023/mo for 4 (from Oct 2026). Assets about $3,000, but most states waive the asset test.</span></li>
+          <li><b>Section 8 Housing Choice Voucher</b><span>Income at or below 50% of your county's median income. You pay about 30% of your income and the voucher pays the rest. Waitlists are often years long, and many are closed.</span></li>
+          <li><b>Public housing</b><span>Up to 80% of area median income, with priority for the lowest incomes. Limits vary by county. Look yours up on HUD's income-limits page.</span></li>
+          <li><b>Food banks (TEFAP)</b><span>Free groceries. Limits are set locally, often around 185% of the poverty line, and there's no asset test.</span></li>
+          <li><b>Legal aid</b><span>A free civil lawyer for evictions, benefit denials or family cases, up to 125% of the poverty line ($19,950 for 1 person).</span></li>
+        </ul>
+      </div>
+      <div class="door">
+        <h3>You work <span class="tag">earned income</span></h3>
+        <ul>
+          <li><b>Earned Income Tax Credit</b><span>A tax refund of up to $664 with no kids (ages 25–64) or up to $8,231 with 3+ kids, for tax year 2026.</span></li>
+          <li><b>Child Tax Credit</b><span>$2,200 per child. Up to $1,700 of it is paid as a refund even if you owe no tax. You and your child need SSNs.</span></li>
+          <li><b>Child care subsidy (CCDF)</b><span>Help paying daycare while you work or attend school. States can go up to 85% of state median income.</span></li>
+          <li><b>Free tax filing (VITA)</b><span>Free tax prep for incomes up to roughly $67,000–$69,000, depending on the site.</span></li>
+        </ul>
+      </div>
+      <div class="door">
+        <h3>Pregnant or a child under 5 <span class="tag">185% FPL</span></h3>
+        <ul>
+          <li><b>WIC</b><span>Food, formula and nutrition help, up to $29,526 for 1 person (+$10,508 per extra person). Pregnancy counts the unborn baby in household size.</span></li>
+          <li><b>Pregnancy Medicaid</b><span>Every state covers pregnancy up to at least 138% of the poverty line, and many go to about 200%. This applies even in states that didn't expand Medicaid.</span></li>
+          <li><b>Head Start / Early Head Start</b><span>Free preschool at or below the poverty line. You're automatically eligible if you're homeless, a foster family, or on TANF or SSI.</span></li>
+        </ul>
+      </div>
+      <div class="door">
+        <h3>School-age kids <span class="tag">130–185%</span></h3>
+        <ul>
+          <li><b>Free / reduced-price school meals</b><span>Free up to 130% of the poverty line, reduced price (40¢ lunch) up to 185%. Kids in SNAP or TANF households get free meals automatically.</span></li>
+          <li><b>Summer EBT (SUN Bucks)</b><span>$120 per child each summer for groceries, in participating states (most states take part).</span></li>
+          <li><b>CHIP</b><span>Health coverage for kids. Limits run from about 200% to over 300% of the poverty line, depending on the state.</span></li>
+          <li><b>TANF</b><span>Monthly cash for families with kids. Limits are set by each state and are usually very low. There's a 60-month lifetime limit.</span></li>
+        </ul>
+      </div>
+      <div class="door">
+        <h3>65+, blind or disabled <span class="tag">seniors</span></h3>
+        <ul>
+          <li><b>SSI</b><span>Up to $994/mo for 1 person or $1,491 for a couple in 2026. Assets must be under $2,000 ($3,000 for a couple). It unlocks Medicaid in most states.</span></li>
+          <li><b>Medicare Savings Programs</b><span>Pay your Part B premium and more. Income up to about $1,350–$1,816/mo for 1 person, with assets under $9,950.</span></li>
+          <li><b>Extra Help (Part D)</b><span>Cuts drug costs, up to $23,940 a year in income ($18,090 in assets) for 1 person.</span></li>
+          <li><b>Senior food box (CSFP)</b><span>A monthly grocery box at age 60+, up to 130–150% of the poverty line depending on the state.</span></li>
+          <li><b>Section 202 / 811 housing</b><span>Subsidized apartments for low-income people 62+ (202) or with disabilities (811).</span></li>
+        </ul>
+      </div>
+      <div class="door">
+        <h3>Bills, phone, school <span class="tag">extras</span></h3>
+        <ul>
+          <li><b>LIHEAP</b><span>Help with heating and cooling bills, up to 150% of the poverty line ($23,940 for 1 person) or 60% of state median income.</span></li>
+          <li><b>Weatherization</b><span>Free insulation and repairs that lower your energy bills, up to 200% of the poverty line.</span></li>
+          <li><b>Lifeline</b><span>$9.25/mo off a phone or internet bill, up to 135% of the poverty line ($21,546), or if you're on SNAP, Medicaid or SSI.</span></li>
+          <li><b>Pell Grant</b><span>Up to $7,395 for college in 2026–27, which you don't pay back. Apply through FAFSA. College students face extra SNAP rules.</span></li>
+          <li><b>ACA marketplace subsidy</b><span>Lowers health premiums for incomes from 100% to 400% of the poverty line if you can't get Medicaid.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="chg-h">
+    <div class="sec-head">
+      <h2 id="chg-h">What changed in 2025–2026</h2>
+      <p class="muted">A 2025 federal law (the "One Big Beautiful Bill Act") and new HUD proposals changed several of these programs.</p>
+    </div>
+    <div class="changes">
+      <div class="chg"><span class="when">In effect</span><p><b>SNAP work rules widened.</b> Adults 18–64 without a child under 14 must work, volunteer or train 80 hours a month, or they lose SNAP after 3 months in a 3-year period. Veterans, homeless people and former foster youth no longer get an automatic exemption.</p></div>
+      <div class="chg"><span class="when">In effect</span><p><b>SNAP for immigrants narrowed.</b> Refugees, asylees and several other groups lost eligibility. Citizens, most green-card holders (usually after 5 years), Cuban/Haitian entrants and COFA citizens can still get it.</p></div>
+      <div class="chg"><span class="when">By Jan 1, 2027</span><p><b>Medicaid work requirement.</b> Expansion adults aged 19–64 will need 80 hours a month of work, school, volunteering or job training, or earnings of at least $580 a month. Pregnant people, the medically frail, some caregivers and others are exempt.</p></div>
+      <div class="chg"><span class="when">Since Jan 2026</span><p><b>ACA subsidies shrank.</b> The extra pandemic-era help expired, so there's again no subsidy above 400% of the poverty line, and most people pay more.</p></div>
+      <div class="chg"><span class="when">Proposed</span><p><b>HUD housing rules.</b> HUD has proposed letting housing authorities add work requirements and time limits of 2 years or more, and removing assistance from "mixed-status" immigrant families. Neither is final yet.</p></div>
+      <div class="chg"><span class="when">Proposed</span><p><b>LIHEAP elimination.</b> The White House FY2027 budget would cut LIHEAP entirely. Congress has rejected this in past years, and the program is funded for 2026.</p></div>
+      <div class="chg"><span class="when">Ended</span><p><b>The Affordable Connectivity Program</b> ($30/mo internet) ended in June 2024. Lifeline is what's left.</p></div>
+    </div>
+  </section>
+
+
+  <section class="sources" aria-labelledby="src-h">
+    <h3 id="src-h">Sources</h3>
+    <ul>
+      <li><a href="https://www.federalregister.gov/documents/2026/01/15/2026-00755/annual-update-of-the-hhs-poverty-guidelines">HHS 2026 poverty guidelines</a></li>
+      <li><a href="https://www.usda.gov/sites/default/files/guidance-documents/fna.snap-cola2027.pdf">USDA SNAP FY2027 cost-of-living adjustments</a> · <a href="https://www.fns.usda.gov/snap/income-eligibility-standards">SNAP income standards</a></li>
+      <li><a href="https://www.federalregister.gov/documents/2026/04/29/2026-08323/special-supplemental-nutrition-program-for-women-infants-and-children-wic-20262027-income">WIC 2026–27 income guidelines</a> · <a href="https://www.federalregister.gov/documents/2026/04/09/2026-06842/child-nutrition-programs-income-eligibility-guidelines">School meal income guidelines</a></li>
+      <li><a href="https://www.ssa.gov/oact/cola/SSI.html">SSA 2026 SSI amounts</a> · <a href="https://www.medicare.gov/medicare-savings-programs">Medicare Savings Programs</a> · <a href="https://www.medicare.gov/basics/costs/help/drug-costs">Extra Help</a></li>
+      <li><a href="https://www.kff.org/affordable-care-act/state-indicator/state-activity-around-expanding-medicaid-under-the-affordable-care-act/">KFF Medicaid expansion tracker</a> · <a href="https://www.cms.gov/newsroom/fact-sheets/medicaid-community-engagement-requirement-certain-individuals-interim-final-rule-comment-period-cms">CMS Medicaid community engagement rule</a></li>
+      <li><a href="https://www.kff.org/affordable-care-act/what-we-know-so-far-about-2026-aca-marketplace-enrollment-premiums-and-deductibles/">KFF on 2026 ACA subsidies</a> · <a href="https://www.irs.gov/credits-deductions/individuals/earned-income-tax-credit/earned-income-and-earned-income-tax-credit-eitc-tables">IRS EITC tables</a></li>
+      <li><a href="https://www.legalservicesnyc.org/resources/do-changes-to-work-requirements-for-snap-benefits-affect-me-do-i-need-to-do-anything/">Legal Services NYC on SNAP work rules</a> · <a href="https://www.globalrefuge.org/wp-content/uploads/2026/01/Updated-GR-OBBBA-FAQ-on-SNAP.pdf">Global Refuge SNAP immigrant FAQ</a></li>
+      <li><a href="https://www.nahro.org/news/hud-term-limits-and-work-requirements-proposed-rule-published">NAHRO on HUD work-requirement proposal</a> · <a href="https://www.nahro.org/news/new-2026-hud-mixed-status-proposed-rule-makes-major-changes">NAHRO on mixed-status proposal</a></li>
+      <li><a href="https://www.publicpower.org/periodical/article/remaining-fy-2026-liheap-funds-disbursed-states-liheap-again-faces-elimination-fy-2027">LIHEAP FY2026/FY2027 status</a> · <a href="https://www.lifelinesupport.org">Lifeline</a> · <a href="https://www.govinfo.gov/content/pkg/FR-2026-01-26/html/2026-01431.htm">LSC 2026 income guidelines</a></li>
+      <li><a href="https://fsapartners.ed.gov/knowledge-center/library/dear-colleague-letters/2026-01-30/2026-27-federal-pell-grant-maximum-and-minimum-award-amounts">2026–27 Pell Grant amounts</a> · <a href="https://acf.gov/sites/default/files/documents/occ/CCDF-Family-Income-Eligibility-Levels-by-State.pdf">CCDF income levels by state</a></li>
+      <li>California: <a href="https://www.cdss.ca.gov/inforesources/calfresh">CDSS CalFresh</a> · <a href="https://www.lao.ca.gov/handouts/socservices/2026/Major-H.R.-1-Changes-040826.pdf">LAO on H.R. 1 changes</a> · <a href="https://www.coveredca.com/get-started/">Covered California</a> · <a href="https://benefitscal.com/Help/find-an-office/HCCOL?lang=en">BenefitsCal offices</a></li>
+      <li>California: <a href="https://www.csd.ca.gov/energybills">CSD energy bill help</a> · <a href="https://www.sfhsa.org/sites/default/files/media/document/2026-06/factsheet_calworks_english_6.30.26.pdf">SF CalWORKs fact sheet</a> · <a href="https://dpss.lacounty.gov/">LA County DPSS</a> · <a href="https://www.cde.ca.gov/Sp/cd/ci/mb2603.asp">CDE State Preschool income limits</a></li>
+    </ul>
+    <p>Checked October 11, 2026. California details are also saved in the project's <span class="mono">research/</span> folder. Rules change often and states differ, so confirm with the office that runs each program.</p>
+  </section>
+</div>
+
+<script>
+(function () {
+  var MAX = 400; // % of poverty line shown on the ladder
+  function fpl(n, year) {
+    return year === 2025 ? 15650 + 5500 * (n - 1) : 15960 + 5680 * (n - 1);
+  }
+  // California HEAP: 60% of state median income (CSD 2026 monthly table, 1–4 people; HHS +16%/+3% steps beyond)
+  function caHeap(n) {
+    var m = [0, 3331.66, 4356.83, 5382.00, 6407.16];
+    var mo = n <= 4 ? m[n] : n <= 6 ? m[4] + 1025.15 * (n - 4) : m[4] + 2050.30 + 192.21 * (n - 6);
+    return mo * 12;
+  }
+  var money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  function k(v) { return v >= 1000 ? "$" + (Math.round(v / 100) / 10).toString().replace(/\.0$/, "") + "k" : money.format(v); }
+
+  // Each program: pct = limit as % of poverty line (or `limit(s)` for dollar limits), `ca` overrides apply in California,
+  // `only` restricts a row to "ca" or "us" (other states).
+  var PROGRAMS = [
+    { name: "Head Start", what: "Free preschool + meals", pct: 100, need: function (s) { return s.under5; }, needTxt: "a child under 5" },
+    { name: "Legal aid", what: "Free civil lawyer", pct: 125 },
+    { name: "SNAP (food stamps)", what: "Up to $306/mo for 1 person", pct: 130,
+      note: function (s) {
+        if (s.age65 || s.disabled) return "SNAP: with an elderly or disabled member, only the net-income test applies (after deductions), so you may qualify above this line.";
+        return "SNAP: adults 18–64 without a child under 14 must log 80 hours/month of work or training after 3 months.";
+      },
+      ca: { name: "CalFresh (SNAP)", what: "Up to $306/mo for 1 · no asset test", pct: 200,
+        note: function () { return "CalFresh: California uses 200% of the poverty line with no asset test, and SSI recipients can get it too. Adults 18–64 without a child under 14 must log 80 hours/month of work or training after 3 months."; } } },
+    { name: "Free school meals", what: "Breakfast + lunch", pct: 130, need: function (s) { return s.school; }, needTxt: "school-age kids",
+      ca: { what: "Free for every public school student", any: true } },
+    { name: "Senior food box (CSFP)", what: "Monthly groceries", pct: 130, need: function (s) { return s.age60 || s.age65; }, needTxt: "age 60+" },
+    { name: "Lifeline", what: "$9.25/mo off phone/internet", pct: 135,
+      ca: { name: "Lifeline + CA LifeLine", what: "Up to $28.25/mo off your phone" } },
+    { name: "Medicare Savings Programs", what: "Pays Part B premium", pct: 135, need: function (s) { return s.age65; }, needTxt: "Medicare" },
+    { name: "Medicaid", what: "Free health coverage", pct: 138,
+      need: function (s) { return s.expansion || s.pregnant || s.disabled || s.age65; },
+      needTxt: "kids, pregnancy or disability in your state",
+      note: function (s) {
+        if (!s.expansion && !(s.pregnant || s.disabled || s.age65)) return "Medicaid: your state didn't expand, so adults without kids, a pregnancy or a disability usually can't get it at any income. Parents may qualify at much lower incomes.";
+        if (s.expansion && !(s.pregnant || s.disabled || s.age65)) return "Medicaid: starting by Jan 1, 2027, expansion adults 19–64 must show 80 hours/month of work, school or volunteering.";
+        return "";
+      },
+      ca: { name: "Medi-Cal", what: "Free health coverage",
+        note: function (s) {
+          var t = "Medi-Cal: from Jan 1, 2027, adults 19–64 must show 80 hours/month of work, school or volunteering and renew every 6 months. Undocumented adults 19+ can't newly enroll (since Jan 2026).";
+          if (s.age65 || s.disabled) t += " Seniors and people with disabilities face a $130,000 asset limit again.";
+          return t;
+        } } },
+    { name: "Medi-Cal (pregnancy)", what: "Pregnancy care · MCAP to 322%", pct: 213, only: "ca", need: function (s) { return s.pregnant; }, needTxt: "pregnancy" },
+    { name: "Extra Help (Part D)", what: "Lower drug costs", pct: 150, need: function (s) { return s.age65; }, needTxt: "Medicare" },
+    { name: "LIHEAP", what: "Heating/cooling bills", pct: 150,
+      ca: { name: "HEAP energy help (CSD)", what: "Help paying gas/electric", limit: function (s) { return caHeap(s.size); }, capNote: "60% SMI" } },
+    { name: "Summer EBT", what: "$120/child each summer", pct: 185, need: function (s) { return s.school; }, needTxt: "school-age kids",
+      ca: { name: "SUN Bucks", what: "$120/child each summer" } },
+    { name: "Reduced-price meals", what: "40¢ lunch", pct: 185, only: "us", need: function (s) { return s.school; }, needTxt: "school-age kids" },
+    { name: "WIC", what: "Food, formula, nutrition", pct: 185, need: function (s) { return s.pregnant || s.under5; }, needTxt: "pregnancy or a child under 5" },
+    { name: "CARE utility discount", what: "30%+ off electric, 20% off gas", only: "ca",
+      limit: function (s) { return fpl(Math.max(2, s.size), 2026) * 2; } },
+    { name: "Weatherization", what: "Free home energy repairs", pct: 200 },
+    { name: "CHIP", what: "Kids' health coverage", pct: 200, plus: true, need: function (s) { return s.under5 || s.school; }, needTxt: "children",
+      ca: { name: "Medi-Cal for kids", what: "Free/low-cost coverage", pct: 266, plus: false } },
+    { name: "FERA utility discount", what: "18% off electric", only: "ca",
+      limit: function (s) { return fpl(Math.max(2, s.size), 2026) * 2.5; } },
+    { name: "Young Child Tax Credit", what: "Up to $1,189 refund", only: "ca",
+      limit: function () { return 32900; }, need: function (s) { return s.working && s.under5; }, needTxt: "work income + child under 6" },
+    { name: "ACA marketplace subsidy", what: "Cheaper health insurance", lo: 100, pct: 400, year: 2025,
+      ca: { name: "Covered California subsidy", what: "Extra state help to 165%" } }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Where to apply, per benefit. `ids` = ladder rows this entry covers. Each route: where, web [[label, url]], phone [].
+  var APPLY = [
+    { cat: "Food", items: [
+      { name: "CalFresh / SNAP (food stamps)", ids: ["SNAP (food stamps)"],
+        ca: { where: "Your county social services office, or online", web: [["benefitscal.com", "https://benefitscal.com"]], phone: ["1-877-847-3663 (CalFresh info line)"] },
+        us: { where: "Your state SNAP agency", web: [["USDA SNAP state directory", "https://www.fns.usda.gov/snap/state-directory"]] },
+        bring: "Photo ID, Social Security numbers, pay stubs from the last 30 days, rent and utility bills",
+        time: "Up to 30 days. 3 days in California (7 elsewhere) if you have almost no money",
+        tip: "You can turn in the form with just your name, address and signature to lock in your start date, then send documents. Expect a phone interview." },
+      { name: "WIC", ids: ["WIC"],
+        ca: { where: "Your local WIC office (appointment)", web: [["myfamily.wic.ca.gov", "https://myfamily.wic.ca.gov"]] },
+        us: { where: "Your state or local WIC agency", web: [["USDA WIC", "https://www.fns.usda.gov/wic"]] },
+        bring: "ID, proof of address, proof of income (a Medi-Cal, CalFresh or SNAP card counts), your child's ID and shot records",
+        time: "Usually approved at your first appointment" },
+      { name: "School meals", ids: ["Free school meals", "Reduced-price meals"],
+        ca: { where: "Nothing to apply for. Every public school student eats free. If the school sends a family income form, fill it out, since it can qualify your kids for SUN Bucks." },
+        us: { where: "The meal application from your school district. Kids in SNAP or TANF households are enrolled automatically." },
+        bring: "Household size and income (on the form)",
+        time: "Usually within days" },
+      { name: "SUN Bucks / Summer EBT ($120 per child)", ids: ["Summer EBT"],
+        ca: { where: "Most kids get it automatically through CalFresh, CalWORKs, Medi-Cal or their school. Otherwise apply through CDSS.", web: [["cdss.ca.gov", "https://www.cdss.ca.gov"]] },
+        us: { where: "Your state's Summer EBT program (not every state takes part)", web: [["USDA SUN Bucks", "https://www.fns.usda.gov/summer/sunbucks"]] },
+        bring: "Your child's name, school and birth date",
+        time: "Cards arrive by summer. The 2026 application deadline (Aug 31) has passed." },
+      { name: "CFAP (state food aid for immigrants)", only: "ca",
+        ca: { where: "Same as CalFresh: your county office. The county checks CFAP for you if federal CalFresh says no.", web: [["benefitscal.com", "https://benefitscal.com"]] },
+        bring: "The same papers as CalFresh, plus your immigration documents",
+        time: "Same as CalFresh (up to 30 days)" },
+      { name: "Food banks and the senior food box (CSFP)", ids: ["Senior food box (CSFP)"],
+        ca: { where: "Your local food bank or pantry. Call or text 211 to find one.", web: [["Feeding America food bank finder", "https://www.feedingamerica.org/find-your-local-foodbank"]], phone: ["211"] },
+        us: { where: "Your local food bank", web: [["Feeding America food bank finder", "https://www.feedingamerica.org/find-your-local-foodbank"]], phone: ["211"] },
+        bring: "Usually nothing. The senior food box (60+) needs ID with your age and proof of income.",
+        time: "Same day at most pantries" }
+    ] },
+    { cat: "Cash", items: [
+      { name: "CalWORKs / TANF (cash for families)",
+        ca: { where: "Your county social services office, or online", web: [["benefitscal.com", "https://benefitscal.com"]] },
+        us: { where: "Your state TANF agency", web: [["ACF Help for Families (state TANF contacts)", "https://acf.gov/ofa/map/about/help-families"]] },
+        bring: "ID, Social Security numbers and birth certificates for everyone, kids' shot records, proof of income and rent",
+        time: "Up to 45 days. \"Immediate Need\" cash can come within 1 day in a crisis.",
+        tip: "Homeless or facing eviction? Ask for CalWORKs Homeless Assistance (temporary shelter at $85/day)." },
+      { name: "General Relief (county cash for adults)", only: "ca",
+        ca: { where: "Your county social services office (LA County: DPSS)", web: [["benefitscal.com", "https://benefitscal.com"]], phone: ["LA County DPSS: (866) 613-3777"] },
+        bring: "ID, proof you live in the county, any income proof (or a statement that you have none)",
+        time: "Varies by county" },
+      { name: "SSI / SSP (65+, blind or disabled)",
+        ca: { where: "Social Security: online, by phone or at a local office", web: [["ssa.gov/ssi", "https://www.ssa.gov/ssi"]], phone: ["1-800-772-1213"] },
+        us: { where: "Social Security (same everywhere)", web: [["ssa.gov/ssi", "https://www.ssa.gov/ssi"]], phone: ["1-800-772-1213"] },
+        bring: "Birth certificate, ID, Social Security card, names of your doctors and medical records, bank statements, lease",
+        time: "Several months. Disability decisions often take longer.",
+        tip: "Call first to set up an appointment. The date you call can count as your filing date." },
+      { name: "CAPI (cash for immigrants)", only: "ca",
+        ca: { where: "Your county social services office (form SOC 814). Social Security must first have said no to SSI because of your immigration status." },
+        bring: "Immigration documents, the SSI denial letter, ID, income and bank statements",
+        time: "Varies by county" },
+      { name: "Unemployment",
+        ca: { where: "EDD, online through UI Online / myEDD", web: [["edd.ca.gov", "https://edd.ca.gov"]], phone: ["1-800-300-5616"] },
+        us: { where: "Your state's unemployment office", web: [["CareerOneStop unemployment finder", "https://www.careeronestop.org"]] },
+        bring: "Social Security number, ID, 18 months of employer names, dates and pay, bank info",
+        time: "File the first week you're out of work. EDD mails your claim details within about 10 days." }
+    ] },
+    { cat: "Health", items: [
+      { name: "Medi-Cal / Medicaid", ids: ["Medicaid"],
+        ca: { where: "Your county social services office, or online at either site", web: [["benefitscal.com", "https://benefitscal.com"], ["coveredca.com", "https://www.coveredca.com"]], phone: ["Medi-Cal: (800) 541-5555"] },
+        us: { where: "Your state Medicaid agency. HealthCare.gov will screen you and send your application there.", web: [["healthcare.gov", "https://www.healthcare.gov"]], phone: ["1-800-318-2596"] },
+        bring: "ID, Social Security numbers, 1 month of pay stubs, proof of address, immigration papers if you're not a citizen",
+        time: "Up to 45 days (90 with a disability). A hospital can sign you up for temporary coverage the same day.",
+        tip: "Coverage can reach back up to 3 months to pay old medical bills (applications before 2027; less after)." },
+      { name: "Pregnancy coverage", ids: ["Medi-Cal (pregnancy)"],
+        ca: { where: "At your first prenatal visit, ask for \"presumptive eligibility\" (same-day coverage), then apply for Medi-Cal or MCAP", web: [["coveredca.com", "https://www.coveredca.com"]], phone: ["(800) 541-5555"] },
+        us: { where: "Your clinic (ask for presumptive eligibility) or your state Medicaid office", web: [["healthcare.gov", "https://www.healthcare.gov"]] },
+        bring: "Proof of pregnancy if asked, ID, income proof",
+        time: "Temporary coverage the same day. Lasts 12 months after the birth." },
+      { name: "Kids' health coverage", ids: ["CHIP"],
+        ca: { where: "Kids go on Medi-Cal: apply the same way as Medi-Cal", web: [["benefitscal.com", "https://benefitscal.com"]], phone: ["(800) 541-5555"] },
+        us: { where: "Medicaid / CHIP in your state", web: [["insurekidsnow.gov", "https://www.insurekidsnow.gov"]], phone: ["1-877-543-7669 (KIDS-NOW)"] },
+        bring: "Child's birth certificate, income proof, proof of address",
+        time: "Up to 45 days" },
+      { name: "Marketplace insurance with a subsidy", ids: ["ACA marketplace subsidy"],
+        ca: { where: "Covered California, online or with a free certified enroller near you", web: [["coveredca.com", "https://www.coveredca.com"]], phone: ["(800) 300-1506"] },
+        us: { where: "HealthCare.gov, or free local help", web: [["healthcare.gov", "https://www.healthcare.gov"], ["localhelp.healthcare.gov", "https://localhelp.healthcare.gov"]], phone: ["1-800-318-2596"] },
+        bring: "Social Security numbers, an income estimate (last tax return or W-2), any job-based insurance offer",
+        time: "Open enrollment starts Nov 1, 2026. At other times you need a life event (job loss, move, birth, marriage)." },
+      { name: "Medicare Savings Programs", ids: ["Medicare Savings Programs"],
+        ca: { where: "Your county social services office. HICAP gives free help applying.", web: [["benefitscal.com", "https://benefitscal.com"]], phone: ["HICAP: 1-800-434-0222"] },
+        us: { where: "Your state Medicaid office. Your SHIP office gives free help.", web: [["shiphelp.org", "https://www.shiphelp.org"]] },
+        bring: "Medicare card, ID, income proof, bank statements",
+        time: "About 45 days" },
+      { name: "Extra Help (drug costs)", ids: ["Extra Help (Part D)"],
+        ca: { where: "Social Security, online or by phone", web: [["ssa.gov Extra Help", "https://www.ssa.gov/medicare/part-d-extra-help"]], phone: ["1-800-772-1213"] },
+        us: { where: "Social Security (same everywhere)", web: [["ssa.gov Extra Help", "https://www.ssa.gov/medicare/part-d-extra-help"]], phone: ["1-800-772-1213"] },
+        bring: "Social Security number, bank statements, pension and tax info",
+        time: "A few weeks",
+        tip: "You get it automatically if you have Medi-Cal, SSI or a Medicare Savings Program." },
+      { name: "In-home care (IHSS)",
+        ca: { where: "Your county IHSS office (form SOC 295). You need Medi-Cal, so apply for both." },
+        us: { where: "Your state Medicaid agency (home care or waiver programs). The Eldercare Locator can point you there.", web: [["eldercare.acl.gov", "https://eldercare.acl.gov"]], phone: ["1-800-677-1116"] },
+        bring: "Medi-Cal info, ID, income proof, a health form signed by your doctor",
+        time: "Up to 90 days, including a home visit" },
+      { name: "Free family planning (Family PACT)", only: "ca",
+        ca: { where: "Walk into any Family PACT clinic. You sign up on the spot.", web: [["familypact.org", "https://familypact.org"]] },
+        bring: "Nothing required. Bring ID if you have it.",
+        time: "Same day" },
+      { name: "Free or low-cost clinics",
+        ca: { where: "Community health centers (sliding fees). In LA County, county clinics are free up to 200% of the poverty line (\"Ability to Pay\").", web: [["Find a Health Center", "https://findahealthcenter.hrsa.gov"]], phone: ["211"] },
+        us: { where: "Community health centers with sliding fees", web: [["Find a Health Center", "https://findahealthcenter.hrsa.gov"]] },
+        bring: "Income proof (or a statement of no income), ID",
+        time: "Often the same week" }
+    ] },
+    { cat: "Housing", items: [
+      { name: "Section 8 vouchers and public housing",
+        ca: { where: "Your city or county housing authority. Join every open waitlist near you.", web: [["HACLA (LA city)", "https://www.hacla.org"], ["LACDA (LA County)", "https://www.lacda.org"], ["San Diego (SDHC)", "https://www.sdhc.org"], ["San Francisco", "https://www.sfha.org"], ["Oakland", "https://www.oakha.org"], ["Sacramento waitlist", "https://sacwaitlist.com/landing"]] },
+        us: { where: "Your local public housing authority (PHA)", web: [["HUD", "https://www.hud.gov"]] },
+        bring: "ID, Social Security numbers and birth certificates for everyone, income and bank statements",
+        time: "Waitlists are often years long, and many open for only a few days",
+        tip: "Sign up for each housing authority's email alerts and keep your address current, or you can be dropped from the list." },
+      { name: "Affordable (below-market) apartments",
+        ca: { where: "Housing lotteries and listings", web: [["SF DAHLIA", "https://housing.sfgov.org"], ["LA County Housing Resource Center", "https://housing.lacounty.gov"]], phone: ["LA County: 1-877-428-8844"] },
+        us: { where: "Local listings and HUD's resource locator", web: [["resources.hud.gov", "https://resources.hud.gov"]] },
+        bring: "Income proof and ID for everyone",
+        time: "Apply to each listing before its deadline" },
+      { name: "Homeless help and eviction defense",
+        ca: { where: "Call or text 211 for shelter and Coordinated Entry. In LA, Stay Housed LA helps with evictions.", web: [["stayhousedla.org", "https://www.stayhousedla.org"]], phone: ["211", "Stay Housed LA: (888) 694-0040"] },
+        us: { where: "211, or HUD's shelter finder", web: [["211.org", "https://www.211.org"], ["HUD Find Shelter", "https://www.hud.gov/findshelter"]], phone: ["211"] },
+        bring: "Any eviction notice or court papers",
+        time: "Act right away. In California you have 10 court days to answer an eviction lawsuit." }
+    ] },
+    { cat: "Bills and phone", items: [
+      { name: "Energy bill help (HEAP / LIHEAP)", ids: ["LIHEAP"],
+        ca: { where: "Your local energy agency. Find it on the CSD site by ZIP code.", web: [["CSD: find services", "https://www.csd.ca.gov/Pages/FindServicesInYourArea.aspx"]] },
+        us: { where: "Your state LIHEAP office", web: [["LIHEAP Clearinghouse", "https://liheapch.ncat.org"]], phone: ["Energy assistance referral: 1-866-674-6327"] },
+        bring: "Recent gas and electric bills, income proof for every adult, ID",
+        time: "Weeks. Faster if you have a shutoff notice, so say so when you call." },
+      { name: "Weatherization", ids: ["Weatherization"],
+        ca: { where: "The same local energy agency as HEAP", web: [["CSD: find services", "https://www.csd.ca.gov/Pages/FindServicesInYourArea.aspx"]] },
+        us: { where: "Your state weatherization program", web: [["energy.gov: how to apply", "https://www.energy.gov/cmei/scep/wap/how-apply-weatherization-assistance"]] },
+        bring: "Income proof, ID, your landlord's OK if you rent",
+        time: "Often a waitlist" },
+      { name: "CARE and FERA bill discounts", ids: ["CARE utility discount", "FERA utility discount"], only: "ca",
+        ca: { where: "A short form on your utility's website", web: [["PG&E", "https://www.pge.com/care"], ["SCE", "https://www.sce.com/save-money/income-qualified-programs/care-fera"], ["SDG&E", "https://www.sdge.com"], ["SoCalGas", "https://www.socalgas.com"], ["LADWP EZ-SAVE", "https://www.ladwp.com/residential-services/assistance-programs/ez-save-program"], ["SMUD", "https://www.smud.org/EAPRapp"]] },
+        bring: "Your account number and household size. Proof is only needed if you're picked for verification.",
+        time: "Minutes online. The discount shows up on an upcoming bill.",
+        tip: "Being on Medi-Cal, CalFresh, SSI or WIC automatically qualifies you for CARE." },
+      { name: "Lifeline phone/internet discount", ids: ["Lifeline"],
+        ca: { where: "Through a phone or internet company that offers California LifeLine", web: [["californialifeline.com", "https://www.californialifeline.com"]], phone: ["1-866-272-0349"] },
+        us: { where: "Through a participating phone company, or online with the federal National Verifier", web: [["lifelinesupport.org", "https://www.lifelinesupport.org"]], phone: ["1-800-234-9473"] },
+        bring: "Your Medi-Cal, CalFresh or SSI card or letter, or income proof",
+        time: "Often the same day" }
+    ] },
+    { cat: "Kids and school", items: [
+      { name: "Head Start / Early Head Start", ids: ["Head Start"],
+        ca: { where: "A local Head Start program", web: [["Head Start locator", "https://headstart.gov"]] },
+        us: { where: "A local Head Start program", web: [["Head Start locator", "https://headstart.gov"]] },
+        bring: "Child's birth certificate, income proof, proof of address, shot records",
+        time: "Waitlists are common, so apply early" },
+      { name: "Child care help",
+        ca: { where: "On CalWORKs? Ask your county worker. Otherwise go to your local Resource & Referral agency.", web: [["rrnetwork.org", "https://rrnetwork.org"]] },
+        us: { where: "Your state's child care assistance program", web: [["childcare.gov", "https://childcare.gov"]] },
+        bring: "Work or school schedule, income proof, kids' birth certificates",
+        time: "Waitlists are common outside CalWORKs" },
+      { name: "State Preschool and Transitional Kindergarten", only: "ca",
+        ca: { where: "Your school district's enrollment office. TK is free for kids who turn 4 by Sept 1." },
+        bring: "Child's birth certificate, proof of address, shot records (and income proof for State Preschool)",
+        time: "Enroll in spring for fall" },
+      { name: "College aid (Pell, Cal Grant, fee waiver)",
+        ca: { where: "FAFSA, or the CA Dream Act application if you're undocumented. Your college's financial aid office can help.", web: [["studentaid.gov", "https://studentaid.gov"], ["dream.csac.ca.gov", "https://dream.csac.ca.gov"]], phone: ["FAFSA: 1-800-433-3243"] },
+        us: { where: "FAFSA", web: [["studentaid.gov", "https://studentaid.gov"]], phone: ["1-800-433-3243"] },
+        bring: "FSA ID, your (and parents') tax info, Social Security number",
+        time: "Cal Grant deadline: March 2, 2027. Community college students can apply until Sept 2." }
+    ] },
+    { cat: "Taxes and legal", items: [
+      { name: "Tax credits (EITC, Child Tax Credit, CalEITC, Young Child Tax Credit)", ids: ["Young Child Tax Credit"],
+        ca: { where: "Free tax prep at a VITA site, or file yourself with CalFile (state return)", web: [["IRS VITA locator", "https://irs.treasury.gov/freetaxprep"], ["CalEITC4Me", "https://caleitc4me.org"], ["ftb.ca.gov", "https://www.ftb.ca.gov"]], phone: ["VITA: 1-800-906-9887"] },
+        us: { where: "Free tax prep at a VITA site, or IRS Free File", web: [["IRS VITA locator", "https://irs.treasury.gov/freetaxprep"], ["IRS Free File", "https://www.irs.gov/freefile"]], phone: ["1-800-906-9887"] },
+        bring: "Photo ID, Social Security cards for everyone, W-2s and 1099s, last year's return, bank info for direct deposit",
+        time: "Refunds arrive about 3 weeks after e-filing (filing season: Jan to Apr 15)",
+        tip: "File even if you earned too little to owe tax. That's the only way to get these credits." },
+      { name: "Free legal help", ids: ["Legal aid"],
+        ca: { where: "A legal aid office near you", web: [["lawhelpca.org", "https://www.lawhelpca.org"], ["immigrationlawhelp.org", "https://www.immigrationlawhelp.org"]] },
+        us: { where: "A legal aid office near you", web: [["lawhelp.org", "https://www.lawhelp.org"], ["LSC: get legal help", "https://www.lsc.gov/about-lsc/what-legal-aid/get-legal-help"]] },
+        bring: "Every notice, letter or court paper you've received, ID, income proof",
+        time: "Call the same day you get court papers" }
+    ] }
+  ];
+  var APPLY_BY_ID = {};
+  APPLY.forEach(function (g) { g.items.forEach(function (it) { (it.ids || []).forEach(function (id) { APPLY_BY_ID[id] = it; }); }); });
+
+  function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function routeHtml(r) {
+    if (!r) return "";
+    var h = '<p>' + esc(r.where) + '</p>';
+    if (r.web) h += '<p class="links">' + r.web.map(function (w) { return '<a href="' + esc(w[1]) + '" target="_blank" rel="noopener">' + esc(w[0]) + '</a>'; }).join(" · ") + '</p>';
+    if (r.phone) h += '<p class="phones mono">' + r.phone.map(esc).join(" · ") + '</p>';
+    return h;
+  }
+  function factsHtml(it) {
+    return '<dl class="facts"><div><dt>Bring</dt><dd>' + esc(it.bring) + '</dd></div><div><dt>How long</dt><dd>' + esc(it.time) + '</dd></div>' +
+      (it.tip ? '<div><dt>Tip</dt><dd>' + esc(it.tip) + '</dd></div>' : '') + '</dl>';
+  }
+  var openRows = {};
+  function applyDetails(key, s) {
+    var it = APPLY_BY_ID[key];
+    if (!it) return "";
+    var r = s.ca ? it.ca : (it.us || it.ca);
+    return '<details class="ap" data-key="' + esc(key) + '"' + (openRows[key] ? " open" : "") + '><summary>Where to apply</summary>' +
+      '<div class="ap-body">' + routeHtml(r) + factsHtml(it) + '</div></details>';
+  }
+  function renderApplyList(s) {
+    $("apply-list").innerHTML = APPLY.map(function (g) {
+      var items = g.items.filter(function (it) { return !it.only || s.ca; });
+      return '<div class="ap-group"><h3 class="ap-cat">' + esc(g.cat) + '</h3>' + items.map(function (it) {
+        var first = s.ca ? ["In California", it.ca] : ["In your state", it.us || it.ca];
+        var second = s.ca ? (it.us ? ["Other states", it.us] : null) : (it.us ? ["In California", it.ca] : null);
+        return '<article class="ap-item"><h4>' + esc(it.name) + (it.only ? ' <span class="ca-tag">California only</span>' : '') + '</h4>' +
+          '<div class="routes"><div class="route primary"><span class="route-h">' + first[0] + '</span>' + routeHtml(first[1]) + '</div>' +
+          (second ? '<div class="route"><span class="route-h">' + second[0] + '</span>' + routeHtml(second[1]) + '</div>' : '') + '</div>' +
+          factsHtml(it) + '</article>';
+      }).join("") + '</div>';
+    }).join("");
+  }
+
+
+  function state() {
+    var size = parseInt($("size").value, 10) || 1;
+    var income = Math.max(0, parseFloat($("income").value) || 0);
+    var ca = $("where").value === "ca";
+    return {
+      size: size, income: income, ca: ca,
+      expansion: ca || $("expansion").value === "yes",
+      working: $("c-working").checked, pregnant: $("c-pregnant").checked,
+      under5: $("c-under5").checked, school: $("c-school").checked,
+      age60: $("c-60").checked, age65: $("c-65").checked, disabled: $("c-disabled").checked
+    };
+  }
+
+  function resolve(p, s) {
+    var r = { key: p.name };
+    for (var key in p) if (key !== "ca") r[key] = p[key];
+    if (s.ca && p.ca) for (var c in p.ca) r[c] = p.ca[c];
+    return r;
+  }
+
+  function render() {
+    var s = state();
+    $("expansion-field").hidden = s.ca;
+    var base = fpl(s.size, 2026);
+    var userPct = s.income / base * 100;
+
+    $("ticks").innerHTML = [0, 100, 200, 300, 400].map(function (p) {
+      return '<span class="tick" style="left:' + (p / MAX * 100) + '%"><span class="mono">' + p + '%</span><br>' + k(base * p / 100) + '</span>';
+    }).join("");
+
+    var likely = 0, needs = 0, notes = [];
+    var rows = PROGRAMS.filter(function (p) {
+      return !p.only || (p.only === "ca") === s.ca;
+    }).map(function (raw) {
+      var p = resolve(raw, s);
+      var b = fpl(s.size, p.year || 2026);
+      var hi = p.any ? Infinity : p.limit ? p.limit(s) : b * p.pct / 100;
+      var lo = p.lo ? b * p.lo / 100 : 0;
+      return { p: p, hi: hi, lo: lo, sortPct: p.any ? MAX + 1 : hi / base * 100 };
+    }).sort(function (a, b) { return a.sortPct - b.sortPct; });
+
+    var html = rows.map(function (r) {
+      var p = r.p, hi = r.hi, lo = r.lo;
+      var incomeOk = s.income <= hi && s.income >= lo;
+      var needOk = p.need ? p.need(s) : true;
+      var cls, pill;
+      var medicaidInstead = p.year === 2025 && s.expansion && s.income <= base * 1.38;
+      if (medicaidInstead) { cls = "over"; pill = s.ca ? "Medi-Cal instead" : "Medicaid instead"; }
+      else if (incomeOk && needOk) { cls = "likely"; pill = "Likely"; likely++; }
+      else if (incomeOk) { cls = "needs"; pill = "Needs " + p.needTxt; needs++; }
+      else if (s.income < lo) { cls = "over"; pill = "Below range"; }
+      else { cls = "over"; pill = "Over limit"; }
+      if (p.note) { var n = p.note(s); if (n) notes.push(n); }
+      var leftPct = lo / base * 100;
+      var hiPct = p.any ? MAX : Math.min(hi / base * 100, MAX);
+      var left = leftPct / MAX * 100;
+      var width = (hiPct - leftPct) / MAX * 100;
+      var cap = p.any ? "All incomes" : (p.lo ? k(lo) + "–" : "≤ ") + k(hi) + (p.plus ? "+" : "");
+      return '<div class="row ' + cls + '">' +
+        '<div class="name">' + p.name + '<div class="what">' + p.what + '</div></div>' +
+        '<div class="track"><div class="bar" style="left:' + left + '%;width:' + width + '%"><span class="cap">' + cap + '</span></div></div>' +
+        '<span class="pill">' + pill + '</span>' + applyDetails(p.key, s) + '</div>';
+    }).join("");
+    if (!s.ca && s.income < base && !s.expansion && !(s.pregnant || s.disabled || s.age65)) {
+      notes.push("ACA subsidy: below 100% of the poverty line in a non-expansion state, adults fall into the \"coverage gap\" and get neither Medicaid nor a subsidy.");
+    }
+    if (s.ca && !s.school && !s.under5) {
+      notes.push("California also has county General Relief (e.g. $221/mo in LA County) for adults with almost no income, and CalWORKs cash if you have kids. Both go through BenefitsCal.");
+    }
+    html += notes.map(function (n) { return '<div class="row"><div class="note">' + n + '</div></div>'; }).join("");
+    $("rows").innerHTML = html;
+    renderApplyList(s);
+
+    $("marker").style.left = Math.min(userPct, MAX) / MAX * 100 + "%";
+    $("marker-label").textContent = "You: " + k(s.income) + (userPct > MAX ? " (off chart)" : "");
+    $("n-likely").textContent = likely;
+    $("n-needs").textContent = needs ? needs + " more if you meet another condition" : "";
+    $("pct-line").textContent = "Your income = " + Math.round(userPct) + "% of the poverty line for " + s.size + (s.size === 1 ? " person" : " people") + (s.ca ? " · California rules" : "");
+  }
+
+  ["where", "size", "income", "expansion", "c-working", "c-pregnant", "c-under5", "c-school", "c-60", "c-65", "c-disabled"].forEach(function (id) {
+    $(id).addEventListener("input", render);
+    $(id).addEventListener("change", render);
+  });
+
+  $("rows").addEventListener("toggle", function (e) {
+    var el = e.target;
+    if (el.dataset && el.dataset.key) openRows[el.dataset.key] = el.open;
+  }, true);
+
+  $("copy211").addEventListener("click", function () {
+    var btn = this;
+    function done(t) { btn.textContent = t; setTimeout(function () { btn.textContent = "Copy"; }, 1500); }
+    function selectIt() {
+      var r = document.createRange(); r.selectNodeContents($("t211"));
+      var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); done("Selected");
+    }
+    try {
+      navigator.clipboard.writeText("211").then(function () { done("Copied"); }, selectIt);
+    } catch (e) { selectIt(); }
+  });
+
+  render();
+})();
+</script>
