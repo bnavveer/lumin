@@ -1,4 +1,6 @@
+import { z } from 'zod';
 import type { Program } from './contracts.js';
+import { generateObjectWithFallback } from './llm.js';
 
 // Deterministic county-email classifier: keyword/regex rules plus date/time parsing. No LLM.
 export type EmailCategory =
@@ -166,5 +168,29 @@ export function classifyCountyEmail(
       return { category, extracted: withProgram({}) };
     default:
       return { category: 'other', extracted: {} };
+  }
+}
+
+const LLM_CATEGORIES = ['interview_scheduled', 'documents_requested', 'approved', 'denied', 'renewal_due', 'other'] as const;
+const LlmSchema = z.object({ category: z.enum(LLM_CATEGORIES) });
+
+/** Rules stay primary. Only when they say 'other' do we ask the 'fast' model for a category (set AID_LLM_CLASSIFY=0 to disable). */
+export async function classifyCountyEmailWithLlm(
+  email: { subject?: string; text?: string; from?: string },
+  now: Date = new Date(),
+  opts: { householdId?: string } = {},
+): Promise<Classification> {
+  const rules = classifyCountyEmail(email, now);
+  if (rules.category !== 'other' || process.env.AID_LLM_CLASSIFY === '0') return rules;
+  try {
+    const { object } = await generateObjectWithFallback('fast', LlmSchema, {
+      system: 'Classify a county benefits-office email into exactly one category: interview_scheduled, documents_requested, approved, denied, renewal_due, or other.',
+      prompt: `Subject: ${email.subject ?? ''}\n\n${(email.text ?? '').slice(0, 3000)}`,
+      ...(opts.householdId ? { householdId: opts.householdId } : {}),
+    });
+    return object.category === 'other' ? rules : { category: object.category, extracted: {} };
+  } catch (err) {
+    console.error('[inboxClassifier] llm fallback failed:', err instanceof Error ? err.message : err);
+    return rules;
   }
 }

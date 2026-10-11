@@ -10,7 +10,7 @@ import { logEvent } from './keewano.js';
 import {
   createInbox, getMessage, listMessages, sendMessage, verifyWebhookSignature, type AmMessage,
 } from './agentmail.js';
-import { classifyCountyEmail, type Classification } from './inboxClassifier.js';
+import { classifyCountyEmail, classifyCountyEmailWithLlm, type Classification } from './inboxClassifier.js';
 import { demoEmail, DEMO_TEMPLATES } from './inboxDemo.js';
 
 export { classifyCountyEmail } from './inboxClassifier.js';
@@ -115,7 +115,7 @@ export async function handleInboundEmail(householdId: string, email: InboundEmai
   if (seenErr) fail('handleInboundEmail.lookup', seenErr);
   if (seen) return undefined;
 
-  const c = classifyCountyEmail({ subject: email.subject, text: email.text, from: email.from });
+  const c = await classifyCountyEmailWithLlm({ subject: email.subject, text: email.text, from: email.from }, new Date(), { householdId });
   const { error } = await db().from('inbound_emails').insert({
     id: email.id, household_id: householdId, from_addr: email.from, subject: email.subject,
     received_at: toIso(email.receivedAt), category: c.category, extracted: c.extracted,

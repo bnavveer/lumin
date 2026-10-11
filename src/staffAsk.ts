@@ -68,7 +68,7 @@ export async function askStaffQuestion(q: string): Promise<string> {
   try {
     const tools = await (deps.tools ?? getMcpTools)();
     const { text } = await deps.generate({
-      model: aidModel(),
+      model: aidModel('agent'),
       system: SYSTEM_PROMPT,
       prompt: question,
       tools,

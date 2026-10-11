@@ -5,12 +5,11 @@
 // captured it before calling startExtraction. The provider is swappable: when llm.ts hasModel() is true (Neon AI Gateway or ANTHROPIC_API_KEY)
 // set we use a Claude vision call (synchronous); otherwise Devin (asynchronous, minutes).
 // User instruction: "use devin for photo reading".
-import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 import type { DocType } from './contracts.js';
 import { createDevinSession, getDevinSession, type DevinSession } from './devin.js';
 import { logEvent } from './keewano.js';
-import { hasModel, model } from './llm.js';
+import { generateObjectWithFallback, hasModel } from './llm.js';
 import { getTimeline } from './store.js';
 import { vaultDb } from './vault.js';
 
@@ -78,33 +77,20 @@ async function fetchMessageAnswer(id: string): Promise<unknown> {
   return answerFromMessages((j.messages ?? []).filter(m => m.type === 'devin_message').map(m => String(m.message ?? '')));
 }
 
-/** Claude vision read. opus-5-5 rejects forced tool_choice, so fall back to JSON-only generateText. */
+/** Vision read via the 'vision' task: opus-5-5 first (JSON-text path), then Gemini / GPT fallbacks. */
 async function claudeVision(schema: z.ZodObject, url: string, docType: string): Promise<unknown> {
   const instruction = `Read ONLY the listed fields from this ${docType} image. Use null for anything unreadable.`;
-  // The gateway rejects URL image sources for this model, so download the bytes from our own signed URL.
+  // The gateway rejects URL image sources for Claude, so download the bytes from our own signed URL.
   const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`[docExtract] image download failed: ${res.status}`);
   const image = {
     type: 'image' as const, image: Buffer.from(await res.arrayBuffer()),
     mediaType: (res.headers.get('content-type') ?? 'image/png').split(';')[0]!,
   };
-  try {
-    return (await generateObject({
-      model: model(), schema,
-      messages: [{ role: 'user', content: [{ type: 'text', text: instruction }, image] }],
-    })).object;
-  } catch (err) {
-    console.error('[docExtract] generateObject failed, retrying as JSON text:', err instanceof Error ? err.message : err);
-  }
-  const { text } = await generateText({
-    model: model(),
-    messages: [{ role: 'user', content: [{
-      type: 'text',
-      text: `${instruction} Respond with ONLY a JSON object (no prose, no code fences) matching this JSON schema: ${JSON.stringify(z.toJSONSchema(schema))}`,
-    }, image] }],
+  const { object } = await generateObjectWithFallback('vision', schema, {
+    messages: [{ role: 'user', content: [{ type: 'text', text: instruction }, image] }],
   });
-  const start = text.indexOf('{'), end = text.lastIndexOf('}');
-  return start >= 0 && end > start ? JSON.parse(text.slice(start, end + 1)) : null;
+  return object;
 }
 
 const realDeps = (): ExtractDeps => ({

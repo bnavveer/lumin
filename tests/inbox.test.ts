@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto';
 import { Hono } from 'hono';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+process.env.AID_LLM_CLASSIFY = '0'; // offline: rules-only classification
 const logEvent = vi.fn(async () => {});
 const addTimeline = vi.fn(async () => {});
 const appendMessage = vi.fn(async () => {});
