@@ -1,0 +1,223 @@
+// Generated from /tmp/ca-photos-raw/credits.json, then hand-edited alt text.
+// Images are in /public/photos with a film look from scripts/vintage.py.
+// All public domain, CC0 or CC BY 2.0. CC BY photos need the credit shown
+// near the photo (use <PhotoCredit>).
+
+export type PhotoInfo = {
+  id: string
+  subject: string
+  alt: string
+  author: string
+  license: string
+  licenseUrl: string
+  sourceUrl: string
+  width: number
+  height: number
+  // The Hollywood Sign is a trademark; commercial use needs a license
+  // from the Hollywood Chamber of Commerce.
+  restricted?: string
+}
+
+export const photos: PhotoInfo[] = [
+  {
+    id: "golden-gate",
+    subject: "Golden Gate Bridge, San Francisco",
+    alt: "Golden Gate Bridge at sunset, seen from the rocks below",
+    author: "Chris Brignola",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Golden_Gate_Sunset._(Unsplash).jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "bixby-bridge",
+    subject: "Bixby Creek Bridge, Big Sur",
+    alt: "Highway 1 curving along the Big Sur cliffs toward Bixby Creek Bridge",
+    author: "adrian aows",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Icons_(Unsplash).jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "yosemite-tunnel-view",
+    subject: "Tunnel View, Yosemite",
+    alt: "El Capitan, Half Dome and Bridalveil Fall from Tunnel View in Yosemite",
+    author: "Always Shooting",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Yosemite_-_Tunnel_view.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "venice-palms-sunset",
+    subject: "Venice Beach, Los Angeles",
+    alt: "Palm trees silhouetted against a sunset sky at Venice Beach",
+    author: "Stuart Guest-Smith",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Venice_Beach_palm_trees_at_sunset_(Unsplash).jpg",
+    width: 1600,
+    height: 1064,
+  },
+  {
+    id: "palm-street-la",
+    subject: "Los Angeles",
+    alt: "A quiet street in Los Angeles lined with tall palm trees",
+    author: "Carol M. Highsmith",
+    license: "Public domain",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Palm_lined_street_in_Los_Angeles,_California_LCCN2013632428.tif",
+    width: 1600,
+    height: 1013,
+  },
+  {
+    id: "santa-monica-pier",
+    subject: "Santa Monica Pier",
+    alt: "Santa Monica Pier and its Ferris wheel at sunset, waves in front",
+    author: "GillyBerlin",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Santa_Monica_Pier_in_Los_Angeles.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "cable-car",
+    subject: "Hyde Street, San Francisco",
+    alt: "A cable car climbing Hyde Street with the bay and Alcatraz behind",
+    author: "Carol M. Highsmith",
+    license: "Public domain",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Cable_car_on_Hyde_Street,_San_Francisco,_California_LCCN2013630202.tif",
+    width: 1600,
+    height: 1165,
+  },
+  {
+    id: "poppies",
+    subject: "California poppies",
+    alt: "A hillside covered in orange California poppies during a superbloom",
+    author: "incidencematrix",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Poppy_superbloom4.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "joshua-tree",
+    subject: "Joshua Tree National Park",
+    alt: "A Joshua tree at sunset in the desert",
+    author: "Joshua Tree National Park (NPS)",
+    license: "Public domain",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Joshua_tree_at_sunset_(50309334086).jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "redwoods",
+    subject: "Jedediah Smith Redwoods State Park",
+    alt: "A dirt trail through tall redwood trees and ferns",
+    author: "Chris Rycroft",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Redwood_trees_on_the_Boy_Scout_Tree_Trail_-_Flickr_-_chris.rycroft.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "napa-vineyard",
+    subject: "Napa Valley",
+    alt: "Rows of grapevines in autumn colors below a mountain in Napa Valley",
+    author: "John Morgan",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Autumn_in_Napa_Valley_vineyards.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "salinas-farm-tractor",
+    subject: "Salinas Valley farm",
+    alt: "A farmer driving a tractor beside green fields in the Salinas Valley",
+    author: "USDA",
+    license: "Public domain",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:FARMERS_GOV_-_ALBA_-_Agricultural_Land_Based_Training_Association_(20181114-FPAC-LSC-0091).jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "farmers-market-apricots",
+    subject: "Ferry Building Farmers Market, San Francisco",
+    alt: "A pile of fresh apricots at a farmers market stall",
+    author: "Daderot",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Apricots_1_-_Farmer%27s_Market_at_the_Ferry_Building_-_San_Francisco,_CA_-_DSC03600.JPG",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "ferndale-main-street",
+    subject: "Main Street, Ferndale",
+    alt: "Victorian storefronts on Main Street in Ferndale",
+    author: "Carol M. Highsmith",
+    license: "Public domain",
+    licenseUrl: "https://creativecommons.org/publicdomain/mark/1.0/",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Victorian_downtown_of_Ferndale,_California_LCCN2011636362.tif",
+    width: 1600,
+    height: 1223,
+  },
+  {
+    id: "lake-tahoe",
+    subject: "Emerald Bay, Lake Tahoe",
+    alt: "Emerald Bay and Fannette Island at sunset, Lake Tahoe",
+    author: "Eric Philbin",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Emerald_Bay,_Lake_Tahoe,_California._2015.jpg",
+    width: 1600,
+    height: 1067,
+  },
+  {
+    id: "la-skyline-sunset",
+    subject: "Downtown Los Angeles",
+    alt: "Downtown Los Angeles skyline glowing orange at sunset",
+    author: "Josh Rose",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Tequila_Sunset_(Unsplash).jpg",
+    width: 1600,
+    height: 1111,
+  },
+  {
+    id: "hollywood-sign",
+    subject: "Hollywood Sign",
+    alt: "The Hollywood Sign on the hillside at golden hour",
+    author: "Ahmet Yalçınkaya",
+    license: "CC0",
+    licenseUrl: "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    sourceUrl: "https://commons.wikimedia.org/wiki/File:Ahmet_Yal%C3%A7%C4%B1nkaya_2016-04-17_(Unsplash).jpg",
+    width: 1600,
+    height: 1066,
+    restricted: "Trademarked sign. Don’t use commercially without a license from the Hollywood Chamber of Commerce.",
+  },
+]
+
+export const photoById = Object.fromEntries(photos.map((p) => [p.id, p])) as Record<string, PhotoInfo>
+
+export const heroPhotos = [
+  'golden-gate',
+  'bixby-bridge',
+  'yosemite-tunnel-view',
+  'venice-palms-sunset',
+  'cable-car',
+  'joshua-tree',
+  'santa-monica-pier',
+  'lake-tahoe',
+].map((id) => photoById[id])
