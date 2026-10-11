@@ -231,3 +231,106 @@
   from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
+
+/* ── Site motion ─────────────────────────────────────────────── */
+@keyframes placeholder-in {
+  from { opacity: 0; transform: translateY(0.4em); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes mic-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.14); }
+}
+@keyframes marquee-y {
+  from { transform: translateY(0); }
+  to { transform: translateY(-50%); }
+}
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+@keyframes ring-out {
+  from { transform: scale(1); opacity: 0.9; }
+  to { transform: scale(2.6); opacity: 0; }
+}
+@keyframes bubble-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes caret {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Paused or off-screen tiles stop every animation inside them */
+.media-tile[data-paused="true"] *,
+[data-paused="true"] .media-anim {
+  animation-play-state: paused !important;
+}
+
+/* Reveal on scroll (see <Reveal>) */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s var(--ease-out-quint), transform 0.9s var(--ease-out-quint);
+}
+.reveal[data-in="true"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* "Thinking…" shimmer in the chat */
+.text-shimmer {
+  background: linear-gradient(90deg, var(--color-tertiary) 0%, var(--color-primary) 50%, var(--color-tertiary) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* Page transitions: keep the logo and Menu button in place */
+@view-transition { navigation: auto; }
+.site-home-link { view-transition-name: site-logo; }
+.site-menu-trigger { view-transition-name: site-menu; }
+::view-transition-group(site-logo),
+::view-transition-group(site-menu) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-drawer);
+}
+::view-transition-old(root) { animation: 180ms var(--ease-standard) both vt-out; }
+::view-transition-new(root) { animation: 320ms var(--ease-out-quint) both vt-in; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+
+html { scroll-padding-top: 1.5rem; }
+@keyframes kenburns {
+  from { transform: scale(1.06); }
+  to { transform: scale(1); }
+}
+@keyframes pick {
+  to { border-color: var(--color-blue-700); background-color: var(--color-blue-50); }
+}

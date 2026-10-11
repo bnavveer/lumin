@@ -1,4 +1,6 @@
-// Simplified flags for small sizes. The U.S. flag uses america.gov's
+import { cx } from './cx'
+
+// The U.S. flag is simplified for small sizes. It uses america.gov's
 // 16×9 layout (stars as a dot grid) and its favicon colors.
 
 const starRows = [
@@ -33,27 +35,18 @@ export function USFlag({ width = 24, className }: { width?: number; className?: 
   )
 }
 
+// The official Bear Flag (public domain; original by Donald Graeme Kelley,
+// SVG from Wikimedia Commons: File:Flag_of_California.svg).
 export function CaliforniaFlag({ width = 24, className }: { width?: number; className?: string }) {
   return (
-    <svg
+    <img
+      src="/ca-flag.svg"
       width={width}
       height={(width * 2) / 3}
-      viewBox="0 0 30 20"
-      className={className}
-      role="img"
-      aria-label="California flag"
-    >
-      <rect width="30" height="20" fill="#fff" />
-      <rect y="16.6" width="30" height="3.4" fill="#b8202f" />
-      <path
-        d="m3.6 1.6.62 1.9h2l-1.62 1.17.62 1.9-1.62-1.17-1.62 1.17.62-1.9L1.38 3.5h2Z"
-        fill="#b8202f"
-      />
-      <rect x="7" y="14.1" width="17" height="0.7" rx="0.35" fill="#5b7f2a" />
-      <path
-        d="M8 9.2C8 8 9 7.4 10 7.6l1.2.3c1.8-.7 4.8-.9 7.3-.3 2 .5 3.5 1.6 3.9 3.2l.4 2.4-1.2.2-.6-1.6c-.4.5-.8.8-1.2 1l.2 1.2-1.2.1-.4-1.2c-1.9.2-3.9.2-5.4-.1l-.2 1.2-1.2.1v-1.7c-.6-.3-1-.8-1.2-1.4l.2 3-1.2.1-.2-3.5c-.7-.2-1.4-.4-1.8-.7Z"
-        fill="#5a3a1e"
-      />
-    </svg>
+      alt="California flag"
+      decoding="async"
+      draggable={false}
+      className={cx('inline-block shrink-0 object-cover', className)}
+    />
   )
 }

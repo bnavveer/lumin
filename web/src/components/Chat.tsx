@@ -87,10 +87,14 @@ export function SourceChips({ sources }: { sources: Source[] }) {
 export function SourcesCard({
   sources,
   onClose,
+  title = 'Sources',
+  countLabel = (n: number) => `${n} source${n > 1 ? 's' : ''}`,
   className,
 }: {
   sources: Source[]
   onClose?: () => void
+  title?: string
+  countLabel?: (n: number) => string
   className?: string
 }) {
   const byDomain = Object.entries(
@@ -102,7 +106,7 @@ export function SourcesCard({
   return (
     <div className={cx('w-full max-w-[22rem] rounded-24 bg-background-primary p-5 shadow-elevation-1 ring-1 ring-border-quaternary', className)}>
       <div className="relative mb-4 flex items-center justify-center">
-        <h3 className="type-label-m">Sources</h3>
+        <h3 className="type-label-m">{title}</h3>
         {onClose && <IconButton icon="close" label="Close sources" size="sm" onClick={onClose} className="absolute right-0" />}
       </div>
       <ul className="flex flex-col gap-5">
@@ -113,7 +117,7 @@ export function SourcesCard({
               <div>
                 <p className="type-body-s font-medium leading-tight">{domain}</p>
                 <p className="type-label-s text-tertiary">
-                  {items.length} source{items.length > 1 ? 's' : ''}
+                  {countLabel(items.length)}
                 </p>
               </div>
             </div>

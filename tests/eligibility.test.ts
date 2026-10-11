@@ -57,4 +57,15 @@ describe('checkEligibility', () => {
     expect(annualFpl(1)).toBe(15_960);
     expect(annualFpl(4)).toBe(33_000);
   });
+
+  it('does not round income across the screening boundary', () => {
+    expect(pick({ ...base, monthlyIncome: 2660 }, 'calfresh').status).toBe('likely');
+    expect(pick({ ...base, monthlyIncome: 2660.01 }, 'calfresh').status).toBe('not_eligible');
+  });
+
+  it('treats unknown immigration status as missing information for food programs', () => {
+    const h = { ...base, immigrationStatus: 'unknown' as const };
+    expect(pick(h, 'calfresh').status).toBe('needs_info');
+    expect(pick(h, 'cfap').status).toBe('needs_info');
+  });
 });

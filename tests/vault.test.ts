@@ -25,7 +25,7 @@ describe('compressForUpload', () => {
     const out = await compressForUpload(big, 'image/jpeg', max);
     expect(out.buffer.byteLength).toBeLessThanOrEqual(max);
     expect(out.resized).toBe(true);
-  });
+  }, 30_000); // Native image compression can exceed 5s under full-suite CPU load.
   it('passes small JPEG and PDFs through, rejects oversized PDF', async () => {
     const small = await sharp({ create: { width: 10, height: 10, channels: 3, background: '#fff' } }).jpeg().toBuffer();
     expect((await compressForUpload(small, 'image/jpeg')).resized).toBe(false);

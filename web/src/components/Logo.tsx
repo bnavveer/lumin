@@ -8,17 +8,21 @@ export function Logo({
   size = 'md',
   showRegion = true,
   href = '/',
+  plain,
   className,
 }: {
   size?: 'md' | 'lg'
   showRegion?: boolean
   href?: string
+  // Render a <span> so a router link can wrap it
+  plain?: boolean
   className?: string
 }) {
+  const Tag = plain ? 'span' : 'a'
   return (
-    <a
-      href={href}
-      aria-label={`${brand.name} home`}
+    <Tag
+      href={plain ? undefined : href}
+      aria-label={plain ? undefined : `${brand.name} home`}
       className={cx('inline-flex min-w-0 items-center gap-2.5 rounded-8 focus-ring', className)}
     >
       <USFlag width={size === 'lg' ? 36 : 28} />
@@ -31,7 +35,7 @@ export function Logo({
         {brand.name}
       </span>
       {showRegion && <RegionChip />}
-    </a>
+    </Tag>
   )
 }
 

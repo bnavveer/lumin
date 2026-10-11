@@ -11,6 +11,7 @@ export function Sheet({
   title,
   hideTitle,
   placement = 'center',
+  closeLabel = 'Close',
   children,
   className,
 }: {
@@ -19,6 +20,7 @@ export function Sheet({
   title: string
   hideTitle?: boolean
   placement?: 'center' | 'corner'
+  closeLabel?: string
   children: ReactNode
   className?: string
 }) {
@@ -50,7 +52,7 @@ export function Sheet({
       <div className="relative px-10 pt-8 pb-10 max-mobile:px-6">
         <div className="mb-8 flex min-h-9 items-center justify-center">
           <h2 className={cx('type-label-m', hideTitle && 'sr-only')}>{title}</h2>
-          <IconButton icon="close" label="Close" size="sm" onClick={onClose} className="absolute top-8 right-8 max-mobile:right-5" />
+          <IconButton icon="close" label={closeLabel} size="sm" onClick={onClose} className="absolute top-8 right-8 max-mobile:right-5" />
         </div>
         {children}
       </div>

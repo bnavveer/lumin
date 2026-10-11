@@ -73,6 +73,30 @@ const paths = {
     </>
   ),
   shield: <path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3Z" />,
+  spinner: <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5" />,
+  'thumb-up': <path d="M7.5 10.5v9H5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h2.5Zm0 0 3.6-6.3a1.6 1.6 0 0 1 2.9 1.1l-.6 4.2h4.9a2 2 0 0 1 2 2.4l-1.2 6.3a2 2 0 0 1-2 1.8H7.5" />,
+  'thumb-down': <path d="M16.5 13.5v-9H19a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2.5Zm0 0-3.6 6.3a1.6 1.6 0 0 1-2.9-1.1l.6-4.2H5.7a2 2 0 0 1-2-2.4l1.2-6.3a2 2 0 0 1 2-1.8h9.6" />,
+  copy: (
+    <>
+      <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+      <path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" />
+    </>
+  ),
+  refresh: <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4" />,
+  globe: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M3.5 12h17M12 3.5c2.2 2.3 3.3 5.2 3.3 8.5s-1.1 6.2-3.3 8.5c-2.2-2.3-3.3-5.2-3.3-8.5s1.1-6.2 3.3-8.5Z" />
+    </>
+  ),
+  message: <path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5A1.5 1.5 0 0 1 19 17h-8l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" />,
+  'lock-open': (
+    <>
+      <rect x="5" y="10.5" width="14" height="10" rx="2" />
+      <path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 6.8-1.2M12 14.5v2" />
+    </>
+  ),
+  plus: <path d="M12 5v14M5 12h14" />,
 } as const
 
 export type IconName = keyof typeof paths
@@ -94,6 +118,7 @@ export function Icon({
       strokeLinejoin="round"
       aria-hidden="true"
       {...props}
+      className={name === 'spinner' ? `animate-spin ${props.className ?? ''}` : props.className}
     >
       {paths[name]}
     </svg>

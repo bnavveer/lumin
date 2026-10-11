@@ -27,6 +27,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.109",
     "@ai-sdk/openai-compatible": "^1.0.58",
+    "@anthropic-ai/sdk": "^0.133.0",
     "@getdial/sdk": "^0.41.1",
     "@hono/node-server": "^2.1.4",
     "@modelcontextprotocol/sdk": "^1.32.1",

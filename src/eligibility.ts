@@ -31,6 +31,7 @@ function calfresh(h: Household, pct: number): ProgramMatch {
     case 'citizen': return match('calfresh', 'likely', est, `About $${est}/mo for food (estimate).`);
     case 'green_card': return match('calfresh', 'needs_info', est, 'Many green card holders wait 5 years for CalFresh; if so, CFAP pays the same.');
     case 'humanitarian': return match('calfresh', 'needs_info', null, 'Refugees and asylees lost federal eligibility in April 2026; the county will check.');
+    case 'unknown': return match('calfresh', 'needs_info', null, 'The county can check each applicant’s circumstances; undisclosed immigration status does not establish ineligibility.');
     default:
       return h.childrenUnder18 > 0 && h.childrenAreCitizens
         ? match('calfresh', 'likely', null, 'Your citizen children can get CalFresh even if you can’t.')
@@ -72,6 +73,7 @@ function generalRelief(h: Household): ProgramMatch {
 
 function cfap(h: Household, pct: number): ProgramMatch {
   if (pct > P.CALFRESH_GROSS_PCT) return match('cfap', 'not_eligible', null, 'Income is above the CFAP limit.');
+  if (h.immigrationStatus === 'unknown') return match('cfap', 'needs_info', null, 'The county needs to check whether a CalFresh or CFAP route applies.');
   if (h.immigrationStatus === 'green_card') return match('cfap', 'likely', calfreshEstimate(h), 'State food aid if you are still in the 5-year wait for CalFresh.');
   if (h.immigrationStatus === 'humanitarian') return match('cfap', 'needs_info', null, 'No state backfill is confirmed yet for refugees and asylees; the county will check.');
   if (h.immigrationStatus === 'undocumented') return match('cfap', 'not_eligible', null, 'CFAP expands to undocumented adults 55+ in Oct 2027.');
@@ -88,6 +90,7 @@ function section8(h: Household): ProgramMatch {
 
 export function checkEligibility(h: Household): ProgramMatch[] {
   validate(h);
-  const pct = pctFpl(h);
+  // Display rounding must not move an applicant across an income boundary.
+  const pct = ((h.monthlyIncome * 12) / annualFpl(h.size)) * 100;
   return [calfresh(h, pct), mediCal(h, pct), calworks(h), generalRelief(h), cfap(h, pct), section8(h)];
 }

@@ -152,9 +152,11 @@ export function LinkCard({
 export function Accordion({
   items,
   askAnything,
+  askLabel = 'Ask anything else',
 }: {
   items: { q: string; a: ReactNode }[]
   askAnything?: (text: string) => void
+  askLabel?: string
 }) {
   const [open, setOpen] = useState<number | null>(null)
   const [ask, setAsk] = useState('')
@@ -201,11 +203,11 @@ export function Accordion({
           <input
             value={ask}
             onChange={(e) => setAsk(e.target.value)}
-            placeholder="Ask anything else"
-            aria-label="Ask anything else"
+            placeholder={askLabel}
+            aria-label={askLabel}
             className="flex-1 bg-transparent type-faq outline-none placeholder:text-secondary"
           />
-          <IconButton type="submit" icon="arrow-right" label="Ask" size="sm" variant={ask.trim() ? 'primary' : 'secondary'} />
+          <IconButton type="submit" icon="arrow-right" label={askLabel} size="sm" variant={ask.trim() ? 'primary' : 'secondary'} />
         </form>
       )}
     </div>
