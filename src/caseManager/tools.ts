@@ -10,6 +10,7 @@ import type { Approval, ConversationState } from './state.js';
 import { APPROVAL_KINDS } from './state.js';
 import { docsText, likelyPrograms, statusText } from './status.js';
 import { T } from './prompts.js';
+import { ScheduleCallInput } from '../calls/schedule.js';
 
 export interface TurnContext {
   deps: ConversationDeps;
@@ -130,6 +131,17 @@ export function buildTools(ctx: TurnContext): ToolSet {
         return { pending: true, approvalId: approval.id, tell: 'Lumin will append the exact YES/NO question itself. Do NOT ask for YES/NO or restate the action; at most add one short sentence of context.' };
       }),
     }),
+    ...(deps.scheduleCall ? {
+      schedule_call: tool({
+        description: 'Use when the person asks Aid to call the county or office at a time (or now), or to find something out by phone. Aid calls the county office then, asks exactly these questions, and texts the answers back. Confirm the local time and the questions.',
+        inputSchema: ScheduleCallInput,
+        execute: logged('schedule_call', async (input: z.infer<typeof ScheduleCallInput>) => {
+          const parsed = ScheduleCallInput.safeParse(input);
+          if (!parsed.success) return { error: 'Give a time and 1 to 6 short questions to ask.' };
+          return { result: await deps.scheduleCall!(hid, parsed.data) };
+        }),
+      }),
+    } : {}),
     get_status: tool({
       description: 'Current case status: submitted programs, next interview, missing documents, pending approvals.',
       inputSchema: z.object({}),

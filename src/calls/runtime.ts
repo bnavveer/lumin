@@ -180,10 +180,10 @@ export function createCallsRuntime(deps: CallsDeps) {
 
   return {
     config: () => callsConfig(deps),
-    /** Creates the call row and runs it in the background. Returns the queued row. */
-    async startScriptedCall(input: StartInput): Promise<CallRow> {
+    /** Creates the call row and runs it in the background. Returns the queued row; onDone gets the final row. */
+    async startScriptedCall(input: StartInput, onDone?: (final: CallRow) => Promise<void> | void): Promise<CallRow> {
       const row = await create(input);
-      track(run(row));
+      track(run(row).then(async final => { await onDone?.(final); }));
       return row;
     },
     /** Creates the call and waits for the end (workflow call step). */

@@ -29,6 +29,8 @@ export interface ConversationDeps {
   /** Copy to the dashboard's per-household message log (only exists once the household is confirmed). */
   mirrorMessage(hid: string, role: 'user' | 'assistant', content: string): Promise<void>;
   addTimeline(hid: string, label: string): Promise<void>;
+  /** Schedule a county call for a confirmed household (src/calls/schedule.ts). Optional. */
+  scheduleCall?(hid: string, input: { when: string; questions: string[]; purpose?: string }, source: 'chat' | 'sms'): Promise<string>;
   now?: () => Date;
 }
 
@@ -136,6 +138,13 @@ export function createConversation(d: ConversationDeps) {
       sendConfirmationText: () => requestConfirmation(intakeId),
       checkEligibility: async () => checkFor(intakeId),
       screenApplications: async () => JSON.stringify(screenApplications((await d.repo.get(intakeId))?.fields ?? {}, now())),
+      ...(d.scheduleCall ? {
+        async scheduleCall(input: { when: string; questions: string[]; purpose?: string }) {
+          const hid = (await d.repo.get(intakeId))?.householdId;
+          if (!hid) return 'Not scheduled: their info must be confirmed by text first (reply YES to the summary), then Aid can call the county for them.';
+          return d.scheduleCall!(hid, input, channel === 'web' ? 'chat' : 'sms');
+        },
+      } : {}),
     };
   }
 

@@ -42,6 +42,8 @@ export interface AgentTools {
   checkEligibility(): Promise<string>;
   /** Preliminary application suggestions from answers collected so far; no submission. */
   screenApplications(): Promise<string>;
+  /** Schedule (or place now) a call to the county office asking these questions. Absent when calling isn't wired. */
+  scheduleCall?(input: { when: string; questions: string[]; purpose?: string }): Promise<string>;
 }
 
 export interface AgentTurn {
@@ -65,6 +67,7 @@ How to work:
 - Preliminary suggestions are allowed while collecting answers. Before saving a confirmed case, call send_confirmation_text when the required base fields are known and tell them to reply YES. If in web chat without a mobile number, explain why it is needed and save it with save_answers.
 - After the info is confirmed, call check_eligibility and summarize likely matches, reasons, application routes and what still needs checking. Agencies make final decisions. Do not invent benefit amounts, combine mutually exclusive programs, or promise a yearly total. Referral-only results are not qualification findings. If the tool says rules need updating, do not infer eligibility from remembered limits.
 - If they change an answer after confirming, save it and send a new confirmation text.
+- If they ask you to call the county or office (now or at a time), or to find something out by phone, call schedule_call with their time and their questions, then confirm the local time and the questions it returns. Answers come back in this conversation and by text.
 - Never promise approval. Never ask for Social Security numbers, bank logins or passwords. If they seem to be in crisis, tell them to call or text 211 (or 911 for emergencies).`;
 
 const STYLE: Record<Channel, string> = {
@@ -120,6 +123,16 @@ export async function runAgentTurn(t: AgentTurn): Promise<string> {
       inputSchema: z.object({}),
       run: async () => t.tools.checkEligibility(),
     }),
+    ...(t.tools.scheduleCall ? [betaZodTool({
+      name: 'schedule_call',
+      description: 'Use when the person asks Aid to call the county or office at a time (or now), or to find something out by phone. Aid calls the county office then, asks exactly these questions, and posts the answers back here and by text. Afterwards confirm the local time and the questions to the person.',
+      inputSchema: z.object({
+        when: z.string().min(1).max(120).describe('When to call, in their words: "now", "in 5 minutes", "tomorrow at 10am", "Thursday 2pm"'),
+        questions: z.array(z.string().min(3).max(300)).min(1).max(6).describe('The exact questions to ask the county, phrased as questions'),
+        purpose: z.string().max(200).optional().describe('One short sentence: the goal of the call'),
+      }),
+      run: async input => t.tools.scheduleCall!(input),
+    })] : []),
   ];
 
   const final = await claude().beta.messages.toolRunner({
