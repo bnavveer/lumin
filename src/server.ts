@@ -26,7 +26,8 @@ import { registerMockBenefitscal } from './benefitscal/mockSite.js';
 import { registerInboxRoutes } from './inbox.js';
 import { registerKnowledgeRoutes } from './knowledge.js';
 import { registerWebKnowledgeRoutes } from './webKnowledge.js';
-import { registerConversationRoutes } from './conversation/routes.js';
+import { createApp as createConversationApp } from './app.js';
+import { liveConversation } from './channels.js';
 import { registerVaultRoutes } from './vaultRoutes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 
@@ -249,8 +250,11 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerInboxRoutes(app);
   registerKnowledgeRoutes(app);
   registerWebKnowledgeRoutes(app);
-  registerConversationRoutes(app);
   registerVaultRoutes(app);
+  app.route('/', createConversationApp(liveConversation(), {
+    phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
+    apiNotFound: false, // Keep later dev/staff routes reachable on the parent app.
+  }));
 
   // ── Static SPA ──
   if (existsSync(resolve(WEB_DIST, 'index.html'))) {

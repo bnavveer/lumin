@@ -37,12 +37,14 @@ const allowList = (): Set<string> =>
 const errMsg = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 const today = (): string => new Date().toISOString().slice(0, 10);
 
-type ConversationApi = { proactiveMessage?: (hid: string, kind: ActionKind) => Promise<Array<{ text: string }>> };
+type ProactiveMessage = (hid: string, kind: ActionKind) => Promise<Array<{ text: string }>>;
+let proactiveMessage: ProactiveMessage | undefined;
+/** Optional conversation wording; until configured, use the existing nudge templates. */
+export function setProactiveMessage(fn?: ProactiveMessage): void { proactiveMessage = fn; }
 async function conversationText(hid: string, kind: ActionKind): Promise<string | undefined> {
+  if (!proactiveMessage) return undefined;
   try {
-    const mod = (await import('./conversation/index.js')) as ConversationApi;
-    if (typeof mod.proactiveMessage !== 'function') return undefined;
-    const msgs = await mod.proactiveMessage(hid, kind);
+    const msgs = await proactiveMessage(hid, kind);
     const text = msgs.map(m => m.text).join('\n\n').trim();
     return text || undefined;
   } catch (err) {

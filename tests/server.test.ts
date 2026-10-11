@@ -4,6 +4,9 @@ const HID = '11111111-1111-4111-8111-111111111111';
 const OTHER = '22222222-2222-4222-8222-222222222222';
 const hh = (id: string, orgId: string) => ({ id, orgId, phone: '+1', firstName: 'Ana', county: 'los_angeles', size: 3, monthlyIncome: 1000, childrenUnder18: 1, pregnant: false, adultAge: 30, immigrationStatus: 'citizen', childrenAreCitizens: true });
 const state = vi.hoisted(() => ({ demo: false, fail: false }));
+vi.mock('../src/channels.js', () => ({
+  liveConversation: () => ({ createWebSession: () => ({ sessionId: '11111111-1111-4111-8111-111111111111' }) }),
+}));
 
 vi.mock('../src/env.js', () => ({
   env: (n: string) => n,
@@ -52,6 +55,14 @@ let app: ReturnType<typeof createApp>;
 beforeEach(() => { state.demo = false; state.fail = false; app = createApp({ packet }); vi.clearAllMocks(); });
 
 describe('server', () => {
+  it('mounts the shared chat without swallowing later API routes', async () => {
+    app.post('/api/dev/probe', c => c.json({ ok: true }));
+    const response = await app.request('/api/chat/sessions', { method: 'POST' });
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual({ sessionId: HID });
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect((await app.request('/api/dev/probe', { method: 'POST' })).status).toBe(200);
+  });
   it('health', async () => {
     const r = await app.request('/api/health');
     expect(await r.json()).toEqual({ ok: true });
