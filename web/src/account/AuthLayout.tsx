@@ -15,24 +15,36 @@ const perks: { icon: IconName; title: string; body: string }[] = [
   { icon: 'clock', title: 'Next steps', body: 'See what each application needs from you, and when.' },
 ]
 
+// Which photo each account screen uses. Pick from the credit-free account set.
+export const accountPhotoFor: Record<string, string> = {
+  login: 'lake-tahoe',
+  signup: 'golden-gate',
+  email: 'bixby-bridge',
+  signedOut: 'venice-palms-sunset',
+  staff: 'cable-car',
+}
+
 export function AuthLayout({
   title,
   intro,
   children,
-  photo = 'lake-tahoe',
+  photo,
+  photoSlot = 'login',
   showPerks = true,
 }: {
   title: ReactNode
   intro?: ReactNode
   children: ReactNode
   photo?: string
+  photoSlot?: string
   showPerks?: boolean
 }) {
+  const picked = photoById[photo ?? accountPhotoFor[photoSlot] ?? 'lake-tahoe'] ?? photoById['lake-tahoe']
   return (
     <Page dock={false}>
       <div className="mx-auto grid max-w-[78rem] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-stretch gap-6 px-6 pt-8 max-[900px]:grid-cols-1 max-mobile:px-3 max-mobile:pt-2">
         <aside className="relative min-h-[36rem] overflow-hidden rounded-[2.25rem] bg-[#c9d6d4] max-[900px]:min-h-[13rem] max-mobile:rounded-[1.75rem]" aria-hidden="true">
-          <Photo photo={photoById[photo]} sizes="(max-width: 900px) 100vw, 40vw" priority />
+          <Photo photo={picked} sizes="(max-width: 900px) 100vw, 40vw" priority />
           <div className="absolute inset-0 bg-gradient-to-t from-[#071a20cc] via-[#071a2033] to-transparent" />
           {showPerks && (
             <ul className="absolute inset-x-6 bottom-6 flex flex-col gap-2 max-[900px]:hidden">

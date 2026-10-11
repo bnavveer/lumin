@@ -1,10 +1,13 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { ApplicationDetails } from '../../shared/applicationDetails.js';
 import type { Me, Workflow } from '../../shared/workflow.js';
 import type { ScreeningInput } from '../applicationScreening.js';
 import { admin } from '../supabase.js';
 import { extFor } from '../documents.js';
-import { env } from '../env.js';
-import { normalizePhone } from '../intake.js';
+import { env, optionalEnv } from '../env.js';
+import { normalizePhone, screeningOnly, webIntakeId } from '../intake.js';
+import type { DetailsPatch } from './applicationDetails.js';
+import { absorbChatDetails, mergeAccountDetails, readAccountDetails } from './applicationDetailsDb.js';
 import type { StoredDocument, StoredWorkflow } from './model.js';
 import { summary } from './model.js';
 
@@ -20,6 +23,10 @@ export interface WorkflowRepo {
   updateProfile(user: ApplicantUser, values: { firstName?: string | null; phone?: string | null; screeningAnswers?: ScreeningInput }): Promise<Profile>;
   claimChat(userId: string, sessionId: string): Promise<void>;
   screening(userId: string): Promise<ScreeningInput>;
+  /** Saved application details (after absorbing anything a linked chat collected). */
+  applicationDetails(userId: string): Promise<ApplicationDetails>;
+  /** Merge a patch (null clears a key) and return the new details. */
+  updateApplicationDetails(userId: string, patch: DetailsPatch): Promise<ApplicationDetails>;
   list(userId: string): Promise<StoredWorkflow[]>;
   get(userId: string, id: string): Promise<StoredWorkflow | null>;
   create(userId: string, w: Workflow): Promise<void>;
@@ -50,8 +57,35 @@ export async function listHouseholdWorkflows(householdId: string) {
   return rows.map(row => summary(row.state as Workflow));
 }
 
-export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signupClient: () => SupabaseClient = () =>
-  createClient(env('SUPABASE_URL'), env('SUPABASE_PUBLISHABLE_KEY'), { auth: { persistSession: false, autoRefreshToken: false } })): WorkflowRepo {
+/** A fresh, isolated publishable-key client: never shares or persists an applicant session. */
+const publicAuthClient = (): SupabaseClient =>
+  createClient(env('SUPABASE_URL'), env('SUPABASE_PUBLISHABLE_KEY'), { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
+
+/** Where the signup confirmation email lands: the dashboard, when PUBLIC_BASE_URL is set. */
+export const signupRedirect = (base = optionalEnv('PUBLIC_BASE_URL')): string | undefined =>
+  base ? `${base.replace(/\/+$/, '')}/dashboard` : undefined;
+
+export type PasswordCheck = (email: string, password: string) => Promise<boolean>;
+
+/**
+ * Re-checks an applicant's password by signing in on a brand-new isolated client, then discards it.
+ * Any error (wrong password, unconfirmed email, outage) counts as not verified.
+ */
+export function supabasePasswordCheck(authClient: () => SupabaseClient = publicAuthClient): PasswordCheck {
+  return async (email, password) => {
+    if (!email || !password) return false;
+    try {
+      const c = authClient();
+      const { data, error } = await c.auth.signInWithPassword({ email, password });
+      const verified = !error && Boolean(data.user) && data.user!.email?.toLowerCase() === email.toLowerCase();
+      // The session only proved the password; revoke just this session so no token outlives the check.
+      if (data?.session) await c.auth.signOut({ scope: 'local' }).catch(() => undefined);
+      return verified;
+    } catch { return false; }
+  };
+}
+
+export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signupClient: () => SupabaseClient = publicAuthClient): WorkflowRepo {
   async function promote(userId: string) {
     checked(await client().rpc('promote_applicant_chat', { p_user_id: userId }));
   }
@@ -76,8 +110,9 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signu
       // Public signUp honors the project's email confirmation policy; never admin-create a preconfirmed email.
       // Use an isolated public-key client: signUp may store an applicant session in memory,
       // which must never replace the authorization of our shared service-role DB client.
+      const redirect = signupRedirect();
       const { data, error } = await signupClient().auth.signUp({ email: input.email, password: input.password,
-        options: { data: { firstName: input.firstName ?? null, phone: input.phone ?? null } } });
+        options: { data: { firstName: input.firstName ?? null, phone: input.phone ?? null }, ...(redirect ? { emailRedirectTo: redirect } : {}) } });
       if (error) throw new WorkflowError(error.status === 429 ? 429 : 400, error.status === 429 ? 'Too many signup attempts. Please try later.' : 'Could not create the account. Check your email and password, or sign in to your existing account.');
       return { confirmationRequired: !data.session };
     },
@@ -100,6 +135,19 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signu
       const result = checked(await client().rpc('claim_applicant_chat', { p_user_id: userId, p_session_id: sessionId })) as string;
       if (result === 'not_found') throw new WorkflowError(404, 'Start a chat before linking it to your account.');
       if (result !== 'ok') throw new WorkflowError(409, 'This chat or confirmed household is already linked to another account.');
+      // Details the chat collected before it was linked now belong to this account.
+      const linked = checked(await client().from('applicant_profiles').select('household_id').eq('user_id', userId).maybeSingle()) as Row | null;
+      await absorbChatDetails(client, userId, [webIntakeId(sessionId), ...(linked?.household_id ? [linked.household_id as string] : [])])
+        .catch(() => console.error('[workflow] could not copy chat application details'));
+    },
+    async applicationDetails(userId) {
+      await promote(userId);
+      return readAccountDetails(client, userId);
+    },
+    async updateApplicationDetails(userId, patch) {
+      await promote(userId);
+      await readAccountDetails(client, userId); // absorb first so chat answers can't later overwrite a cleared key
+      return mergeAccountDetails(client, userId, patch);
     },
     async screening(userId) {
       await promote(userId);
@@ -109,7 +157,7 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signu
         // Phone YES may correct the merged fields after the original web snapshot was saved.
         // The linked account reads the canonical confirmed phone intake, never a different claimed household.
         const canonical = checked(await client().from('intakes').select('fields').eq('id', profile.household_id).eq('status', 'confirmed').maybeSingle()) as Row | null;
-        if (canonical) return (canonical.fields ?? {}) as ScreeningInput;
+        if (canonical) return screeningOnly((canonical.fields ?? {}) as ScreeningInput & Record<string, unknown>) as ScreeningInput;
       }
       const claims = checked(await client().from('applicant_chat_claims').select('session_id').eq('user_id', userId).order('created_at', { ascending: false }).limit(1)) as Row[];
       let fields: ScreeningInput = {};
@@ -117,7 +165,7 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin, signu
         const intake = checked(await client().from('intakes').select('fields,household_id,status').eq('id', `web:${claims[0].session_id}`).maybeSingle()) as Row | null;
         if (!profile?.household_id || (intake?.status === 'confirmed' && intake?.household_id === profile.household_id)) fields = (intake?.fields ?? {}) as ScreeningInput;
       }
-      return fields;
+      return screeningOnly(fields as ScreeningInput & Record<string, unknown>) as ScreeningInput;
     },
     async list(userId) {
       const rows = checked(await client().from('applicant_workflows').select('user_id,state,version').eq('user_id', userId).order('updated_at', { ascending: false })) as Row[];

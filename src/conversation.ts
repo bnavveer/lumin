@@ -8,8 +8,10 @@ import { randomUUID } from 'node:crypto';
 import type { CaseEvent, Household } from './contracts.js';
 import {
   type Channel, type Intake, type IntakeFields, confirmationText, fieldsFromHousehold, householdId, isWebIntake,
-  mergeFields, missingFields, normalizePhone, parseConfirmationReply, toHousehold, webIntakeId,
+  mergeFields, missingFields, normalizePhone, parseConfirmationReply, screeningOnly, toHousehold, webIntakeId,
 } from './intake.js';
+import { applicationReadiness, type ApplicationDetails } from '../shared/applicationDetails.js';
+import { agentPatch, applyDetailsPatch, type DetailsPatch } from './workflow/applicationDetails.js';
 import type { IntakeRepo, ThreadMessage } from './intakeStore.js';
 import type { AgentTools, AgentTurn } from './agent.js';
 import { pctFpl } from './eligibility.js';
@@ -29,7 +31,17 @@ export interface ConversationDeps {
   /** Copy to the dashboard's per-household message log (only exists once the household is confirmed). */
   mirrorMessage(hid: string, role: 'user' | 'assistant', content: string): Promise<void>;
   addTimeline(hid: string, label: string): Promise<void>;
+  /** Applicant accounts a chat may be linked to. Absent: application details always stay on the intake. */
+  applicationAccounts?: ApplicationAccounts;
   now?: () => Date;
+}
+
+export interface ApplicationAccounts {
+  /** The account linked to this phone household (verified) or that claimed this web session; null if none. */
+  ownerOf(ref: { intakeId: string; sessionId?: string }): Promise<string | null>;
+  details(userId: string): Promise<ApplicationDetails>;
+  /** Merge a patch (null clears a key) into the account's details and return the result. */
+  merge(userId: string, patch: DetailsPatch): Promise<ApplicationDetails>;
 }
 
 export const CONFIRM_COOLDOWN_MS = 60_000;      // one confirmation text per intake per minute
@@ -68,11 +80,23 @@ export function createConversation(d: ConversationDeps) {
     };
   }
 
-  function describeState(i: Intake, h: Household | undefined): string {
+  const readinessFor = (details: ApplicationDetails, f: IntakeFields) =>
+    applicationReadiness(details, { county: f.county, size: f.size, monthlyIncome: f.monthlyIncome });
+
+  /** Where this chat's application details live: the linked account, else the intake itself. */
+  async function detailsHome(i: Intake, sessionId?: string): Promise<{ owner: string | null; details: ApplicationDetails }> {
+    const owner = d.applicationAccounts ? await d.applicationAccounts.ownerOf({ intakeId: i.id, sessionId }) : null;
+    return owner ? { owner, details: await d.applicationAccounts!.details(owner) } : { owner: null, details: i.fields.application ?? {} };
+  }
+
+  function describeState(i: Intake, h: Household | undefined, details: ApplicationDetails): string {
     const missing = missingFields(i.fields);
+    const readiness = readinessFor(details, i.fields);
     return JSON.stringify({
-      answersSoFar: i.fields,
+      answersSoFar: screeningOnly(i.fields),
       stillNeeded: missing,
+      applicationDetailsSaved: details,
+      applicationDetailsStillNeeded: readiness.missing.map(m => m.label),
       mobileNumberKnown: Boolean(i.phone),
       status: i.status === 'awaiting_confirmation' ? 'confirmation text sent; waiting for them to reply YES by text'
         : i.status === 'confirmed' ? 'confirmed by text' : 'collecting answers (not confirmed yet)',
@@ -113,8 +137,30 @@ export function createConversation(d: ConversationDeps) {
     return JSON.stringify(screening);
   }
 
-  function toolsFor(intakeId: string, channel: Channel): AgentTools {
+  function toolsFor(intakeId: string, channel: Channel, sessionId?: string): AgentTools {
     return {
+      async saveApplicationDetails(input) {
+        const i = await d.repo.get(intakeId);
+        if (!i) return 'error: intake missing';
+        let home;
+        try { home = await detailsHome(i, sessionId); } catch { return 'Not saved: Lumin accounts are unavailable right now. Ask them to try again in a minute.'; }
+        const patch = agentPatch(home.details, input, now());
+        if (typeof patch === 'string') return patch;
+        let saved: ApplicationDetails;
+        if (home.owner) {
+          try { saved = await d.applicationAccounts!.merge(home.owner, patch); } catch { return 'Not saved: Lumin accounts are unavailable right now. Ask them to try again in a minute.'; }
+        } else {
+          saved = applyDetailsPatch(home.details, patch);
+          // Application details are not screening answers: saving them never resets a confirmation.
+          await d.repo.save({ ...i, fields: { ...i.fields, application: saved } });
+        }
+        const readiness = readinessFor(saved, i.fields);
+        const where = home.owner ? 'Saved to their Lumin account.'
+          : 'Saved with this chat. It moves into their Lumin account when they sign in and link this chat.';
+        return readiness.complete
+          ? `${where} Every application detail is in. They can review everything and start the application from their Lumin account.`
+          : `${where} Still needed for the application: ${readiness.missing.map(m => m.label).join('; ')}.`;
+      },
       async saveAnswers(fields, phone) {
         const i = await d.repo.get(intakeId);
         if (!i) return 'error: intake missing';
@@ -139,13 +185,14 @@ export function createConversation(d: ConversationDeps) {
     };
   }
 
-  async function agentReply(intakeId: string, thread: string, channel: Channel, opts: { imageUrls?: string[]; note?: string } = {}) {
+  async function agentReply(intakeId: string, thread: string, channel: Channel, opts: { imageUrls?: string[]; note?: string; sessionId?: string } = {}) {
     const i = (await d.repo.get(intakeId))!;
-    const state = describeState(i, i.householdId ? await d.getHousehold(i.householdId) : undefined);
+    const details = await detailsHome(i, opts.sessionId).then(h => h.details, () => i.fields.application ?? {});
+    const state = describeState(i, i.householdId ? await d.getHousehold(i.householdId) : undefined, details);
     const reply = await d.runAgent({
       channel, history: await d.repo.getThread(thread, 40), imageUrls: opts.imageUrls,
       state: opts.note ? `${state}\n\nRight now: ${opts.note}` : state,
-      tools: toolsFor(intakeId, channel),
+      tools: toolsFor(intakeId, channel, opts.sessionId),
     });
     await record(thread, channel === 'voice' ? 'sms' : channel, 'assistant', reply);
     return reply;
@@ -156,7 +203,8 @@ export function createConversation(d: ConversationDeps) {
     const hid = householdId(phone);
     const before = await d.getHousehold(hid);
     const own = await phoneIntake(phone, 'sms');
-    const fields = mergeFields(before ? fieldsFromHousehold(before) : {}, pending.fields);
+    // Keep application details the phone's own intake already had; the confirmed answers come from `pending`.
+    const fields = mergeFields(mergeFields(before ? fieldsFromHousehold(before) : {}, own.fields.application ? { application: own.fields.application } : {}), pending.fields);
     const h = toHousehold(hid, before?.orgId ?? d.orgId, phone, fields);
     await d.upsertHousehold(h);
     const t = now().toISOString();
@@ -286,7 +334,7 @@ export function createConversation(d: ConversationDeps) {
         // Linked sessions talk on the phone's thread and edit the phone's intake, so text and chat stay in sync.
         const [intakeId, thread] = i.householdId ? [i.householdId, i.householdId] : [wid, wid];
         await record(thread, 'web', 'user', text);
-        const reply = await agentReply(intakeId, thread, 'web');
+        const reply = await agentReply(intakeId, thread, 'web', { sessionId });
         return { reply, view: await webView(sessionId) };
       });
     },

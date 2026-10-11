@@ -1,7 +1,11 @@
 import type { ApplicationProgram, ApplicationScreening } from '../../../shared/chat'
 import type { CreateWorkflowRequest, FillTarget, LiveViewResponse, Me, Workflow, WorkflowSummary } from '../../../shared/workflow'
+import type { ApplicationDetails, ApplicationDetailsResponse } from '../../../shared/applicationDetails'
 import { fixturesOn } from './fixtureFlag'
 import * as fx from './fixtures'
+
+/** A file in the person's private document vault (GET /api/me/documents). */
+export type AccountDocument = { id: string; docType: string; fileName: string; sizeBytes: number; status: string; createdAt: string; workflowId?: string | null }
 
 // Typed client for the routes listed in shared/workflow.ts.
 // Every call carries `Authorization: Bearer <supabase access token>`.
@@ -44,7 +48,14 @@ const json = (body: unknown): RequestInit => ({ method: 'POST', body: JSON.strin
 
 export interface Api {
   me(): Promise<Me>
-  updateProfile(p: { firstName?: string | null; phone?: string | null }): Promise<Me>
+  updateProfile(p: { firstName?: string | null; phone?: string | null; currentPassword?: string }): Promise<Me>
+  screening(): Promise<Record<string, unknown>>
+  applicationDetails(): Promise<ApplicationDetailsResponse>
+  saveApplicationDetails(d: { [K in keyof ApplicationDetails]?: ApplicationDetails[K] | null }): Promise<ApplicationDetailsResponse>
+  documents(): Promise<AccountDocument[]>
+  uploadAccountDocument(file: File, docType: string): Promise<AccountDocument>
+  downloadDocument(id: string): Promise<{ url: string; expiresIn: number }>
+  deleteDocument(id: string): Promise<{ ok: true }>
   suggestions(chatSessionId?: string): Promise<ApplicationScreening>
   listWorkflows(): Promise<WorkflowSummary[]>
   createWorkflow(programs: ApplicationProgram[], chatSessionId?: string, target?: FillTarget): Promise<Workflow>
@@ -61,7 +72,19 @@ export function makeApi(getToken: TokenGetter): Api {
   const r = <T>(path: string, init?: RequestInit) => request<T>(getToken, path, init)
   return {
     me: () => r<Me>('/api/me'),
-    updateProfile: (p: { firstName?: string | null; phone?: string | null }) => r<Me>('/api/me/profile', json(p)),
+    updateProfile: (p: { firstName?: string | null; phone?: string | null; currentPassword?: string }) => r<Me>('/api/me/profile', json(p)),
+    screening: () => r<Record<string, unknown>>('/api/me/screening'),
+    applicationDetails: () => r<ApplicationDetailsResponse>('/api/me/application-details'),
+    saveApplicationDetails: (d) => r<ApplicationDetailsResponse>('/api/me/application-details', json(d)),
+    documents: () => r<AccountDocument[]>('/api/me/documents'),
+    uploadAccountDocument: (file: File, docType: string) => {
+      const form = new FormData()
+      form.append('file', file)
+      form.append('docType', docType)
+      return r<AccountDocument>('/api/me/documents', { method: 'POST', body: form })
+    },
+    downloadDocument: (id: string) => r<{ url: string; expiresIn: number }>(`/api/me/documents/${encodeURIComponent(id)}/download`),
+    deleteDocument: (id: string) => r<{ ok: true }>(`/api/me/documents/${encodeURIComponent(id)}`, { method: 'DELETE' }),
     suggestions: (chatSessionId?: string) =>
       r<ApplicationScreening>(`/api/me/suggestions${chatSessionId ? `?chatSessionId=${encodeURIComponent(chatSessionId)}` : ''}`),
     listWorkflows: () => r<WorkflowSummary[]>('/api/workflows'),

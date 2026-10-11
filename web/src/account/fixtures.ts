@@ -1,3 +1,4 @@
+import { applicationReadiness, type ApplicationDetails } from '../../../shared/applicationDetails'
 import type { ApplicationScreening } from '../../../shared/chat'
 import type { Evidence, Workflow, WorkflowSummary } from '../../../shared/workflow'
 import type { Api } from './api'
@@ -102,8 +103,13 @@ export const fixtureScreening: ApplicationScreening = {
 
 const delay = <T,>(v: T) => new Promise<T>((r) => setTimeout(() => r(v), 250))
 
+// Sample-account application details, kept in memory so the form can be tried with ?fixtures.
+let fixtureDetails: ApplicationDetails = { legalFirstName: 'Maria', lastName: 'Lopez', homeless: false, city: 'Los Angeles' }
+const fixtureScreeningAnswers = { county: 'los_angeles', size: 3, monthlyIncome: 1850, childrenUnder18: 2, pregnant: false, adultAge: 31 }
+const detailsResponse = () => ({ details: fixtureDetails, readiness: applicationReadiness(fixtureDetails, fixtureScreeningAnswers) })
+
 export const fixtureApi: Api = {
-  me: () => delay({ userId: 'fixture-user', email: 'maria@example.com', householdId: 'h1', phone: '+13105550142', firstName: 'Maria' }),
+  me: () => delay({ userId: 'fixture-user', email: 'maria@example.com', householdId: 'h1', phone: '+13105550142', firstName: 'Maria', contactLocked: true }),
   updateProfile: (p) => delay({ userId: 'fixture-user', email: 'maria@example.com', householdId: 'h1', phone: p.phone ?? '+13105550142', firstName: p.firstName ?? 'Maria' }),
   suggestions: () => delay(fixtureScreening),
   listWorkflows: () => delay(fixtureSummaries),
@@ -112,4 +118,16 @@ export const fixtureApi: Api = {
   uploadDocument: () => delay(fixtureWorkflow),
   approve: () => delay(fixtureWorkflow),
   run: () => delay(fixtureWorkflow),
+  screening: () => delay(fixtureScreeningAnswers),
+  applicationDetails: () => delay(detailsResponse()),
+  saveApplicationDetails: (d) => {
+    const next: Record<string, unknown> = { ...fixtureDetails }
+    for (const [k, v] of Object.entries(d)) if (v === null) delete next[k]; else next[k] = v
+    fixtureDetails = next as ApplicationDetails
+    return delay(detailsResponse())
+  },
+  documents: () => delay([]),
+  uploadAccountDocument: (file, docType) => delay({ id: crypto.randomUUID(), docType, fileName: file.name, sizeBytes: file.size, status: 'received', createdAt: new Date().toISOString() }),
+  downloadDocument: () => delay({ url: '#', expiresIn: 600 }),
+  deleteDocument: () => delay({ ok: true as const }),
 }

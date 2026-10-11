@@ -7,6 +7,7 @@ import { z } from 'zod/v4';
 import type { Channel, IntakeFields } from './intake.js';
 import type { ThreadMessage } from './intakeStore.js';
 import { ScreeningFieldsSchema } from './applicationScreening.js';
+import { AgentDetailsSchema, type AgentDetailsInput } from './workflow/applicationDetails.js';
 
 // Neon AI Gateway when configured (Anthropic-compatible, served from Bedrock), else the Anthropic API directly.
 const gateway = () => process.env.NEON_AI_GATEWAY_BASE_URL && process.env.NEON_AI_GATEWAY_TOKEN
@@ -42,6 +43,11 @@ export interface AgentTools {
   checkEligibility(): Promise<string>;
   /** Preliminary application suggestions from answers collected so far; no submission. */
   screenApplications(): Promise<string>;
+  /**
+   * Save application details (legal name, birth date, address, household members, job, rent, interview).
+   * Goes to the linked applicant account, else to the intake until a chat is linked. Returns a status line.
+   */
+  saveApplicationDetails(details: AgentDetailsInput): Promise<string>;
 }
 
 export interface AgentTurn {
@@ -65,6 +71,7 @@ How to work:
 - Preliminary suggestions are allowed while collecting answers. Before saving a confirmed case, call send_confirmation_text when the required base fields are known and tell them to reply YES. If in web chat without a mobile number, explain why it is needed and save it with save_answers.
 - After the info is confirmed, call check_eligibility and summarize likely matches, reasons, application routes and what still needs checking. Agencies make final decisions. Do not invent benefit amounts, combine mutually exclusive programs, or promise a yearly total. Referral-only results are not qualification findings. If the tool says rules need updating, do not infer eligibility from remembered limits.
 - If they change an answer after confirming, save it and send a new confirmation text.
+- Applying: after eligibility is discussed and they say they want to apply, collect the remaining application details one question at a time: legal first and last name, date of birth, home address (or whether they are experiencing homelessness), each other household member's name, date of birth and relationship to them, whether anyone has a job (employer, how often paid, pay before taxes, hours per week), rent or mortgage per month, and phone or in-person interview. Briefly explain these are for the application form. Call save_application_details right after each answer (for a household member, once you know their name, date of birth and relationship). The tool says what is still missing; ask for that next. These details do not need a new confirmation text.
 - Never promise approval. Never ask for Social Security numbers, bank logins or passwords. If they seem to be in crisis, tell them to call or text 211 (or 911 for emergencies).`;
 
 const STYLE: Record<Channel, string> = {
@@ -113,6 +120,12 @@ export async function runAgentTurn(t: AgentTurn): Promise<string> {
       description: 'Find preliminary application matches from the current answers, including incomplete intake. Returns reasons, targeted follow-up questions, source dates and application links. Does not submit or approve anything.',
       inputSchema: z.object({}),
       run: async () => t.tools.screenApplications(),
+    }),
+    betaZodTool({
+      name: 'save_application_details',
+      description: 'Save application details the person just gave (any subset), for filling out their application: legal name, date of birth, address or homelessness, one other household member at a time, job and pay, monthly rent, interview preference. Never SSNs, bank details or passwords. Returns what is still missing.',
+      inputSchema: AgentDetailsSchema,
+      run: async (details) => t.tools.saveApplicationDetails(details),
     }),
     betaZodTool({
       name: 'check_eligibility',

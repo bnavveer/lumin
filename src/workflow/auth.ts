@@ -42,7 +42,15 @@ export const SignupBody = z.object({
 export const ProfileBody = z.object({
   firstName: z.string().trim().min(1).max(80).optional(),
   phone: z.string().trim().max(32).optional(),
+  currentPassword: z.string().min(1).max(200).optional(),
 });
+
+export const CONTACT_LOCKED_ERROR = 'Enter your password to change saved contact details.';
+
+/** True when the patch changes a contact value that is already saved (filling an empty one needs no password). */
+export const changesSavedContact = (saved: { firstName: string | null; phone: string | null }, next: { firstName?: string | null; phone?: string | null }): boolean =>
+  (next.firstName !== undefined && !!saved.firstName && next.firstName !== saved.firstName)
+  || (next.phone !== undefined && !!saved.phone && next.phone !== saved.phone);
 
 /** Parse a US phone; '' means "no phone". Throws RangeError on garbage. */
 export function cleanPhone(raw: string | undefined): string | null | undefined {
@@ -88,4 +96,5 @@ export async function ensureHousehold(deps: WorkflowDeps, account: AccountRow, f
 
 export const toMe = (a: AccountRow, email: string): Me => ({
   userId: a.userId, email, householdId: a.householdId, phone: a.phone, firstName: a.firstName,
+  contactLocked: Boolean(a.firstName && a.phone),
 });

@@ -1,8 +1,10 @@
 // Persistence for applicant accounts and workflows. Supabase in production; memory repo backs tests.
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { ApplicationDetails } from '../../shared/applicationDetails.js';
 import type { ApplicationProgram } from '../../shared/chat.js';
 import type { Evidence, StepKind, StepStatus, WorkflowStatus } from '../../shared/workflow.js';
 import { admin } from '../supabase.js';
+import { readAccountDetails } from './applicationDetailsDb.js';
 
 export interface AccountRow {
   userId: string;
@@ -54,6 +56,8 @@ export type WorkflowPatch = Partial<Pick<WorkflowRow, 'status' | 'liveViewUrl'>>
 export interface WorkflowRepo {
   getAccount(userId: string): Promise<AccountRow | undefined>;
   saveAccount(a: AccountRow): Promise<void>;
+  /** The applicant's saved application details (applicant_profiles.application_details); {} when none. */
+  getApplicationDetails(userId: string): Promise<ApplicationDetails>;
   createWorkflow(wf: WorkflowRow, steps: StepRow[]): Promise<void>;
   getWorkflow(id: string): Promise<LoadedWorkflow | undefined>;
   /** Newest first. Evidence is left empty (summaries don't need it). */
@@ -149,6 +153,9 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin): Work
       }, { onConflict: 'user_id' });
       if (error) fail('saveAccount', error);
     },
+    async getApplicationDetails(userId) {
+      return readAccountDetails(client, userId);
+    },
     async createWorkflow(wf, steps) {
       const { error } = await client().from('workflows').insert({
         id: wf.id, user_id: wf.userId, household_id: wf.householdId, programs: wf.programs, status: wf.status,
@@ -204,17 +211,21 @@ export function supabaseWorkflowRepo(client: () => SupabaseClient = admin): Work
   };
 }
 
-export function memoryWorkflowRepo(): WorkflowRepo & { workflows: Map<string, WorkflowRow>; steps: Map<string, StepRow>; evidence: StoredEvidence[] } {
+export function memoryWorkflowRepo(): WorkflowRepo & {
+  workflows: Map<string, WorkflowRow>; steps: Map<string, StepRow>; evidence: StoredEvidence[]; details: Map<string, ApplicationDetails>;
+} {
   const accounts = new Map<string, AccountRow>();
+  const details = new Map<string, ApplicationDetails>();
   const workflows = new Map<string, WorkflowRow>();
   const steps = new Map<string, StepRow>();
   let evidence: StoredEvidence[] = [];
   const stepsOf = (id: string) => [...steps.values()].filter(s => s.workflowId === id).sort((a, b) => a.ord - b.ord).map(s => structuredClone(s));
   return {
-    workflows, steps,
+    workflows, steps, details,
     get evidence() { return evidence; },
     async getAccount(userId) { const a = accounts.get(userId); return a && { ...a }; },
     async saveAccount(a) { accounts.set(a.userId, { ...a }); },
+    async getApplicationDetails(userId) { return structuredClone(details.get(userId) ?? {}); },
     async createWorkflow(wf, ss) {
       workflows.set(wf.id, structuredClone(wf));
       for (const s of ss) steps.set(s.id, structuredClone(s));

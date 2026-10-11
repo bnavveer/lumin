@@ -74,13 +74,19 @@ export interface Me {
   householdId: string | null;
   phone: string | null;
   firstName: string | null;
+  /** Saved contact details are read-only; changing a saved name or phone needs `currentPassword`. */
+  contactLocked?: boolean;
 }
 
 // ── HTTP API (all /api/me/* and /api/workflows/* require `Authorization: Bearer <supabase access token>`) ──
 // POST /api/auth/signup            { email, password, firstName?, phone? } -> { ok: true, confirmationRequired: boolean }
 //                                    (public, rate-limited; honor email confirmation before password sign-in)
 // GET  /api/me                     -> Me
-// POST /api/me/profile             { firstName?, phone?, screeningAnswers? } -> Me (contact fields never prove ownership)
+// POST /api/me/profile             { firstName?, phone?, screeningAnswers?, currentPassword? } -> Me (contact fields never prove ownership)
+//                                    Changing a firstName/phone that is already saved needs currentPassword (re-checked
+//                                    with Supabase); without it: 403 { error }. Filling an empty field needs no password.
+// GET  /api/me/application-details  -> ApplicationDetailsResponse (shared/applicationDetails.ts)
+// POST /api/me/application-details  Partial<ApplicationDetails> (null clears) -> ApplicationDetailsResponse
 // POST /api/me/link-chat           { chatSessionId } -> Me (household links only after that chat's phone confirmation)
 // GET  /api/me/screening           -> saved screening answers
 // GET/POST /api/me/documents       -> private vault list / upload

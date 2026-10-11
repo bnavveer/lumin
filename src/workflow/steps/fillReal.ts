@@ -7,12 +7,37 @@ import { join } from 'node:path';
 import { attachKernel, openBrowser, type OpenedBrowser } from '../../benefitscal/browser.js';
 import { holdSeconds, scheduleKernelCleanup } from '../../benefitscal/kernelSessions.js';
 import { REAL_HOME, RealModeRefused, assertRealModeAllowed, runRealSite } from '../../benefitscal/realSite.js';
+import { applicationReadiness } from '../../../shared/applicationDetails.js';
+import { detailsToExtra } from '../applicationDetails.js';
 import { clip, errMsg, httpUrl, type StepCtx, type StepOutcome } from './context.js';
 
+export const DETAILS_NEEDED_SUMMARY = 'Finish your application details before Lumin can fill the real application.';
+
 export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
-  const typing = ctx.step.meta.approved === true;
+  // A run approved while it was waiting on details still starts with a preview (nothing typed).
+  const typing = ctx.step.meta.approved === true && ctx.step.meta.needsDetails !== true;
   try { assertRealModeAllowed(ctx.household, typing); }
   catch (e) { return { status: 'failed', summary: errMsg(e) }; }
+  // The real application never gets placeholder values: every required detail must be the person's own.
+  let details;
+  try { details = await ctx.deps.repo.getApplicationDetails(ctx.wf.userId); }
+  catch (e) { return { status: 'failed', summary: `Could not load your application details: ${clip(errMsg(e), 160)}. Try again.` }; }
+  const readiness = applicationReadiness(details, { county: ctx.household.county, size: ctx.household.size, monthlyIncome: ctx.household.monthlyIncome });
+  if (!readiness.complete) {
+    const missing = readiness.missing.map(m => m.label);
+    return {
+      status: 'waiting_on_you', summary: DETAILS_NEEDED_SUMMARY,
+      meta: {
+        ...ctx.step.meta, target: 'real', approved: false, needsDetails: true, missingDetails: readiness.missing.map(m => m.field),
+        asks: [
+          { title: 'Finish your application details', detail: `Still needed: ${clip(missing.join(', '), 400)}.`, action: { type: 'open_url', label: 'Finish details', url: '/account/details', stepId: ctx.step.id } },
+          { title: 'Then check again', detail: 'When your details are complete, Lumin opens BenefitsCal and previews the fill first. Nothing is typed until you approve.', action: { type: 'run', label: 'Check again', url: null, stepId: ctx.step.id } },
+        ],
+      },
+    };
+  }
+  const { needsDetails: _n, missingDetails: _m, ...readyMeta } = ctx.step.meta;
+  ctx.step = { ...ctx.step, meta: { ...readyMeta, approved: typing } };
   if (!ctx.deps.fill.kernelAvailable()) return { status: 'failed', summary: 'Real BenefitsCal mode needs a Kernel cloud browser (KERNEL_API_KEY).' };
 
   const prevSession = typeof ctx.step.meta.kernelSessionId === 'string' ? ctx.step.meta.kernelSessionId : null;
@@ -36,7 +61,7 @@ export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
   await mkdir(dir, { recursive: true });
   try {
     const result = await runRealSite({
-      page: opened.page, household: ctx.household, typing,
+      page: opened.page, household: ctx.household, details: detailsToExtra(details), typing,
       onEvent: (e) => { void ctx.progress(clip(e.message, 200), meta).catch(() => undefined); },
       screenshot: async (name) => {
         const p = join(dir, `${name}.png`);

@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { CaseEvent, Household } from '../src/contracts.js';
 import type { AgentTurn } from '../src/agent.js';
-import { createConversation, MAX_WEB_CONFIRMS_PER_PHONE } from '../src/conversation.js';
+import { createConversation, MAX_WEB_CONFIRMS_PER_PHONE, type ApplicationAccounts } from '../src/conversation.js';
+import type { ApplicationDetails } from '../shared/applicationDetails.js';
+import { applyDetailsPatch } from '../src/workflow/applicationDetails.js';
 import { householdId, type IntakeFields } from '../src/intake.js';
 import { memoryIntakeRepo } from '../src/intakeStore.js';
 
@@ -15,7 +17,7 @@ const full: IntakeFields = {
 // The fake agent runs whatever script the test sets, using the same tools the real one gets.
 type Script = (t: AgentTurn) => Promise<string>;
 
-function setup() {
+function setup(opts: { applicationAccounts?: ApplicationAccounts } = {}) {
   const repo = memoryIntakeRepo();
   const texts: { to: string; body: string }[] = [];
   const households = new Map<string, Household>();
@@ -33,6 +35,7 @@ function setup() {
     logEvents: async (hid, es) => { for (const e of es) events.push({ hid, e }); },
     mirrorMessage: async () => {},
     addTimeline: async () => {},
+    applicationAccounts: opts.applicationAccounts,
     now: () => clock,
   });
   return {
@@ -227,5 +230,111 @@ describe('phone call (Dial voice agent)', () => {
   it('does not text someone who hung up without talking', async () => {
     await t.conv.handleInboundCall(PHONE, '   ');
     expect(t.texts).toHaveLength(0);
+  });
+});
+
+describe('application details (save_application_details)', () => {
+  /** Fake accounts: `links` maps a household id or web session id to an account id. */
+  function accounts(links: Record<string, string>) {
+    const store = new Map<string, ApplicationDetails>();
+    const fake: ApplicationAccounts = {
+      async ownerOf({ intakeId, sessionId }) {
+        return links[intakeId] ?? (sessionId ? links[sessionId] : undefined) ?? (intakeId.startsWith('web:') ? links[intakeId.slice(4)] : undefined) ?? null;
+      },
+      async details(userId) { return structuredClone(store.get(userId) ?? {}); },
+      async merge(userId, patch) { const next = applyDetailsPatch(store.get(userId) ?? {}, patch); store.set(userId, next); return structuredClone(next); },
+    };
+    return { fake, store };
+  }
+
+  it('an unlinked web chat keeps details on the intake without touching its confirmation status', async () => {
+    t = setup({ applicationAccounts: accounts({}).fake });
+    const { sessionId } = t.conv.createWebSession();
+    let status = '';
+    t.setScript(async turn => {
+      await turn.tools.saveAnswers(full, '213-555-0100');
+      await turn.tools.sendConfirmationText();
+      status = await turn.tools.saveApplicationDetails({ legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12' });
+      return 'Thanks.';
+    });
+    await t.conv.handleWeb(sessionId, 'I want to apply');
+    const intake = await t.repo.get(`web:${sessionId}`);
+    expect(intake?.fields.application).toEqual({ legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12' });
+    expect(intake?.status).toBe('awaiting_confirmation');
+    expect(status).toMatch(/moves into their Lumin account when they sign in/);
+    expect(status).toMatch(/Still needed for the application: Whether you have a home address; Person 2 in your household: name/);
+    expect(status).not.toMatch(/Legal first name/);
+
+    // The next turn shows the model what is saved and what is still needed; screening answers stay clean.
+    t.setScript(async () => 'ok');
+    await t.conv.handleWeb(sessionId, 'next');
+    const state = JSON.parse(t.turns.at(-1)!.state);
+    expect(state.applicationDetailsSaved).toMatchObject({ lastName: 'Lopez' });
+    expect(state.applicationDetailsStillNeeded).toContain('Whether you have a home address');
+    expect(state.answersSoFar).not.toHaveProperty('application');
+  });
+
+  it('a chat claimed by an account saves straight to that account', async () => {
+    const a = accounts({});
+    t = setup({ applicationAccounts: a.fake });
+    const { sessionId } = t.conv.createWebSession();
+    a.fake.ownerOf = async ({ sessionId: sid }) => (sid === sessionId ? 'user-1' : null);
+    const results: string[] = [];
+    t.setScript(async turn => {
+      results.push(await turn.tools.saveAnswers({ ...full, size: 2, childrenUnder18: 1 }));
+      results.push(await turn.tools.saveApplicationDetails({ homeless: false, street: '100 Main St', city: 'Los Angeles', zip: '90012' }));
+      results.push(await turn.tools.saveApplicationDetails({ householdMember: { personNumber: 2, firstName: 'Ana', lastName: 'Lopez', dateOfBirth: '2015-06-01', relationship: 'child' } }));
+      results.push(await turn.tools.saveApplicationDetails({ dateOfBirth: '2030-01-01' }));
+      return 'Saved.';
+    });
+    await t.conv.handleWeb(sessionId, 'apply please');
+    expect(a.store.get('user-1')).toEqual({ homeless: false, street: '100 Main St', city: 'Los Angeles', zip: '90012',
+      members: [{ firstName: 'Ana', lastName: 'Lopez', dateOfBirth: '2015-06-01', relationship: 'child' }] });
+    expect((await t.repo.get(`web:${sessionId}`))?.fields.application).toBeUndefined();
+    expect(results[0]).toMatch(/^Saved\./);
+    expect(results[1]).toMatch(/^Saved to their Lumin account\. Still needed.*Person 2 in your household: name/);
+    expect(results[2]).toMatch(/^Saved to their Lumin account\./);
+    expect(results[2]).not.toMatch(/Person 2/);
+    expect(results[3]).toMatch(/^Not saved/);
+  });
+
+  it('texts from a phone household linked to an account save to that account, and the tool reports completion', async () => {
+    const a = accounts({ [HID]: 'user-2' });
+    t = setup({ applicationAccounts: a.fake });
+    let last = '';
+    t.setScript(async turn => {
+      await turn.tools.saveAnswers({ ...full, size: 1, childrenUnder18: 0 });
+      last = await turn.tools.saveApplicationDetails({
+        legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: true, hasJob: false, rentAmount: 0, interviewPreference: 'phone',
+      });
+      return 'ok';
+    });
+    await t.conv.handleSms(PHONE, 'my details');
+    expect(a.store.get('user-2')).toMatchObject({ lastName: 'Lopez', homeless: true });
+    expect(last).toMatch(/Every application detail is in/);
+  });
+
+  it('without an account store it still saves on the intake; account storage errors are reported, not thrown', async () => {
+    let out = '';
+    t.setScript(async turn => { out = await turn.tools.saveApplicationDetails({ zip: '90012' }); return 'ok'; });
+    await t.conv.handleSms(PHONE, 'zip is 90012');
+    expect((await t.repo.get(HID))?.fields.application).toEqual({ zip: '90012' });
+
+    t = setup({ applicationAccounts: { ownerOf: async () => { throw new Error('down'); }, details: async () => ({}), merge: async () => ({}) } });
+    t.setScript(async turn => { out = await turn.tools.saveApplicationDetails({ zip: '90012' }); return 'ok'; });
+    await t.conv.handleSms(PHONE, 'zip is 90012');
+    expect(out).toMatch(/Not saved/);
+  });
+
+  it('details collected by text survive the YES that confirms a web chat for the same phone', async () => {
+    t.setScript(async turn => { await turn.tools.saveApplicationDetails({ lastName: 'Lopez' }); return 'ok'; });
+    await t.conv.handleSms(PHONE, 'my last name is Lopez');
+    const { sessionId } = t.conv.createWebSession();
+    t.setScript(async turn => { await turn.tools.saveAnswers(full, '213-555-0100'); await turn.tools.saveApplicationDetails({ zip: '90012' }); return await turn.tools.sendConfirmationText(); });
+    await t.conv.handleWeb(sessionId, 'answers');
+    t.setScript(async () => 'Confirmed.');
+    await t.conv.handleSms(PHONE, 'YES');
+    expect((await t.repo.get(HID))?.fields.application).toEqual({ lastName: 'Lopez', zip: '90012' });
+    expect(t.households.get(HID)).not.toHaveProperty('application');
   });
 });

@@ -181,10 +181,11 @@ const HeroStage = memo(function HeroStage({
   const count = heroPhotos.length
   const [playing] = usePlaying()
   const [slot, setSlot] = useState(1) // position in the track, 1..count are the real photos
-  const [animate, setAnimate] = useState(true)
-  const [dx, setDx] = useState(0)
   const [dragging, setDragging] = useState(false)
-  const drag = useRef<{ x: number; t: number; id: number; w: number } | null>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const nextMs = useRef(0) // duration for the next move; 0 jumps (used for the first paint too)
+  const drag = useRef<{ id: number; x0: number; y0: number; base: number; w: number; axis: 'x' | 'y' | null; pos: number; samples: { x: number; t: number }[] } | null>(null)
+  const frame = useRef(0)
   const index = (slot - 1 + count) % count
   const [loaded, setLoaded] = useState(() => new Set([0, 1, count - 1]))
 
@@ -196,8 +197,22 @@ const HeroStage = memo(function HeroStage({
     })
   }, [index, count])
 
+  // The track's position is written straight to the DOM (never through React
+  // style props), so dragging can follow the pointer every frame without
+  // re-rendering the photos, and React never fights the drag.
+  const place = useCallback((s: number, ms: number) => {
+    const el = trackRef.current
+    if (!el) return
+    el.style.transition = ms ? `transform ${Math.round(ms)}ms cubic-bezier(.22, 1, .36, 1)` : 'none'
+    el.style.transform = `translate3d(${-s * 100}%, 0, 0)`
+  }, [])
+  useLayoutEffect(() => {
+    place(slot, nextMs.current)
+    nextMs.current = 750
+  }, [slot, place])
+
   const go = useCallback((d: number) => {
-    setAnimate(true)
+    nextMs.current = 750
     setSlot((s) => s + d)
   }, [])
 
@@ -211,32 +226,73 @@ const HeroStage = memo(function HeroStage({
   function onSettled(e: TransitionEvent<HTMLDivElement>) {
     if (e.target !== e.currentTarget) return
     if (slot === 0 || slot === count + 1) {
-      setAnimate(false)
+      nextMs.current = 0
       setSlot(slot === 0 ? count : 1)
     }
   }
 
+  // Where the track is right now, even mid-animation, in pixels.
+  const currentX = () => {
+    const el = trackRef.current
+    if (!el) return 0
+    const t = getComputedStyle(el).transform
+    return t && t !== 'none' ? new DOMMatrixReadOnly(t).m41 : 0
+  }
+
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    if (e.button !== 0 || (e.target as Element).closest('button, a, form')) return
-    drag.current = { x: e.clientX, t: performance.now(), id: e.pointerId, w: e.currentTarget.clientWidth }
+    if (e.button !== 0 || (e.target as Element).closest('button, a, form') || !trackRef.current) return
+    // Catch the track exactly where it is (it may still be gliding) so there's no jump.
+    const base = currentX()
+    trackRef.current.style.transition = 'none'
+    trackRef.current.style.transform = `translate3d(${base}px, 0, 0)`
+    drag.current = { id: e.pointerId, x0: e.clientX, y0: e.clientY, base, w: e.currentTarget.clientWidth, axis: null, pos: base, samples: [{ x: e.clientX, t: e.timeStamp }] }
     e.currentTarget.setPointerCapture(e.pointerId)
-    setAnimate(false)
-    setDragging(true)
   }
+
   function onPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
-    if (!drag.current || drag.current.id !== e.pointerId) return
-    setDx(e.clientX - drag.current.x)
+    const d = drag.current
+    if (!d || d.id !== e.pointerId) return
+    const dx = e.clientX - d.x0
+    const dy = e.clientY - d.y0
+    if (!d.axis) {
+      // Wait for a clear direction so taps and vertical scrolls don't nudge the photo.
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return
+      d.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+      if (d.axis === 'y') return release(e, true)
+      setDragging(true)
+    }
+    d.pos = d.base + dx
+    d.samples.push({ x: e.clientX, t: e.timeStamp })
+    if (d.samples.length > 6) d.samples.shift()
+    if (!frame.current)
+      frame.current = requestAnimationFrame(() => {
+        frame.current = 0
+        if (drag.current && trackRef.current) trackRef.current.style.transform = `translate3d(${drag.current.pos}px, 0, 0)`
+      })
   }
-  function onPointerUp(e: ReactPointerEvent<HTMLDivElement>) {
+
+  function release(e: ReactPointerEvent<HTMLDivElement>, cancelled = false) {
     const d = drag.current
     if (!d || d.id !== e.pointerId) return
     drag.current = null
-    const moved = e.clientX - d.x
-    const speed = Math.abs(moved) / Math.max(1, performance.now() - d.t)
+    cancelAnimationFrame(frame.current)
+    frame.current = 0
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
     setDragging(false)
-    setDx(0)
-    setAnimate(true)
-    if (Math.abs(moved) > d.w * 0.18 || (Math.abs(moved) > 50 && speed > 0.5)) setSlot((s) => s + (moved < 0 ? 1 : -1))
+    if (cancelled || d.axis !== 'x') return place(slot, 320)
+    // Flick speed from the last few moves (px per ms).
+    const first = d.samples[0]
+    const last = d.samples[d.samples.length - 1]
+    const v = last.t > first.t ? (last.x - first.x) / (last.t - first.t) : 0
+    const offset = d.pos + slot * d.w // how far from the current photo's resting spot
+    const dir = offset < -d.w * 0.2 || (v < -0.35 && offset < -12) ? 1 : offset > d.w * 0.2 || (v > 0.35 && offset > 12) ? -1 : 0
+    const target = slot + dir
+    const distance = Math.abs(-target * d.w - d.pos)
+    // A fast flick finishes quickly; a slow drag eases in gently.
+    const ms = Math.min(650, Math.max(260, distance / Math.max(Math.abs(v), 0.9)))
+    if (dir === 0) return place(slot, ms)
+    nextMs.current = ms
+    setSlot(target)
   }
 
   const track = [heroPhotos[count - 1], ...heroPhotos, heroPhotos[0]]
@@ -245,24 +301,19 @@ const HeroStage = memo(function HeroStage({
       className={cx('absolute inset-0 touch-pan-y select-none', dragging ? 'cursor-grabbing' : 'cursor-grab')}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
+      onPointerUp={(e) => release(e)}
+      onPointerCancel={(e) => release(e, true)}
+      onLostPointerCapture={(e) => release(e, true)}
+      onDragStart={(e) => e.preventDefault()}
     >
-      <div
-        className="flex h-full will-change-transform"
-        style={{
-          transform: `translate3d(calc(${-slot * 100}% + ${dx}px), 0, 0)`,
-          transition: animate ? 'transform .75s cubic-bezier(.22, 1, .36, 1)' : 'none',
-        }}
-        onTransitionEnd={onSettled}
-      >
+      <div ref={trackRef} className="flex h-full will-change-transform" onTransitionEnd={onSettled}>
         {track.map((p, i) => {
           const real = (i - 1 + count) % count
           const active = i === slot
           return (
             <div key={`${p.id}-${i}`} aria-hidden={!active} className="relative h-full w-full shrink-0 overflow-hidden">
               {loaded.has(real) ? (
-                <div className={cx('h-full w-full', active && !dragging && 'animate-[kenburns_9s_ease-out_both]')}>
+                <div className={cx('h-full w-full', active && 'animate-[kenburns_9s_ease-out_both]', dragging && '[animation-play-state:paused]')}>
                   <Photo photo={p} sizes="(max-width: 768px) 100vw, 1400px" priority={real === 0} />
                 </div>
               ) : null}

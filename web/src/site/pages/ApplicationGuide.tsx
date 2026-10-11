@@ -3,7 +3,7 @@ import { brand } from '../../brand/brand'
 import { cx } from '../../components/cx'
 import { Icon } from '../../components/icons'
 import { useStartChat } from '../chrome'
-import { useHoverHold, useInView, usePlaying, useReducedMotion } from '../hooks'
+import { useInView, usePlaying, useReducedMotion } from '../hooks'
 import { useLang } from '../lang'
 import { Link } from '../router'
 import '@fontsource/mrs-saint-delafield/400.css'
@@ -18,8 +18,8 @@ import './ApplicationGuide.css'
 // Timing is pure CSS: each element's resting style is its final state and
 // its animation describes how it arrives (fill-mode both, delay via --d).
 // So reduced motion and "static" simply drop the animations and show the
-// finished scene. The active tab's progress bar ends each scene; hovering
-// or focusing the stage holds it along with everything else.
+// finished scene. The active tab's progress bar ends each scene. It keeps
+// playing under the pointer; it only stops off screen or with reduced motion.
 
 type Lang = 'en' | 'es'
 type Scene = 'talk' | 'documents' | 'sign' | 'filed'
@@ -75,12 +75,11 @@ export function ApplicationGuide() {
   const start = useStartChat()
   const reduced = useReducedMotion()
   const [playing] = usePlaying()
-  const [held, hold] = useHoverHold()
   const [ref, visible] = useInView<HTMLDivElement>({ once: false, margin: '0px' })
   const [index, setIndex] = useState(0)
   const [run, setRun] = useState(0) // bumps to restart a scene's animations
   const scene = scenes[index]
-  const live = playing && visible && !reduced && !held
+  const live = playing && visible && !reduced
 
   function go(i: number) {
     setIndex(i)
@@ -90,7 +89,7 @@ export function ApplicationGuide() {
   return (
     <section id="applications" aria-labelledby="applications-heading" className="mx-auto max-w-[70rem] px-6 pt-32 max-mobile:px-4 max-mobile:pt-20">
       <figure>
-        <div ref={ref} {...hold} className="jr" data-paused={!live} data-static={reduced}>
+        <div ref={ref} className="jr" data-paused={!live} data-static={reduced}>
           <Aurora />
           <span className="jr-tag">{w.tag}</span>
 

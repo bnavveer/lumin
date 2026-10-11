@@ -5,14 +5,16 @@ import type { Workflow } from '../shared/workflow.js';
 import type { ScreeningInput } from '../src/applicationScreening.js';
 import type { StoredDocument, StoredWorkflow } from '../src/workflow/model.js';
 import { registerAccountRoutes as registerWorkflowRoutes } from '../src/workflow/accountRoutes.js';
-import { WorkflowError, type ApplicantUser, type Profile, type WorkflowRepo } from '../src/workflow/repo.js';
+import { WorkflowError, type ApplicantUser, type PasswordCheck, type Profile, type WorkflowRepo } from '../src/workflow/repo.js';
+import type { ApplicationDetails } from '../shared/applicationDetails.js';
+import { applyDetailsPatch } from '../src/workflow/applicationDetails.js';
 
 const A = '00000000-0000-4000-8000-000000000001';
 const B = '00000000-0000-4000-8000-000000000002';
 const FULL: ScreeningInput = { county: 'los_angeles', size: 3, monthlyIncome: 1200, childrenUnder18: 1,
   pregnant: false, adultAge: 29, immigrationStatus: 'citizen', childrenAreCitizens: true };
 
-function harness() {
+function harness(opts: { verifyPassword?: PasswordCheck } = {}) {
   const profiles = new Map<string, Profile>();
   const workflows = new Map<string, StoredWorkflow>();
   const documents = new Map<string, StoredDocument>();
@@ -20,6 +22,7 @@ function harness() {
   const claims = new Map<string, string>();
   const edited = new Set<string>();
   const uploads: Uint8Array[] = [];
+  const details = new Map<string, ApplicationDetails>();
   const user = (id: string): ApplicantUser => ({ id, email: `${id}@example.test` });
   const clone = <T>(v: T): T => structuredClone(v);
   const repo: WorkflowRepo = {
@@ -64,9 +67,11 @@ function harness() {
     async upload(doc, bytes) { documents.set(doc.id, clone(doc)); uploads.push(bytes); },
     async download(doc) { return `https://private-storage.example.test/${doc.id}?token=temporary`; },
     async deleteDocument(doc) { documents.delete(doc.id); },
+    async applicationDetails(uid) { return clone(details.get(uid) ?? {}); },
+    async updateApplicationDetails(uid, patch) { const next = applyDetailsPatch(details.get(uid) ?? {}, patch); details.set(uid, next); return clone(next); },
   };
   const app = new Hono();
-  registerWorkflowRoutes(app, { repo, now: () => new Date('2026-10-11T19:00:00Z'), eventMaxMs: 0 });
+  registerWorkflowRoutes(app, { repo, now: () => new Date('2026-10-11T19:00:00Z'), eventMaxMs: 0, verifyPassword: opts.verifyPassword });
   const request = (path: string, init: RequestInit = {}, token = 'alice') => app.request(path, {
     ...init, headers: { authorization: `Bearer ${token}`, ...(init.headers as Record<string, string> ?? {}) },
   });
@@ -80,7 +85,7 @@ function harness() {
     const body = new FormData(); body.set('file', file); body.set('docType', docType);
     return request(id ? `/api/workflows/${id}/documents` : '/api/me/documents', { method: 'POST', body }, token);
   };
-  return { app, request, post, create, upload, repo, profiles, workflows, documents, sessions, claims, uploads };
+  return { app, request, post, create, upload, repo, profiles, workflows, documents, sessions, claims, uploads, details };
 }
 
 describe('applicant account and workflow API', () => {
@@ -227,5 +232,114 @@ describe('applicant account and workflow API', () => {
     await h.post(`/api/workflows/${early.id}/receipt`, { program: 'calfresh', confirmation: 'REPORTED-EARLY' });
     expect((await h.post(`/api/workflows/${early.id}/run`, { stepId: early.steps[0].id })).status).toBe(409);
     expect((await h.post(`/api/workflows/${early.id}/run`, { stepId: early.steps.find(s => s.kind === 'documents')!.id })).status).toBe(409);
+  });
+});
+
+describe('application details API', () => {
+  const COMPLETE: ApplicationDetails = {
+    legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: false,
+    street: '100 Main St', city: 'Los Angeles', zip: '90012', hasJob: true, employerName: 'Grocery Co',
+    payFrequency: 'biweekly', grossPay: 900, rentAmount: 1200, interviewPreference: 'phone',
+    members: [
+      { firstName: 'Ana', lastName: 'Lopez', dateOfBirth: '2015-06-01', relationship: 'child' },
+      { firstName: 'Luis', lastName: 'Lopez', dateOfBirth: '1988-01-30', relationship: 'spouse' },
+    ],
+  };
+
+  it('returns empty details with readiness that includes missing screening answers, and requires auth', async () => {
+    const h = harness();
+    expect((await h.app.request('/api/me/application-details')).status).toBe(401);
+    const res = await h.request('/api/me/application-details');
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.details).toEqual({});
+    expect(body.readiness.complete).toBe(false);
+    expect(body.readiness.missing.map((m: { field: string }) => m.field)).toEqual(expect.arrayContaining(['county', 'size', 'legalFirstName', 'dateOfBirth', 'homeless']));
+  });
+
+  it('saves, merges, clears with null or an empty string, and becomes complete', async () => {
+    const h = harness();
+    await h.post('/api/me/profile', { screeningAnswers: FULL }); // size 3: two other members needed
+    let res = await h.post('/api/me/application-details', { ...COMPLETE, members: COMPLETE.members!.slice(0, 1) });
+    expect(res.status).toBe(200);
+    let body = await res.json();
+    expect(body.readiness.complete).toBe(false);
+    expect(body.readiness.missing.map((m: { field: string }) => m.field)).toEqual(['members.1.firstName', 'members.1.dateOfBirth', 'members.1.relationship']);
+    body = await (await h.post('/api/me/application-details', { members: COMPLETE.members, apt: '4B' })).json();
+    expect(body.readiness).toMatchObject({ complete: true, missing: [], progress: 1 });
+    expect(body.details).toMatchObject({ lastName: 'Lopez', apt: '4B' });
+    body = await (await h.post('/api/me/application-details', { apt: null, middleName: '' })).json();
+    expect(body.details).not.toHaveProperty('apt');
+    expect(body.details).not.toHaveProperty('middleName');
+    body = await (await h.post('/api/me/application-details', { homeless: true, street: null, city: null, zip: null })).json();
+    expect(body.readiness.complete).toBe(true); // no address needed when homeless
+    expect(await (await h.request('/api/me/application-details', {}, 'bob')).json()).toMatchObject({ details: {} });
+  });
+
+  it('rejects bad input with a plain-language error', async () => {
+    const h = harness();
+    const bad: [unknown, RegExp][] = [
+      [{ dateOfBirth: '2027-01-01' }, /date of birth.*future/i],
+      [{ dateOfBirth: '1990-02-30' }, /date of birth/i],
+      [{ dateOfBirth: '04/12/1990' }, /YYYY-MM-DD/],
+      [{ zip: '9001' }, /5-digit ZIP/],
+      [{ legalFirstName: 'x'.repeat(81) }, /legal first name/i],
+      [{ rentAmount: -1 }, /rent/i],
+      [{ grossPay: 1e9 }, /pay before taxes/i],
+      [{ hoursPerWeek: 200 }, /hours per week/i],
+      [{ payFrequency: 'daily' }, /how often/i],
+      [{ members: [{ firstName: 'Ana', lastName: 'Lopez', dateOfBirth: '2015-06-01' }] }, /household member/i],
+      [{ members: Array.from({ length: 20 }, () => COMPLETE.members![0]) }, /Up to 19/],
+      [{ members: [{ ...COMPLETE.members![0], dateOfBirth: '2030-01-01' }] }, /household member/i],
+      [{ homeless: 'yes' }, /yes or no/i],
+      [{ ssn: '123-45-6789' }, /not something Lumin collects/],
+      [[1, 2], /JSON object/],
+    ];
+    for (const [input, message] of bad) {
+      const res = await h.post('/api/me/application-details', input);
+      expect(res.status, JSON.stringify(input)).toBe(400);
+      expect((await res.json()).error).toMatch(message);
+    }
+    const raw = await h.request('/api/me/application-details', { method: 'POST', body: 'not json', headers: { 'content-type': 'application/json' } });
+    expect(raw.status).toBe(400);
+    expect(h.details.size).toBe(0);
+  });
+});
+
+describe('saved contact details are locked', () => {
+  const setup = () => {
+    const checks: [string, string][] = [];
+    const h = harness({ verifyPassword: async (email, password) => { checks.push([email, password]); return password === 'right-password'; } });
+    return { h, checks };
+  };
+
+  it('filling empty contact fields needs no password and then locks them', async () => {
+    const { h, checks } = setup();
+    expect(await (await h.request('/api/me')).json()).toMatchObject({ contactLocked: false });
+    const res = await h.post('/api/me/profile', { firstName: 'Alice' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ firstName: 'Alice', contactLocked: false });
+    expect(await (await h.post('/api/me/profile', { phone: '(213) 555-0123' })).json()).toMatchObject({ phone: '+12135550123', contactLocked: true });
+    expect(checks).toEqual([]);
+  });
+
+  it('changing a saved name or phone needs the current password', async () => {
+    const { h, checks } = setup();
+    await h.post('/api/me/profile', { firstName: 'Alice', phone: '(213) 555-0123' });
+    for (const body of [{ firstName: 'Eve' }, { phone: '(310) 555-0199' }, { phone: null }, { firstName: 'Eve', currentPassword: 'wrong' }]) {
+      const res = await h.post('/api/me/profile', body);
+      expect(res.status, JSON.stringify(body)).toBe(403);
+      expect(await res.json()).toEqual({ error: 'Enter your password to change saved contact details.' });
+    }
+    expect(h.profiles.get(A)).toMatchObject({ firstName: 'Alice', phone: '+12135550123' });
+    expect(checks).toEqual([[`${A}@example.test`, 'wrong']]);
+    // Re-sending the same saved values is not a change.
+    expect((await h.post('/api/me/profile', { firstName: 'Alice', phone: '213-555-0123' })).status).toBe(200);
+    const ok = await h.post('/api/me/profile', { firstName: 'Alicia', currentPassword: 'right-password' });
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toMatchObject({ firstName: 'Alicia', contactLocked: true });
+    // Screening edits never need the password.
+    expect((await h.post('/api/me/profile', { screeningAnswers: FULL })).status).toBe(200);
+    expect((await h.post('/api/me/profile', { currentPassword: 'x'.repeat(129) })).status).toBe(400);
   });
 });

@@ -16,6 +16,7 @@ import { getHousehold, upsertHousehold } from '../store.js';
 import { admin } from '../supabase.js';
 import { compressForUpload } from '../vault.js';
 import type { HeldDoc, ResearchAnswer, ResearchCitation, WorkflowDeps } from './deps.js';
+import { supabasePasswordCheck } from './repo.js';
 import { supabaseWorkflowRepo } from './store.js';
 
 const SIGNED_TTL_SEC = 7 * 24 * 3600;
@@ -136,6 +137,7 @@ export function liveWorkflowDeps(): WorkflowDeps {
         if (error || !data?.user) return null;
         return { id: data.user.id, email: data.user.email ?? '' };
       },
+      verifyPassword: supabasePasswordCheck(),
     },
     households: { get: (id) => getHousehold(id), upsert: (h) => upsertHousehold(h) },
     chatFields,

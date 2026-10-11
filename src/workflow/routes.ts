@@ -13,7 +13,7 @@ import type { DocType } from '../contracts.js';
 import { fieldsFromHousehold } from '../intake.js';
 import { rateLimit } from '../rateLimit.js';
 import {
-  cleanPhone, ensureHousehold, getOrCreateAccount, ProfileBody, requireApplicant, SignupBody, toMe, type ApplicantVars,
+  CONTACT_LOCKED_ERROR, changesSavedContact, cleanPhone, ensureHousehold, getOrCreateAccount, ProfileBody, requireApplicant, SignupBody, toMe, type ApplicantVars,
 } from './auth.js';
 import type { WorkflowDeps } from './deps.js';
 import { createEngine, WorkflowError, type Engine } from './engine.js';
@@ -80,13 +80,21 @@ export function workflowApp(deps: WorkflowDeps, engine: Engine = createEngine(de
     catch (err) { return fail(c, err); }
   });
 
-  app.post('/api/me/profile', auth, async c => {
-    const parsed = ProfileBody.safeParse(await c.req.json().catch(() => null));
+  app.post('/api/me/profile', auth, async (c, next) => {
+    // Read a clone so the body stays unread for the next handler.
+    const raw: unknown = await c.req.raw.clone().json().catch(() => null);
+    // Screening answers live on the applicant profile (accountRoutes.ts, mounted after this app): let it answer.
+    if (raw && typeof raw === 'object' && 'screeningAnswers' in raw) return next();
+    const parsed = ProfileBody.safeParse(raw);
     if (!parsed.success) return c.json({ error: 'Check your name and phone number.' }, 400);
     let phone: string | null | undefined;
     try { phone = cleanPhone(parsed.data.phone); } catch { return c.json({ error: 'Enter a 10-digit US phone number.' }, 400); }
     try {
       const cur = await getOrCreateAccount(deps, c.var.userId);
+      const password = parsed.data.currentPassword;
+      if (changesSavedContact(cur, { firstName: parsed.data.firstName, phone })
+        && !(password && deps.auth.verifyPassword && await deps.auth.verifyPassword(c.var.email, password).catch(() => false)))
+        return c.json({ error: CONTACT_LOCKED_ERROR }, 403);
       const next = {
         ...cur,
         ...(parsed.data.firstName !== undefined ? { firstName: parsed.data.firstName } : {}),

@@ -6,7 +6,9 @@ import type { FillEvent, FillResult } from '../../benefitscal/filler.js';
 import { pollMockCode } from '../../benefitscal/filler.js';
 import { holdSeconds } from '../../benefitscal/kernelSessions.js';
 import { MOCK_BASE } from '../../benefitscal/mockSite.js';
-import { SIGNATURE_PAGE_ID } from '../../benefitscal/spec.js';
+import { SIGNATURE_PAGE_ID, type ExtraAnswers } from '../../benefitscal/spec.js';
+import type { ApplicationDetails } from '../../../shared/applicationDetails.js';
+import { detailsToExtra } from '../applicationDetails.js';
 import { joinNames } from '../programs.js';
 import { runRealFill } from './fillReal.js';
 import { clip, httpUrl, type StepCtx, type StepOutcome } from './context.js';
@@ -23,8 +25,8 @@ function capped(p: Promise<FillResult>, ms: number): Promise<FillResult> {
   });
 }
 
-/** Synthetic values for fields the household record does not hold. Clearly fake on purpose. */
-function demoExtra(hid: string): Record<string, string> {
+/** Synthetic values for fields the household record does not hold. Clearly fake on purpose. Practice replica only. */
+export function demoExtra(hid: string): Record<string, string> {
   return {
     last_name: 'Demo', dob: '1990-01-01', street: '123 Demo Street', city: 'Los Angeles', zip: '90012',
     email: `applicant-${hid.slice(0, 8)}@aid-demo.example`, employer_name: 'Demo Employer', hours_per_week: '30',
@@ -33,11 +35,29 @@ function demoExtra(hid: string): Record<string, string> {
   };
 }
 
+const JOB_KEYS = new Set(['employer_name', 'hours_per_week', 'job_continues']);
+
+/**
+ * The person's own application details, with practice placeholders only for keys they have not answered
+ * (never job placeholders when they said nobody has a job). Returns which keys are placeholders.
+ */
+export function practiceExtra(details: ApplicationDetails, hid: string): { extra: ExtraAnswers; placeholders: string[] } {
+  const own = detailsToExtra(details);
+  const demo = demoExtra(hid);
+  const placeholders = Object.keys(demo).filter(k => own[k] === undefined && !(details.hasJob === false && JOB_KEYS.has(k)));
+  return { extra: { ...Object.fromEntries(placeholders.map(k => [k, demo[k]!])), ...own }, placeholders };
+}
+
 export const signatureUrl = (base: string): string => `${base.replace(/\/+$/, '')}${MOCK_BASE}/p/${SIGNATURE_PAGE_ID}`;
 
 export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
   if (ctx.step.meta.target === 'real') return runRealFill(ctx);
   const { fill } = ctx.deps;
+  const details = await ctx.deps.repo.getApplicationDetails(ctx.wf.userId).catch(() => ({} as ApplicationDetails));
+  const { extra, placeholders } = practiceExtra(details, ctx.household.id);
+  const placeholderNote = placeholders.length
+    ? ` Placeholder values were used for ${placeholders.length} field${placeholders.length === 1 ? '' : 's'} you haven't answered yet (practice replica only).`
+    : '';
   const programs = (ctx.step.meta.programs as ApplicationProgram[] | undefined) ?? [];
   const lines: string[] = [];
   const say = async (line: string) => {
@@ -84,7 +104,7 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
     })().catch(() => undefined));
   };
   const attempt = (m: BrowserMode, b: string, capMs: number): Promise<FillResult> => capped(fill.run({
-    householdId: ctx.household.id, baseUrl: b, mode: m, onEvent, extra: demoExtra(ctx.household.id),
+    householdId: ctx.household.id, baseUrl: b, mode: m, onEvent, extra,
     headless: true, holdMs: 0, keepAliveMs: m === 'kernel' ? holdSeconds() * 1000 : 0,
     getVerificationCode: pollMockCode(fill.localBase()),
   }), capMs);
@@ -130,16 +150,17 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
   const meta = {
     ...ctx.step.meta, signUrl: signatureUrl(base), mode, pagesCompleted: result.pagesCompleted,
     kernelSessionId: held ? result.sessionId : null, replayUrl: replay, heldUntil: held ? result.heldUntil ?? null : null,
+    placeholderFields: placeholders,
   };
   if (result.status === 'stopped_for_signature') {
     const missing = result.missingFields.length ? ` ${result.missingFields.length} field(s) left blank for you to check.` : '';
     return {
       status: 'done', meta,
-      summary: `Filled ${result.pagesCompleted} pages of the BenefitsCal application in a ${mode === 'kernel' ? 'Kernel cloud' : 'local'} browser and stopped at the signature page.${missing}${held ? ` The live browser stays open for ${Math.round(holdSeconds() / 60)} minutes.` : ''}`,
+      summary: `Filled ${result.pagesCompleted} pages of the BenefitsCal application in a ${mode === 'kernel' ? 'Kernel cloud' : 'local'} browser and stopped at the signature page.${missing}${held ? ` The live browser stays open for ${Math.round(holdSeconds() / 60)} minutes.` : ''}${placeholderNote}`,
     };
   }
   return {
     status: 'failed', meta,
-    summary: `Needs a human: the ${mode} browser stopped before the signature page (${result.status}${result.detail ? `: ${clip(result.detail, 200)}` : ''}). Try again, or finish it yourself.${liveShown ? ' The live view link is in the evidence.' : ''}`,
+    summary: `Needs a human: the ${mode} browser stopped before the signature page (${result.status}${result.detail ? `: ${clip(result.detail, 200)}` : ''}). Try again, or finish it yourself.${liveShown ? ' The live view link is in the evidence.' : ''}${placeholderNote}`,
   };
 }

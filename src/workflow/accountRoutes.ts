@@ -4,6 +4,7 @@ import { bodyLimit } from 'hono/body-limit';
 import { streamSSE } from 'hono/streaming';
 import sharp from 'sharp';
 import { z } from 'zod/v4';
+import { applicationReadiness, type ApplicationDetails, type ApplicationDetailsResponse } from '../../shared/applicationDetails.js';
 import type { Me, Workflow } from '../../shared/workflow.js';
 import { screenApplications, ScreeningFieldsSchema } from '../applicationScreening.js';
 import { clientIp } from '../clientIp.js';
@@ -11,7 +12,9 @@ import { MAX_BYTES, extFor } from '../documents.js';
 import { normalizePhone } from '../intake.js';
 import { rateLimit } from '../rateLimit.js';
 import { applyDocuments, applyResearch, DOC_TYPES, newWorkflow, officialHandoff, PROGRAMS, summary, type StoredDocument } from './model.js';
-import { supabaseWorkflowRepo, WorkflowError, type ApplicantUser, type Profile, type WorkflowRepo } from './repo.js';
+import { detailsError, detailsPatchSchema } from './applicationDetails.js';
+import { CONTACT_LOCKED_ERROR, changesSavedContact } from './auth.js';
+import { supabasePasswordCheck, supabaseWorkflowRepo, WorkflowError, type ApplicantUser, type PasswordCheck, type Profile, type WorkflowRepo } from './repo.js';
 
 const Program = z.enum(PROGRAMS as [typeof PROGRAMS[number], ...typeof PROGRAMS[number][]]);
 const Id = z.uuid();
@@ -27,20 +30,28 @@ const Screening = z.object({
   ...ScreeningFieldsSchema.shape,
 }).strict();
 const Signup = z.object({ email: z.email().max(254), password: z.string().min(8).max(128), firstName: FirstName.optional(), phone: Phone.optional() }).strict();
-const ProfilePatch = z.object({ firstName: FirstName.nullable().optional(), phone: Phone.nullable().optional(), screeningAnswers: z.record(z.string(), z.unknown()).optional() }).strict();
+const ProfilePatch = z.object({ firstName: FirstName.nullable().optional(), phone: Phone.nullable().optional(), screeningAnswers: z.record(z.string(), z.unknown()).optional(),
+  currentPassword: z.string().min(1).max(128).optional() }).strict();
 const Create = z.object({ programs: z.array(Program).min(1).max(PROGRAMS.length), chatSessionId: Id.optional() }).strict();
 const Run = z.object({ stepId: Id }).strict();
 const Approval = z.object({ stepId: Id, decision: z.enum(['approve', 'decline']) }).strict();
 const Receipt = z.object({ program: Program, confirmation: z.string().trim().min(1).max(300), submittedAt: z.iso.datetime().optional() }).strict();
 type Vars = { user: ApplicantUser };
-export interface WorkflowRouteDeps { repo?: WorkflowRepo; now?: () => Date; eventPollMs?: number; eventMaxMs?: number }
-const publicProfile = (p: Profile): Me => ({ userId: p.userId, email: p.email, householdId: p.householdId, phone: p.phone, firstName: p.firstName });
+export interface WorkflowRouteDeps {
+  repo?: WorkflowRepo; now?: () => Date; eventPollMs?: number; eventMaxMs?: number;
+  /** Re-checks the signed-in applicant's password (default: isolated Supabase sign-in). Injected in tests. */
+  verifyPassword?: PasswordCheck;
+}
+const publicProfile = (p: Profile): Me => ({ userId: p.userId, email: p.email, householdId: p.householdId, phone: p.phone, firstName: p.firstName,
+  contactLocked: Boolean(p.firstName && p.phone) });
 const publicDocument = ({ userId: _u, storagePath: _s, ...doc }: StoredDocument) => doc;
 
 /** All account routes fail closed without a valid Supabase token, including in DEMO_MODE. */
 export function registerAccountRoutes(app: Hono<any>, deps: WorkflowRouteDeps = {}): void {
   const repo = deps.repo ?? supabaseWorkflowRepo();
   const now = deps.now ?? (() => new Date());
+  const verifyPassword = deps.verifyPassword ?? supabasePasswordCheck();
+  const DetailsPatch = detailsPatchSchema(now);
   const routes = new Hono<{ Variables: Vars }>();
   routes.onError((err, c) => {
     if (err instanceof WorkflowError) return c.json({ error: err.message }, err.status);
@@ -76,6 +87,11 @@ export function registerAccountRoutes(app: Hono<any>, deps: WorkflowRouteDeps = 
   routes.post('/api/me/profile', async c => {
     const input = ProfilePatch.safeParse(await c.req.json().catch(() => null));
     if (!input.success || !Object.keys(input.data).length) return c.json({ error: 'Provide a valid name, phone or screening answers.' }, 400);
+    const user = c.get('user');
+    if (Object.keys(input.data).every(k => k === 'currentPassword')) return c.json(publicProfile(await repo.profile(user)));
+    const password = input.data.currentPassword;
+    if (changesSavedContact(await repo.profile(user), input.data) && !(password && await verifyPassword(user.email, password)))
+      return c.json({ error: CONTACT_LOCKED_ERROR }, 403);
     let answers;
     if (input.data.screeningAnswers) {
       const merged: Record<string, unknown> = { ...(await repo.screening(c.get('user').id)) };
@@ -89,6 +105,24 @@ export function registerAccountRoutes(app: Hono<any>, deps: WorkflowRouteDeps = 
       answers = parsed.data;
     }
     return c.json(publicProfile(await repo.updateProfile(c.get('user'), { firstName: input.data.firstName, phone: input.data.phone, screeningAnswers: answers })));
+  });
+  const detailsResponse = async (userId: string, details: ApplicationDetails): Promise<ApplicationDetailsResponse> => {
+    const s = await repo.screening(userId);
+    return { details, readiness: applicationReadiness(details, { county: s.county, size: s.size, monthlyIncome: s.monthlyIncome }) };
+  };
+  routes.get('/api/me/application-details', async c => {
+    const user = c.get('user');
+    await repo.profile(user);
+    return c.json(await detailsResponse(user.id, await repo.applicationDetails(user.id)));
+  });
+  routes.post('/api/me/application-details', async c => {
+    const body = await c.req.json().catch(() => undefined);
+    const input = DetailsPatch.safeParse(body);
+    if (!input.success) return c.json({ error: body === undefined || body === null || typeof body !== 'object' || Array.isArray(body) ? 'Send application details as a JSON object.' : detailsError(input.error) }, 400);
+    const user = c.get('user');
+    await repo.profile(user);
+    const details = Object.keys(input.data).length ? await repo.updateApplicationDetails(user.id, input.data) : await repo.applicationDetails(user.id);
+    return c.json(await detailsResponse(user.id, details));
   });
   routes.post('/api/me/link-chat', async c => {
     const input = z.object({ chatSessionId: Id }).strict().safeParse(await c.req.json().catch(() => null));

@@ -1,5 +1,6 @@
 // Wires the conversation service to the real Dial, Claude, Supabase and Keewano clients.
-import { createConversation, type Conversation } from './conversation.js';
+import { createConversation, type ApplicationAccounts, type Conversation } from './conversation.js';
+import { accountForChat, mergeAccountDetails, readAccountDetails } from './workflow/applicationDetailsDb.js';
 import { extractFromCall, runAgentTurn } from './agent.js';
 import { getCall, sendText, startEventLoop, transcriptText, type EventHandlers, type InboundMessage } from './dial.js';
 import { DialClient } from '@getdial/sdk';
@@ -148,11 +149,20 @@ export function createSmsDispatcher(conv: Conversation, overrides: Partial<Messa
   };
 }
 
+/** Chats linked to applicant accounts save application details on the account (applicant_profiles). */
+export const liveApplicationAccounts = (): ApplicationAccounts => ({
+  ownerOf: ref => accountForChat(admin, ref),
+  details: userId => readAccountDetails(admin, userId),
+  merge: (userId, patch) => mergeAccountDetails(admin, userId, patch),
+});
+
 export function liveConversation(): Conversation {
   // INTAKE_STORE=memory lets you try text + chat without Supabase (households still need Supabase on YES).
-  const repo = optionalEnv('INTAKE_STORE') === 'memory' ? memoryIntakeRepo() : supabaseIntakeRepo();
+  const memory = optionalEnv('INTAKE_STORE') === 'memory';
+  const repo = memory ? memoryIntakeRepo() : supabaseIntakeRepo();
   return createConversation({
     repo,
+    ...(memory ? {} : { applicationAccounts: liveApplicationAccounts() }),
     orgId: DEMO_ORG_ID,
     sendText: sendIntakeText,
     runAgent: runAgentTurn,

@@ -24,6 +24,8 @@ export interface WorkflowDeps {
   auth: {
     createUser(email: string, password: string, meta: Record<string, string>): Promise<{ userId: string } | 'exists'>;
     getUser(token: string): Promise<{ id: string; email: string } | null>;
+    /** Re-check the applicant's password before a saved name/phone changes. Absent: such changes are refused. */
+    verifyPassword?(email: string, password: string): Promise<boolean>;
   };
   households: {
     get(id: string): Promise<Household | undefined>;

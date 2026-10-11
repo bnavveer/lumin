@@ -66,8 +66,11 @@ export function assertRealModeAllowed(h: Pick<Household, 'phone'>, typing: boole
   if (typing && isSeedHousehold(h)) throw new RealModeRefused('Refusing to type a synthetic seed household into the real BenefitsCal. Preview only.');
 }
 
-/** Only real, user-entered profile values. Undefined/empty values are dropped: never invent data. */
-export function realProfile(h: Household): Record<string, string> {
+/**
+ * Only real, user-entered profile values. Undefined/empty values are dropped: never invent data.
+ * `extra` carries the person's own application details (spec field names, e.g. last_name, dob, street).
+ */
+export function realProfile(h: Household, extra: Record<string, string | boolean | number | undefined> = {}): Record<string, string> {
   const out: Record<string, string> = {};
   const put = (k: string, v: unknown) => { if (v !== undefined && v !== null && String(v).trim() !== '') out[k] = String(v); };
   put('first_name', h.firstName);
@@ -77,6 +80,7 @@ export function realProfile(h: Household): Record<string, string> {
   put('monthly_income', h.monthlyIncome);
   put('children_under_18', h.childrenUnder18);
   put('pregnant', h.pregnant ? 'yes' : 'no');
+  for (const [k, v] of Object.entries(extra)) put(k, typeof v === 'boolean' ? (v ? 'yes' : 'no') : v);
   return out;
 }
 
@@ -135,6 +139,8 @@ export interface RealEvent { step: string; message: string; data?: unknown }
 export interface RealRunOptions {
   page: Page;
   household: Household;
+  /** The person's saved application details mapped to spec field names (never placeholders). */
+  details?: Record<string, string | boolean | number | undefined>;
   typing: boolean;
   planner?: Planner;
   onEvent?: (e: RealEvent) => void;
@@ -194,7 +200,7 @@ export async function runRealSite(o: RealRunOptions): Promise<RealRunResult> {
   assertRealModeAllowed(o.household, o.typing);
   const emit = (step: string, message: string, data?: unknown) => o.onEvent?.({ step, message, data });
   const planner = o.planner ?? llmPlanner;
-  const profile = realProfile(o.household);
+  const profile = realProfile(o.household, o.details);
   const pages: RealPageReport[] = [];
 
   if (!isSignedInApplicationPage(o.page.url())) {

@@ -17,7 +17,7 @@ export function NextSteps({ steps, actions }: { steps: NextStep[]; actions: Step
     <section aria-labelledby="next-title" className="rounded-32 bg-background-tertiary p-6 max-mobile:p-4">
       <h2 id="next-title" className="type-heading-s">Next steps</h2>
       {steps.length === 0 ? (
-        <p className="mt-3 type-body-m text-secondary">Nothing for you to do right now. Aid will tell you the moment something changes.</p>
+        <p className="mt-3 type-body-m text-secondary">Nothing for you to do right now. Lumin will tell you the moment something changes.</p>
       ) : (
         <ul className="mt-4 grid gap-3">
           {steps.map((n) => (

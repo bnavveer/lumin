@@ -56,13 +56,13 @@ export function ChatPanel({ chat, userId, firstName, inputRef }: {
   return (
     <section ref={inputRef as React.RefObject<HTMLElement>} id="chat" tabIndex={-1} aria-labelledby="chat-title" className="flex h-full min-h-0 flex-col rounded-32 border border-border-tertiary bg-background-primary outline-none">
       <div className="flex items-center justify-between gap-3 border-b border-border-tertiary px-5 py-3">
-        <h2 id="chat-title" className="type-card-title">Talk to Aid</h2>
+        <h2 id="chat-title" className="type-card-title">Talk to Lumin</h2>
         {chat.messages.length > 0 && (
           <Button variant="ghost" size="sm" icon="refresh" className="text-secondary" onClick={() => { chat.reset(); rememberChatSession(userId, null) }}>New chat</Button>
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5" role="log" aria-live="polite" aria-label="Conversation with Aid">
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5" role="log" aria-live="polite" aria-label="Conversation with Lumin">
         {empty && (
           <div className="flex flex-col gap-4">
             <p className="type-body-m">{firstName ? `Hi ${firstName}.` : 'Hi.'} Tell me what you need help with and I’ll find programs you may qualify for, then start the applications for you.</p>
@@ -96,7 +96,7 @@ export function ChatPanel({ chat, userId, firstName, inputRef }: {
             <ChatNotice title={t.chat.wrong} action={<button type="button" onClick={chat.retry} className="cursor-pointer self-start rounded-4 type-body-s text-link underline underline-offset-4 focus-ring">{t.chat.tryAgain}</button>} />
           </div>
         )}
-        <ChatComposer variant="inline" placeholder="Ask Aid anything…" value={text} onValueChange={setText} onSubmit={(q) => void chat.send(q)} busy={chat.busy} labels={composerLabels(t)} />
+        <ChatComposer variant="inline" placeholder="Ask Lumin anything…" value={text} onValueChange={setText} onSubmit={(q) => void chat.send(q)} busy={chat.busy} labels={composerLabels(t)} />
       </div>
     </section>
   )

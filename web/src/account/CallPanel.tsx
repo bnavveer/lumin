@@ -181,7 +181,7 @@ function ScriptEditor({ workflowId, base, enabled, onStarted }: { workflowId: st
               className="h-10 rounded-12 border border-border-primary bg-background-primary px-3 type-body-s font-normal focus-ring" />
           </label>
           <fieldset className="flex flex-col gap-2">
-            <legend className="type-label-s font-medium">Questions Aid will ask, in order</legend>
+            <legend className="type-label-s font-medium">Questions Lumin will ask, in order</legend>
             <ol className="flex flex-col gap-2">
               {script.questions.map((q, i) => (
                 <li key={i} className="flex items-center gap-2">

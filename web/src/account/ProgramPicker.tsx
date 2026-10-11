@@ -6,6 +6,7 @@ import { Button } from '../components/Button'
 import { cx } from '../components/cx'
 import { Icon } from '../components/icons'
 import { setFillTarget } from './api'
+import { sortByRelevance, type Answers } from './relevance'
 import { ErrorState, Skeleton } from './ui'
 
 // Suggestions from GET /api/me/suggestions as selectable cards. The "likely"
@@ -17,8 +18,9 @@ const pill: Record<ApplicationMatch['status'], { status: Status; label: string }
   not_eligible: { status: 'unlikely', label: 'Not eligible' },
 }
 
-export function ProgramPicker({ screening, loading, error, onRetry, starting, onStart, onCancel, onAskChat }: {
+export function ProgramPicker({ screening, answers = {}, loading, error, onRetry, starting, onStart, onCancel, onAskChat }: {
   screening: ApplicationScreening | null
+  answers?: Answers
   loading: boolean
   error: string | null
   onRetry: () => void
@@ -38,15 +40,18 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
   }
   const [target, setTarget] = useState<FillTarget>('mock')
   const chooseTarget = (t: FillTarget) => { setTarget(t); setFillTarget(t) }
-  const ordered = [...matches].sort((a, b) => rank(a) - rank(b))
+  // Only programs that could fit this household; the rest fold away with the reason.
+  const { shown, hidden } = sortByRelevance(matches, answers)
+  const ordered = [...shown].sort((a, b) => rank(a) - rank(b))
+  const [showHidden, setShowHidden] = useState(false)
 
   return (
     <section aria-labelledby="picker-title" className="rounded-32 bg-background-tertiary p-6 max-mobile:p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 id="picker-title" className="type-heading-s">Choose what Aid should apply for</h2>
+          <h2 id="picker-title" className="type-heading-s">Choose what Lumin should apply for</h2>
           <p className="mt-1 type-body-s text-secondary">
-            Aid researches each program, collects what’s needed, and fills out the application. You review and sign before anything is sent.
+            Lumin researches each program, collects what’s needed, and fills out the application. You review and sign before anything is sent.
           </p>
         </div>
         {onCancel && <Button variant="ghost" size="sm" onClick={onCancel}>Cancel</Button>}
@@ -58,8 +63,8 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
         {!loading && !error && ordered.length === 0 && (
           <div className="rounded-24 bg-background-primary p-5">
             <p className="type-body-m font-medium">No suggestions yet</p>
-            <p className="mt-1 type-body-s text-secondary">Tell Aid about your household in the chat and matches appear here.</p>
-            <Button variant="outline" size="sm" icon="message" className="mt-4" onClick={onAskChat}>Talk to Aid</Button>
+            <p className="mt-1 type-body-s text-secondary">Tell Lumin about your household in the chat and matches appear here.</p>
+            <Button variant="outline" size="sm" icon="message" className="mt-4" onClick={onAskChat}>Talk to Lumin</Button>
           </div>
         )}
         {!loading && !error && ordered.length > 0 && (
@@ -70,6 +75,37 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
           </ul>
         )}
       </div>
+
+      {!loading && !error && hidden.length > 0 && (
+        <div className="mt-4">
+          <button
+            type="button"
+            aria-expanded={showHidden}
+            onClick={() => setShowHidden((v) => !v)}
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full px-1 type-body-s font-medium text-secondary hover:text-primary focus-ring"
+          >
+            <Icon name="chevron-down" size={15} className={cx('transition-transform duration-300', showHidden && 'rotate-180')} />
+            {hidden.length} {hidden.length === 1 ? 'program' : 'programs'} not likely for your household
+          </button>
+          {showHidden && (
+            <ul className="mt-2 grid gap-1.5 rounded-24 bg-background-primary/60 p-4 type-body-s">
+              {hidden.map(({ match, why }) => (
+                <li key={match.program} className="flex flex-wrap gap-x-2">
+                  <span className="font-medium">{match.name}</span>
+                  <span className="text-secondary">{why}</span>
+                </li>
+              ))}
+              <li className="mt-2 text-secondary">
+                Think one of these fits?{' '}
+                <button type="button" onClick={onAskChat} className="cursor-pointer rounded-4 text-link underline underline-offset-4 focus-ring">
+                  Tell Lumin in the chat
+                </button>
+                .
+              </li>
+            </ul>
+          )}
+        </div>
+      )}
 
       {ordered.length > 0 && (
         <TargetChoice value={target} onChange={chooseTarget} />
@@ -87,14 +123,14 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
 }
 
 const targets: { value: FillTarget; title: string; body: string }[] = [
-  { value: 'mock', title: 'Practice site (demo replica)', body: 'Aid fills a replica of BenefitsCal end to end and stops at the signature.' },
-  { value: 'real', title: 'Real BenefitsCal', body: 'Opens the real benefitscal.com in a live browser. You sign in yourself; Aid shows what it would fill and never submits or signs.' },
+  { value: 'mock', title: 'Practice site (demo replica)', body: 'Lumin fills a replica of BenefitsCal end to end and stops at the signature.' },
+  { value: 'real', title: 'Real BenefitsCal', body: 'Opens the real benefitscal.com in a live browser. You sign in yourself; Lumin shows what it would fill and never submits or signs.' },
 ]
 
 function TargetChoice({ value, onChange }: { value: FillTarget; onChange: (t: FillTarget) => void }) {
   return (
     <fieldset className="mt-6 min-w-0">
-      <legend className="type-body-m font-medium">Where should Aid fill it out?</legend>
+      <legend className="type-body-m font-medium">Where should Lumin fill it out?</legend>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {targets.map((t) => (
           <label key={t.value} className={cx(

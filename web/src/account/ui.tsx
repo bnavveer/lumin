@@ -73,7 +73,7 @@ export function Pill({ toneName, icon, label }: { toneName: keyof typeof tone; i
 
 const actors: Record<NextStep['actor'], { label: string; className: string; icon: IconName }> = {
   you: { label: 'You', className: 'bg-blue-700 text-white', icon: 'user' },
-  aid: { label: 'Aid', className: 'bg-background-secondary text-primary', icon: 'shield' },
+  aid: { label: 'Lumin', className: 'bg-background-secondary text-primary', icon: 'shield' },
   county: { label: 'County', className: 'bg-grey-200 text-primary', icon: 'building' },
 }
 export function ActorBadge({ actor }: { actor: NextStep['actor'] }) {

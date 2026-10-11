@@ -109,12 +109,12 @@ function Loaded({ w, actions, api }: { w: Workflow; actions: StepActions; api: A
       {live && <LivePanel workflowId={w.id} initialUrl={live} replayUrl={replay} api={api} filling={w.steps.some((s) => s.kind === 'fill' && s.status === 'running')} />}
 
       <section aria-labelledby="steps-title">
-        <h2 id="steps-title" className="mb-6 type-heading-s">What Aid is doing</h2>
+        <h2 id="steps-title" className="mb-6 type-heading-s">What Lumin is doing</h2>
         <Timeline steps={w.steps} />
       </section>
 
       <div>
-        <Button variant="ghost" size="sm" icon="message" className="text-secondary" onClick={actions.openChat}>Ask Aid about this application</Button>
+        <Button variant="ghost" size="sm" icon="message" className="text-secondary" onClick={actions.openChat}>Ask Lumin about this application</Button>
       </div>
     </div>
   )
@@ -147,7 +147,7 @@ function LivePanel({ workflowId, initialUrl, replayUrl, api, filling }: { workfl
       <section aria-labelledby="live-title" className="flex flex-wrap items-center justify-between gap-3 rounded-32 bg-blue-900 p-5 text-white">
         <div>
           <h2 id="live-title" className="type-heading-s text-white">The live browser session has ended</h2>
-          <p className="type-body-s text-white/80">{state.replayUrl ? 'You can still watch the recording of everything Aid did.' : 'A recording will appear in the steps below when it is ready.'}</p>
+          <p className="type-body-s text-white/80">{state.replayUrl ? 'You can still watch the recording of everything Lumin did.' : 'A recording will appear in the steps below when it is ready.'}</p>
         </div>
         {state.replayUrl && <a href={state.replayUrl} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-sm font-medium text-blue-900 focus-ring">Watch replay<span className="sr-only"> (opens in a new tab)</span></a>}
       </section>
@@ -158,7 +158,7 @@ function LivePanel({ workflowId, initialUrl, replayUrl, api, filling }: { workfl
       <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2">
         <h2 id="live-title" className="flex items-center gap-2 type-heading-s text-white">
           <span aria-hidden="true" className="size-2.5 animate-pulse rounded-full bg-flag-red motion-reduce:animate-none" />
-          {filling ? 'Aid is filling out your application' : 'Your application is open and waiting for your signature'}
+          {filling ? 'Lumin is filling out your application' : 'Your application is open and waiting for your signature'}
         </h2>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => void refresh()} className="inline-flex h-9 items-center rounded-full border border-white/40 px-4 text-sm font-medium hover:bg-white/10 focus-ring">
@@ -169,7 +169,7 @@ function LivePanel({ workflowId, initialUrl, replayUrl, api, filling }: { workfl
       </div>
       <p className="px-3 pb-2 type-body-s text-white/80">For the best view, and to sign, use “Open live browser” (new tab). The preview below may not load on every network.</p>
       <div className="aspect-[16/10] overflow-hidden rounded-24 bg-black">
-        <iframe key={url} title="Live view of the browser where Aid is filling out your application" src={url} referrerPolicy="no-referrer" allow="clipboard-read; clipboard-write" onError={() => void refresh()} className="size-full border-0" />
+        <iframe key={url} title="Live view of the browser where Lumin is filling out your application" src={url} referrerPolicy="no-referrer" allow="clipboard-read; clipboard-write" onError={() => void refresh()} className="size-full border-0" />
       </div>
     </section>
   )

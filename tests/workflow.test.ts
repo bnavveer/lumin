@@ -4,6 +4,10 @@ import type { Household } from '../src/contracts.js';
 import type { HeldDoc, WorkflowDeps } from '../src/workflow/deps.js';
 import { createEngine } from '../src/workflow/engine.js';
 import { workflowApp } from '../src/workflow/routes.js';
+import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
+import type { ApplicationDetails } from '../shared/applicationDetails.js';
+import { DETAILS_NEEDED_SUMMARY } from '../src/workflow/steps/fillReal.js';
 import { memoryWorkflowRepo } from '../src/workflow/store.js';
 
 interface Opts { dial?: boolean; fillStatus?: 'stopped_for_signature' | 'error' }
@@ -122,7 +126,8 @@ function setup(opts: Opts = {}) {
     await engine.idle();
     return res;
   }
-  return { deps, engine, app, req, signup, create, get, step, upload, toSignature, approve, sent, calls, events, households, liveCalls };
+  const setDetails = (token: string, d: ApplicationDetails) => repo.details.set(token.slice(4), d);
+  return { deps, engine, app, req, signup, create, get, step, upload, toSignature, approve, sent, calls, events, households, liveCalls, setDetails, users };
 }
 
 describe('accounts', () => {
@@ -341,5 +346,108 @@ describe('GET /api/workflows/:id/live', () => {
     const res = await t.req('/api/workflows', { method: 'POST', token: tok, body: JSON.stringify({ programs: ['calfresh'], target: 'real' }) });
     expect(res.status).toBe(400);
     if (prev !== undefined) process.env.ALLOW_REAL_BENEFITSCAL = prev;
+  });
+});
+
+describe('saved contact details (engine /api/me routes)', () => {
+  it('locks a saved name and phone behind the current password', async () => {
+    const t = setup();
+    const checks: string[] = [];
+    t.deps.auth.verifyPassword = async (email, password) => { checks.push(email); return password === 'longenough'; };
+    const token = await t.signup('lock@aid.test');
+    const post = (body: unknown) => t.req('/api/me/profile', { method: 'POST', token, body: JSON.stringify(body) });
+    expect(await (await t.req('/api/me', { token })).json()).toMatchObject({ contactLocked: false });
+    expect((await post({ firstName: 'Ana', phone: '(555) 555-0142' })).status).toBe(200); // filling empty fields
+    expect(await (await t.req('/api/me', { token })).json()).toMatchObject({ contactLocked: true });
+    for (const body of [{ firstName: 'Eve' }, { phone: '(555) 555-0199' }, { phone: '' }, { firstName: 'Eve', currentPassword: 'nope' }]) {
+      const res = await post(body);
+      expect(res.status, JSON.stringify(body)).toBe(403);
+      expect(await res.json()).toEqual({ error: 'Enter your password to change saved contact details.' });
+    }
+    expect((await post({ firstName: 'Ana' })).status).toBe(200); // unchanged value
+    const ok = await post({ firstName: 'Anita', currentPassword: 'longenough' });
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toMatchObject({ firstName: 'Anita', phone: '+15555550142', contactLocked: true });
+    expect(checks).toEqual(['lock@aid.test', 'lock@aid.test']);
+  });
+
+  it('refuses saved-contact changes when no password checker is configured', async () => {
+    const t = setup();
+    const token = await t.signup('nocheck@aid.test', { firstName: 'Ana', phone: '4155550120' });
+    const res = await t.req('/api/me/profile', { method: 'POST', token, body: JSON.stringify({ firstName: 'Eve', currentPassword: 'longenough' }) });
+    expect(res.status).toBe(403);
+  });
+
+  it('hands screening-answer saves to the applicant profile routes mounted after it', async () => {
+    const t = setup();
+    const token = await t.signup('screening@aid.test');
+    const parent = new Hono();
+    parent.route('/', t.app);
+    parent.use('/api/me/*', bodyLimit({ maxSize: 32 * 1024 })); // like accountRoutes: must still see an unread body
+    parent.post('/api/me/profile', async c => c.json({ handledBy: 'accountRoutes', body: await c.req.json() }));
+    const res = await parent.request('/api/me/profile', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify({ screeningAnswers: { size: 2 } }) });
+    expect(await res.json()).toEqual({ handledBy: 'accountRoutes', body: { screeningAnswers: { size: 2 } } });
+  });
+});
+
+describe('fill uses the saved application details', () => {
+  const DETAILS: ApplicationDetails = {
+    legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: false, street: '100 Main St',
+    city: 'Los Angeles', zip: '90012', hasJob: false, rentAmount: 1200, paysUtilities: true, interviewPreference: 'in_person',
+  };
+
+  it('practice replica: real values first, placeholders only for unanswered keys, counted in the summary', async () => {
+    const t = setup();
+    const token = await t.signup('fill@aid.test', { phone: '4155550121' });
+    t.setDetails(token, DETAILS);
+    const wf = await t.toSignature(token);
+    const extra = vi.mocked(t.deps.fill.run).mock.calls.at(-1)![0].extra!;
+    expect(extra).toMatchObject({
+      first_name: 'Maria', last_name: 'Lopez', dob: '1990-04-12', homeless: 'no', street: '100 Main St', zip: '90012',
+      has_job: 'no', rent_amount: '1200', rent_frequency: 'monthly', pays_utilities: true, interview_type: 'in_person',
+      email: expect.stringContaining('@aid-demo.example'), bank_balance: '250',
+    });
+    expect(extra).not.toHaveProperty('employer_name'); // nobody has a job: no invented employer
+    expect(t.step(wf, 'fill').summary).toMatch(/Placeholder values were used for 5 fields/);
+  });
+
+  it('practice replica with no details says how many placeholders it used', async () => {
+    const t = setup();
+    const token = await t.signup('demo@aid.test', { phone: '4155550122' });
+    const wf = await t.toSignature(token);
+    expect(vi.mocked(t.deps.fill.run).mock.calls.at(-1)![0].extra).toMatchObject({ last_name: 'Demo', street: '123 Demo Street' });
+    expect(t.step(wf, 'fill').summary).toMatch(/Placeholder values were used for 17 fields/);
+  });
+
+  it('real BenefitsCal waits on the person until details are complete and never uses placeholders', async () => {
+    vi.stubEnv('ALLOW_REAL_BENEFITSCAL', 'true');
+    try {
+      const t = setup();
+      const token = await t.signup('realfill@aid.test', { phone: '4155550123' });
+      const res = await t.req('/api/workflows', { method: 'POST', token, body: JSON.stringify({ programs: ['calfresh'], target: 'real' }) });
+      const created = (await res.json()) as Workflow;
+      await t.engine.idle();
+      for (const d of ['id', 'paystub', 'lease']) await t.upload(token, created.id, d);
+      let wf = await t.get(token, created.id);
+      const fill = t.step(wf, 'fill');
+      expect(fill.status).toBe('waiting_on_you');
+      expect(fill.summary).toBe(DETAILS_NEEDED_SUMMARY);
+      expect(wf.nextSteps.find(n => n.action?.stepId === fill.id)?.action).toMatchObject({ type: 'open_url', url: '/account/details' });
+      expect(t.deps.fill.run).not.toHaveBeenCalled();
+
+      // Approving while details are missing still re-checks; once complete it proceeds (here: no Kernel, so it stops safely).
+      t.setDetails(token, { ...DETAILS, hasJob: true });
+      expect((await t.approve(token, wf.id, fill.id)).status).toBe(200);
+      wf = await t.get(token, wf.id);
+      expect(t.step(wf, 'fill').status).toBe('waiting_on_you'); // job details still missing
+
+      t.setDetails(token, DETAILS);
+      t.deps.fill.kernelAvailable = () => false;
+      expect((await t.req(`/api/workflows/${wf.id}/run`, { method: 'POST', token, body: JSON.stringify({ stepId: fill.id }) })).status).toBe(200);
+      await t.engine.idle();
+      wf = await t.get(token, wf.id);
+      expect(t.step(wf, 'fill').summary).toMatch(/Kernel cloud browser/);
+      expect(t.deps.fill.run).not.toHaveBeenCalled();
+    } finally { vi.unstubAllEnvs(); }
   });
 });

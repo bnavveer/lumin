@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ApplicationProgram } from '../../../shared/chat'
-import type { Me, WorkflowSummary } from '../../../shared/workflow'
+import type { WorkflowSummary } from '../../../shared/workflow'
 import { Button } from '../components/Button'
-import { TextField } from '../components/Form'
 import { Icon } from '../components/icons'
 import { useChat } from '../site/chat/useChat'
 import { Link, useRouter } from '../site/router'
 import { useAuth } from './auth'
-import { makeApi, type Api } from './api'
+import { makeApi } from './api'
 import { ChatPanel, seedChatSession } from './DashboardChat'
 import { ProgramPicker } from './ProgramPicker'
+import { ReadinessCard } from './ReadinessCard'
+import { ContactCard } from './ContactCard'
+import type { Answers } from './relevance'
 import { AccountPage, ActorBadge, ErrorState, ProgressBar, programList, RequireAuth, Skeleton, StatusPill, timeAgo, useAsync, useToast } from './ui'
 
 export function Dashboard() {
@@ -39,6 +41,11 @@ function DashboardView() {
   const [starting, setStarting] = useState(false)
 
   const me = useAsync(() => api.me(), [api])
+  // The chat can fill in answers and application details, so refresh after each reply.
+  const replies = chat.messages.filter((m) => m.role === 'assistant').length
+  const details = useAsync(() => api.applicationDetails(), [api, replies])
+  const answers = useAsync(() => api.screening(), [api, replies])
+  const docs = useAsync(() => api.documents(), [api])
   const workflows = useAsync(() => api.listWorkflows(), [api])
   const sessionId = chat.view?.sessionId ?? undefined
   // Only react to a screening once the chat has produced a likely match.
@@ -55,6 +62,12 @@ function DashboardView() {
   useEffect(() => {
     if (new URLSearchParams(search).get('focus') === 'chat') setTimeout(focusChat, 100)
   }, [search])
+
+  // "Answer in the chat": ask Lumin to collect whatever is still missing.
+  const finishInChat = () => {
+    focusChat()
+    if (!chat.busy) void chat.send('I want to finish my application details. Ask me what you still need.')
+  }
 
   async function start(programs: ApplicationProgram[]) {
     setStarting(true)
@@ -75,19 +88,26 @@ function DashboardView() {
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,30rem)]">
         <div className="min-w-0">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-[2.75rem] leading-none tracking-[-0.035em] [font-variation-settings:'opsz'_72] max-mobile:text-[2.25rem]">Your applications</h1>
-              <ProfileChip me={me.data} loading={me.loading} email={user?.email ?? ''} api={api} onSaved={me.reload} />
+            <div className="min-w-0">
+              <h1 className="font-serif text-[clamp(2.25rem,4vw,3.25rem)] leading-[1.02] tracking-[-0.035em] text-balance [font-variation-settings:'opsz'_72]">
+                {me.data?.firstName ? `${me.data.firstName}, here’s what’s next.` : 'Here’s what’s next.'}
+              </h1>
+              <p className="mt-3 max-w-[34rem] type-body-m text-secondary">Your applications, documents and next steps, all in one place.</p>
             </div>
             {!showPicker && (
               <Button icon="plus" onClick={() => setPickerOpen(true)}>Start a new application</Button>
             )}
           </div>
 
+          <div className="mt-8">
+            <ReadinessCard readiness={details.data?.readiness ?? null} loading={details.loading} onAskChat={finishInChat} />
+          </div>
+
           {showPicker && (
             <div className="mt-8">
               <ProgramPicker
                 screening={screening}
+                answers={(answers.data ?? {}) as Answers}
                 loading={suggestions.loading && !screening}
                 error={suggestions.error && !screening ? suggestions.error : null}
                 onRetry={suggestions.reload}
@@ -108,6 +128,11 @@ function DashboardView() {
             onAskChat={focusChat}
             hidePrompt={showPicker}
           />
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <ContactCard me={me.data} loading={me.loading} email={user?.email ?? ''} api={api} onSaved={me.reload} />
+            <DocumentsShortcut count={docs.data?.length ?? null} />
+          </div>
         </div>
 
         <div className="h-[34rem] lg:sticky lg:top-24 lg:h-[calc(100dvh-8rem)] lg:max-h-[52rem]">
@@ -161,9 +186,9 @@ function WorkflowCard({ w }: { w: WorkflowSummary }) {
 }
 
 const flow = [
-  ['Tell Aid what you need', 'Chat in your own words. Aid asks only what the programs require.'],
-  ['Pick programs', 'Choose which benefits to apply for from Aid’s suggestions.'],
-  ['Aid researches and applies', 'It reads the current rules, fills out each application in a private browser, and can call or text the county for you.'],
+  ['Tell Lumin what you need', 'Chat in your own words. Lumin asks only what the programs require.'],
+  ['Pick programs', 'Choose which benefits to apply for from Lumin’s suggestions.'],
+  ['Lumin researches and applies', 'It reads the current rules, fills out each application in a private browser, and can call or text the county for you.'],
   ['You review and sign', 'You approve before anything is sent, and follow every step here with proof.'],
 ]
 
@@ -185,62 +210,30 @@ function EmptyState({ onStart, onAskChat }: { onStart: () => void; onAskChat: ()
       </ol>
       <div className="mt-8 flex flex-wrap gap-3">
         <Button icon="plus" onClick={onStart}>Start a new application</Button>
-        <Button variant="outline" icon="message" onClick={onAskChat}>Talk to Aid first</Button>
+        <Button variant="outline" icon="message" onClick={onAskChat}>Talk to Lumin first</Button>
       </div>
     </section>
   )
 }
 
-// ── Profile chip ─────────────────────────────────────────────────────────
-function ProfileChip({ me, loading, email, api, onSaved }: { me: Me | null; loading: boolean; email: string; api: Api; onSaved: () => void }) {
-  const { signOut } = useAuth()
-  const { navigate } = useRouter()
-  const toast = useToast()
-  const [open, setOpen] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const name = me?.firstName || email.split('@')[0] || 'Account'
-
-  async function save(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const f = new FormData(e.currentTarget)
-    setBusy(true)
-    try {
-      await api.updateProfile({ firstName: String(f.get('firstName') ?? '').trim() || undefined, phone: String(f.get('phone') ?? '').trim() || undefined })
-      onSaved()
-      setOpen(false)
-      toast('Profile saved.', 'success')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Could not save your profile.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
+// ── Documents shortcut ───────────────────────────────────────────────────
+function DocumentsShortcut({ count }: { count: number | null }) {
   return (
-    <div className="mt-3">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls="profile-panel"
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-border-tertiary pr-3 pl-1.5 type-body-s transition-colors hover:bg-background-tertiary focus-ring"
-      >
-        <span aria-hidden="true" className="flex size-7 items-center justify-center rounded-full bg-blue-700 type-label-s font-medium text-white uppercase">{name.slice(0, 1)}</span>
-        {loading ? <span className="h-3 w-16 animate-pulse rounded bg-background-secondary" /> : <span className="font-medium">{name}</span>}
-        {me?.phone && <span className="text-secondary max-mobile:hidden">{me.phone}</span>}
-        <Icon name={open ? 'chevron-up' : 'chevron-down'} size={14} />
-      </button>
-      {open && (
-        <form id="profile-panel" onSubmit={save} className="mt-3 grid max-w-md gap-4 rounded-24 border border-border-tertiary bg-background-primary p-5 shadow-soft-md">
-          <p className="type-body-s text-secondary">Signed in as {email}</p>
-          <TextField label="First name" name="firstName" defaultValue={me?.firstName ?? ''} autoComplete="given-name" />
-          <TextField label="Mobile phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" defaultValue={me?.phone ?? ''} optional hint="So Aid can text you updates." />
-          <div className="flex flex-wrap gap-3">
-            <Button type="submit" size="sm" disabled={busy}>{busy ? 'Saving…' : 'Save'}</Button>
-            <Button variant="outline" size="sm" onClick={async () => { await signOut(); navigate('/') }}>Sign out</Button>
-          </div>
-        </form>
-      )}
-    </div>
+    <Link
+      href="/account/documents"
+      className="group relative flex flex-col overflow-hidden rounded-[2rem] bg-[linear-gradient(180deg,#052430_0%,#0b4a5e_100%)] p-6 text-white transition-transform duration-300 ease-out-quint hover:-translate-y-0.5 focus-ring max-mobile:p-5"
+    >
+      <span className="flex size-11 items-center justify-center rounded-full bg-white text-blue-700">
+        <Icon name="document" size={19} />
+      </span>
+      <span className="mt-5 type-card-title">Your documents</span>
+      <span className="mt-1 type-body-s text-white/75">
+        {count === null ? 'Pay stubs, IDs and letters, kept private.' : count === 0 ? 'Nothing uploaded yet. Add a pay stub or ID.' : `${count} ${count === 1 ? 'document' : 'documents'} saved privately.`}
+      </span>
+      <span className="mt-auto flex items-center gap-1.5 pt-5 type-body-s font-medium">
+        Open your documents
+        <Icon name="arrow-right" size={15} className="transition-transform duration-300 group-hover:translate-x-1" />
+      </span>
+    </Link>
   )
 }

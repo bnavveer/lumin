@@ -2,10 +2,22 @@
 import { v5 as uuidv5 } from 'uuid';
 import type { County, Household, ImmigrationStatus } from './contracts.js';
 import { ScreeningFieldsSchema, type ScreeningFields } from './applicationScreening.js';
+import type { ApplicationDetails } from '../shared/applicationDetails.js';
 
 import type { Channel, IntakeStatus } from '../shared/chat.js';
 export type { Channel, IntakeStatus } from '../shared/chat.js';
-export type IntakeFields = Partial<Omit<Household, 'id' | 'orgId' | 'phone'>> & ScreeningFields;
+export type IntakeFields = Partial<Omit<Household, 'id' | 'orgId' | 'phone'>> & ScreeningFields & {
+  /** Application details the chat collected before the chat was linked to an applicant account. Not screening data. */
+  application?: ApplicationDetails;
+};
+/** Namespaced key in intake `fields` for chat-collected application details (moved to the account once linked). */
+export const APPLICATION_KEY = 'application' as const;
+
+/** Screening answers only (drops chat-collected application details). */
+export function screeningOnly<T extends Record<string, unknown>>(f: T): Omit<T, typeof APPLICATION_KEY> {
+  const { [APPLICATION_KEY]: _app, ...rest } = f;
+  return rest;
+}
 
 export interface Intake {
   id: string;                     // household id for sms/voice; 'web:<uuid>' for an unlinked web session
@@ -33,10 +45,13 @@ export function missingFields(f: IntakeFields): (keyof IntakeFields)[] {
   return REQUIRED.filter(k => f[k] === undefined || f[k] === null);
 }
 
-/** Later values win; undefined never erases an earlier answer. */
+/** Later values win; undefined never erases an earlier answer. Application details merge key by key. */
 export function mergeFields(base: IntakeFields, update: IntakeFields): IntakeFields {
   const out: IntakeFields = { ...base };
-  for (const [k, v] of Object.entries(update)) if (v !== undefined && v !== null) (out as Record<string, unknown>)[k] = v;
+  for (const [k, v] of Object.entries(update)) {
+    if (v === undefined || v === null) continue;
+    (out as Record<string, unknown>)[k] = k === APPLICATION_KEY ? { ...base.application, ...(v as ApplicationDetails) } : v;
+  }
   return out;
 }
 
