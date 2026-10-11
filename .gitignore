@@ -1,3 +1,7 @@
 .DS_Store
 
 .env
+node_modules
+*.db
+dist
+.claude/settings.local.json
