@@ -24,6 +24,7 @@ import { verifyPacketToken } from './links.js';
 import { registerOnboardingRoutes } from './onboardingRoutes.js';
 import { registerMockBenefitscal } from './benefitscal/mockSite.js';
 import { registerInboxRoutes } from './inbox.js';
+import { registerKnowledgeRoutes } from './knowledge.js';
 import { registerWebKnowledgeRoutes } from './webKnowledge.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 
@@ -244,6 +245,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerOnboardingRoutes(app);
   registerMockBenefitscal(app);
   registerInboxRoutes(app);
+  registerKnowledgeRoutes(app);
   registerWebKnowledgeRoutes(app);
 
   // ── Static SPA ──
