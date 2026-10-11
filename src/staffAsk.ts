@@ -1,5 +1,5 @@
 // Staff "Ask Aid" box: Claude answers questions by querying Keewano through its MCP server.
-import { anthropic } from '@ai-sdk/anthropic';
+import { model as aidModel } from './llm.js';
 import { generateText, stepCountIs, dynamicTool, jsonSchema, type ToolSet } from 'ai';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
@@ -7,7 +7,6 @@ import { env } from './env.js';
 import { demoAnswer, isDemoMode } from './demo.js';
 
 const MCP_URL = 'https://api.keewano.com/mcp';
-const MODEL = 'claude-sonnet-5-5';
 const MAX_Q = 500;
 const TIMEOUT_MS = 45_000;
 const MAX_STEPS = 8;
@@ -69,7 +68,7 @@ export async function askStaffQuestion(q: string): Promise<string> {
   try {
     const tools = await (deps.tools ?? getMcpTools)();
     const { text } = await deps.generate({
-      model: anthropic(MODEL),
+      model: aidModel(),
       system: SYSTEM_PROMPT,
       prompt: question,
       tools,
