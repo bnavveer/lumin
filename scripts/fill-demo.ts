@@ -2,8 +2,9 @@
 // Kernel browsers live in the cloud, so they can only reach a PUBLIC base URL. With --mode kernel and a localhost
 // base, a cloudflared quick tunnel is started automatically (or pass --base https://your-public-host).
 import 'dotenv/config';
-import { spawn, type ChildProcess } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { fillApplication, type FillEvent } from '../src/benefitscal/filler.js';
+import { startTunnel } from '../src/benefitscal/tunnel.js';
 
 const LIN = '377f71de-5cef-5c6d-8fb4-55c846de892f';
 // Synthetic demo values for fields the Household record does not hold.
@@ -19,20 +20,6 @@ function arg(name: string, def?: string): string | undefined {
   if (i === -1) return def;
   const v = process.argv[i + 1];
   return v && !v.startsWith('--') ? v : 'true';
-}
-
-function startTunnel(local: string): Promise<{ url: string; proc: ChildProcess }> {
-  return new Promise((resolve, reject) => {
-    const proc = spawn('cloudflared', ['tunnel', '--url', local, '--no-autoupdate'], { stdio: ['ignore', 'pipe', 'pipe'] });
-    const timer = setTimeout(() => reject(new Error('cloudflared tunnel did not start in 30s')), 30_000);
-    const onData = (b: Buffer) => {
-      const m = b.toString().match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/);
-      if (m) { clearTimeout(timer); resolve({ url: m[0], proc }); }
-    };
-    proc.stdout?.on('data', onData);
-    proc.stderr?.on('data', onData);
-    proc.on('error', (e) => { clearTimeout(timer); reject(e); });
-  });
 }
 
 async function main(): Promise<void> {

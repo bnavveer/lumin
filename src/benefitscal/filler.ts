@@ -126,7 +126,7 @@ export async function fillApplication(opts: FillOptions): Promise<FillResult> {
   const opened = await openBrowser({ mode, headless: opts.headless });
   liveViewUrl = opened.liveViewUrl;
   const page: Page = opened.page;
-  page.setDefaultTimeout(10_000);
+  page.setDefaultTimeout(mode === 'kernel' ? 45_000 : 10_000); // cloud browser over a tunnel is slower per page
   const pace = mode === 'kernel' ? KERNEL_PACE_MS : 0;
   let replayViewUrl: string | undefined;
 
@@ -260,6 +260,7 @@ async function advance(page: Page, spec: FlatPage): Promise<void> {
   const next = page.locator('button[data-action="next"]');
   if ((await next.count()) === 0) throw new Error(`no Next button on ${spec.id}`);
   const nav = page.waitForNavigation({ waitUntil: 'domcontentloaded' });
+  nav.catch(() => undefined); // if the click throws first, this rejection must not crash the process
   await next.first().click();
   await nav;
 }
