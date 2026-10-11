@@ -6,8 +6,47 @@
 
 ---
 
+## Built on Dial and Keewano
+
+Lumin would not work without these two. **Dial is how Lumin talks to people and to the county. Keewano is how Lumin remembers every case and decides what to do next.**
+
+### 📞 Dial: Lumin's voice and text line
+Families who need benefits often don't have a laptop or time for a website. **Dial gives Lumin its own real phone number**, so the whole case can happen over text or a phone call.
+
+| What Dial does in Lumin | Where |
+|---|---|
+| **Texting and iMessage.** People screen, send document photos, confirm interviews (reply `1`/`2`), approve actions (`YES`), and get updates. `STATUS`, `DOCS`, `HELP`, `STOP` and Spanish all work by text. | `src/dial.ts`, `src/channels.ts`, `src/caseManager/` |
+| **Inbound calls.** Someone calls the Lumin number and a voice agent screens them. The transcript becomes their intake. | `src/agent.ts` (`INBOUND_CALL_INSTRUCTION`, `extractFromCall`) |
+| **Outbound calls to the county.** Lumin calls the office, asks the questions the person or caseworker wrote, and turns the transcript into an answers table plus evidence. | `src/calls/` |
+| **Calls set up from chat, text or email.** "Call tomorrow at 10am and ask if they got my pay stub" is scheduled. A county email ("interview scheduled") triggers a follow-up call automatically. | `src/calls/schedule.ts`, `src/calls/triggers.ts`, `src/inboxPoller.ts` |
+| **Proactive texts.** Every autopilot reminder (missed interview, missing documents, renewal) goes out through Dial. | `src/demoRunner.ts` outbox |
+
+**Without Dial:** no texting, no calls, no reminders. Lumin would only be a website, and it would no longer reach the families it is built for.
+
+### 🧠 Keewano: Lumin's case memory and decision engine
+Every step of every case is logged to Keewano as a small typed event (22 types, **no personal details or message text**): `Screened → DocsRequested → DocReceived → PacketSigned → ApplicationSubmitted → InterviewScheduled → CallPlaced → CallOutcome → NudgeSent → InterviewConfirmed …`. Events come in from every channel: chat, Dial texts and calls, AgentMail emails, the browser filler and the workflow engine.
+
+| What Keewano does in Lumin | Where |
+|---|---|
+| **Decides who Lumin helps next (the autopilot).** Every 2 minutes Lumin runs **live Keewano queries**: who has an unconfirmed interview, stalled documents, a signed-but-unsubmitted application, a closed Section 8 waitlist, or a renewal coming due. **Keewano's answer decides who gets a text, a call or a submission.** | `src/autopilot.ts`, `docs/keewano-queries.md` |
+| **Proves the time saved, inside Keewano.** Baseline vs Lumin cohorts: **368 h → 3.1 h** median to submit, **28.6% → 3.1%** interviews missed (synthetic history; see [Measured impact](#measured-impact)). | `src/metrics.ts` |
+| **Answers any caseload question live.** "Which families might lose Medi-Cal this month?" Claude queries Keewano through its MCP tools and answers with real numbers. | `src/staffAsk.ts` |
+| **Learns which messages work.** Lumin records which reminder wording it sent (`NudgeVariant`) and favors the version that gets more interviews confirmed. | `src/insights.ts` |
+| **Connects the channels into one case.** An email, a call or a text becomes an event, and the next autopilot run acts on it. | `src/keewano.ts` |
+
+**Without Keewano:** Lumin never follows up on its own. Nobody gets reminded, nothing gets resubmitted, and there is no proof of time saved. Lumin would only react when someone writes to it.
+
+```
+ Dial (texts, calls) ─┐                         ┌─▶ Dial: text reminder / call the county
+ AgentMail (emails) ──┼─▶ Keewano case events ──┤   (Keewano query decides who and what)
+ Web, browser filler ─┘    "who's stuck?"       └─▶ submit, re-check waitlist, start renewal
+```
+
+---
+
 ## Contents
 
+- [Built on Dial and Keewano](#built-on-dial-and-keewano)
 - [What it does](#what-it-does)
 - [Measured impact](#measured-impact)
 - [How a case moves](#how-a-case-moves)
