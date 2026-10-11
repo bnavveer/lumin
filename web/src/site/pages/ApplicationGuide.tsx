@@ -6,6 +6,7 @@ import { useStartChat } from '../chrome'
 import { useInView, usePlaying, useReducedMotion } from '../hooks'
 import { useLang } from '../lang'
 import { Link } from '../router'
+import '@fontsource/mrs-saint-delafield/400.css'
 import './ApplicationGuide.css'
 
 // Homepage walkthrough, in the manner of america.gov/coming-soon: one large
@@ -141,20 +142,20 @@ export function ApplicationGuide() {
         </div>
 
         <figcaption className="jr-caption">
-          <div>
+          <div className="min-w-0">
             <h2 id="applications-heading" className="jr-heading">
               {w.heading}
             </h2>
             <p className="mt-3 max-w-[36rem] type-body-m text-secondary">{w.body}</p>
+            <p className="mt-2 type-body-s text-tertiary">{w.county}</p>
           </div>
           <div className="jr-actions">
-            <button type="button" onClick={() => start(w.startPrompt)} className="jr-primary focus-ring">
+            <button type="button" onClick={() => start(w.startPrompt)} className="jr-button is-primary focus-ring">
               {w.start}
             </button>
-            <Link href="/account" className="jr-secondary focus-ring">
+            <Link href="/account" className="jr-button is-quiet focus-ring">
               {w.mine}
             </Link>
-            <p className="w-full type-label-s leading-normal text-tertiary max-[860px]:w-auto">{w.county}</p>
           </div>
         </figcaption>
       </figure>
@@ -222,7 +223,7 @@ function ChatPanel({ scene, lang }: { scene: Scene; lang: Lang }) {
         {scene === 'sign' && (
           <>
             <Bubble d={0.3}>{es ? 'Todo está lleno. Revísalo, y si está bien, firma.' : 'Everything is filled in. Look it over, and sign if it’s right.'}</Bubble>
-            <Bubble me d={4.6}>{es ? 'Listo, ya firmé.' : 'Done, I signed.'}</Bubble>
+            <Bubble me d={5.1}>{es ? 'Listo, ya firmé.' : 'Done, I signed.'}</Bubble>
           </>
         )}
         {scene === 'filed' && (
@@ -422,17 +423,28 @@ function SignForm({ es }: { es: boolean }) {
         <span>{es ? 'Declaro que la información es verdadera y correcta.' : 'I declare that this information is true and correct.'}</span>
       </div>
       <div className="jr-signature" style={at(3)}>
-        <svg viewBox="0 0 220 56" className="h-full w-full" aria-hidden="true">
-          <path
-            className="jr-ink"
-            style={at(3.2)}
-            pathLength={1}
-            d="M8 40C14 18 22 14 24 34c2 12 6-14 12-12 4 2 2 18 8 16 6-2 6-14 12-12 6 2 2 14 10 12 6-2 8-16 14-8 4 6 6 10 12 4M104 20c-4 14-6 24 2 20 8-4 10-14 18-12 8 2 2 14 10 12 8-2 10-12 16-10 6 2 2 14 10 12 8-2 12-16 20-12 6 3 2 12 12 8 8-4 14-8 20-6"
-          />
+        <span className="jr-sign-x">×</span>
+        <svg viewBox="0 0 240 64" className="jr-sign-svg" aria-hidden="true">
+          <defs>
+            <clipPath id="jr-sign-clip">
+              <rect className="jr-sign-reveal" style={at(3.2)} x="0" y="0" width="240" height="64" />
+            </clipPath>
+          </defs>
+          <g clipPath="url(#jr-sign-clip)">
+            <text x="14" y="44" className="jr-sign-text">
+              Maria Lopez
+            </text>
+            <path className="jr-ink" style={at(4.55)} pathLength={1} d="M30 52c34 4 92 4 150-2 14-1.5 26-4 34-7" />
+          </g>
         </svg>
-        <span className="jr-sign-label">{es ? 'Firma de Maria' : 'Maria’s signature'}</span>
+        <span className="jr-sign-label">
+          <span>{es ? 'Firma de Maria' : 'Maria’s signature'}</span>
+          <span className="jr-sign-date" style={at(4.9)}>
+            {es ? 'Firmado hoy' : 'Signed today'}
+          </span>
+        </span>
       </div>
-      <span className="jr-file-button" style={at(4.8)}>
+      <span className="jr-file-button" style={at(5.4)}>
         {es ? 'Firmar y presentar' : 'Sign and file'}
       </span>
     </>

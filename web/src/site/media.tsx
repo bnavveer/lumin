@@ -166,35 +166,35 @@ export function NightLock() {
 }
 
 function LockBadge({ playing }: { playing: boolean }) {
-  const [locked, setLocked] = useState(false)
+  const [tug, setTug] = useState(0)
   useEffect(() => {
     if (!playing) return
-    const t = setInterval(() => setLocked((l) => !l), 2600)
+    const t = setInterval(() => setTug((n) => n + 1), 3200)
     return () => clearInterval(t)
   }, [playing])
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <span
-        className={cx(
-          'flex aspect-square w-[30%] items-center justify-center rounded-full bg-white/90 text-blue-900 shadow-[0_20px_60px_#0008] transition-transform duration-500 ease-out-quint',
-          locked ? 'scale-100' : 'scale-95',
-        )}
-      >
-        <Padlock open={!locked} className="size-11" />
+      <span className="flex aspect-square w-[30%] items-center justify-center rounded-full bg-white/90 text-blue-900 shadow-[0_20px_60px_#0008]">
+        <Padlock tug={tug} className="size-11" />
       </span>
     </div>
   )
 }
 
-// Padlock whose shackle lifts and swings open around its right leg.
-export function Padlock({ open, className, hole = '#ffffff' }: { open: boolean; className?: string; hole?: string }) {
+// A padlock that stays locked. Bump `tug` to replay a short "it's locked" jiggle.
+export function Padlock({ tug = 0, className, hole = '#ffffff' }: { tug?: number; className?: string; hole?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" aria-hidden="true">
-      <path
-        d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11"
-        className="transition-transform duration-500 ease-[cubic-bezier(.34,1.56,.64,1)] [transform-box:fill-box]"
-        style={{ transformOrigin: '100% 100%', transform: open ? 'translateY(-2.5px) rotate(28deg)' : 'none' }}
-      />
+    <svg
+      key={tug}
+      viewBox="0 0 24 24"
+      className={cx(className, tug > 0 && 'animate-[lock-shake_.5s_var(--ease-out-quint)]')}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.1}
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11" className={cx(tug > 0 && 'animate-[lock-tug_.5s_var(--ease-out-quint)]')} />
       <rect x="5" y="11" width="14" height="9.5" rx="2.2" fill="currentColor" stroke="none" />
       <circle cx="12" cy="15.3" r="1.5" fill={hole} stroke="none" />
     </svg>
@@ -216,8 +216,7 @@ export function DocumentVault() {
       ],
       next: 'Next step',
       nextBody: 'CalFresh interview, Oct 21',
-      lock: 'Lock the vault',
-      unlock: 'Unlock the vault',
+      locked: 'Your documents are locked',
     },
     es: {
       title: 'Documentos de Maria',
@@ -229,8 +228,7 @@ export function DocumentVault() {
       ],
       next: 'Siguiente paso',
       nextBody: 'Entrevista de CalFresh, 21 de oct.',
-      lock: 'Cerrar la bóveda',
-      unlock: 'Abrir la bóveda',
+      locked: 'Tus documentos están protegidos',
     },
   })
   return (
@@ -245,24 +243,18 @@ export function DocumentVault() {
   )
 }
 
-type VaultText = { title: string; sub: string; docs: string[][]; next: string; nextBody: string; lock: string; unlock: string }
+type VaultText = { title: string; sub: string; docs: string[][]; next: string; nextBody: string; locked: string }
 const docIcons = ['document', 'user', 'home'] as const
 
 function Vault({ t, playing }: { t: VaultText; playing: boolean }) {
   // Each loop remounts the card so the arrivals replay; the lock closes when the last document lands.
   const [loop, setLoop] = useState(0)
-  const [open, setOpen] = useState(false) // finished state until it plays
+  const [tug, setTug] = useState(0)
   useEffect(() => {
     if (!playing) return
-    setOpen(true)
-    const shut = setTimeout(() => setOpen(false), 4300)
     const next = setTimeout(() => setLoop((n) => n + 1), 9000)
-    return () => {
-      clearTimeout(shut)
-      clearTimeout(next)
-    }
+    return () => clearTimeout(next)
   }, [playing, loop])
-  const shown = open
   return (
     <div className="absolute inset-0 flex items-center justify-center p-[11%]">
       <div key={loop} className="relative w-full max-w-[19rem]">
@@ -275,15 +267,11 @@ function Vault({ t, playing }: { t: VaultText; playing: boolean }) {
             </span>
             <button
               type="button"
-              aria-label={shown ? t.lock : t.unlock}
-              aria-pressed={!shown}
-              onClick={() => setOpen((o) => !o)}
-              className={cx(
-                'flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors duration-300 focus-ring',
-                shown ? 'bg-background-tertiary text-secondary' : 'bg-blue-700 text-white',
-              )}
+              aria-label={t.locked}
+              onClick={() => setTug((n) => n + 1)}
+              className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-blue-700 text-white transition-transform active:scale-95 focus-ring"
             >
-              <Padlock open={shown} className="size-[18px]" hole={shown ? '#eef1f6' : '#002664'} />
+              <Padlock tug={tug} className="size-[18px]" hole="#002664" />
             </button>
           </div>
           <ul className="flex flex-col gap-1.5">
@@ -322,23 +310,44 @@ function Vault({ t, playing }: { t: VaultText; playing: boolean }) {
 
 /* ── Badges for the sources we use (typographic, not real seals) ── */
 
-const badges = [
-  { mark: 'CDSS', sub: 'Social Services', tone: 'text-blue-700' },
+// Real seals and logos are shown where a public-domain copy exists (web/public/marks,
+// sources in design/BRANDING.md). Agency seals carry legal limits on commercial use and
+// can imply endorsement (e.g. California Government Code §402 for the Great Seal).
+// Set USE_REAL_MARKS = false to go back to the typographic badges.
+const USE_REAL_MARKS = true
+
+type Badge = { mark: string; sub: string; tone: string; img?: string; fit?: 'seal' | 'logo' }
+const badges: Badge[] = [
+  { mark: 'CDSS', sub: 'Social Services', tone: 'text-blue-700', img: '/marks/calfresh-logo.webp', fit: 'logo' },
   { mark: 'DHCS', sub: 'Health Care Services', tone: 'text-[#0b6b4f]' },
-  { mark: 'CPUC', sub: 'Public Utilities', tone: 'text-[#8a5a00]' },
-  { mark: 'CDPH', sub: 'Public Health', tone: 'text-[#7b1e3a]' },
-  { mark: 'DPSS', sub: 'Los Angeles County', tone: 'text-blue-700' },
-  { mark: 'HSA', sub: 'San Francisco', tone: 'text-[#0b6b4f]' },
+  { mark: 'CPUC', sub: 'Public Utilities', tone: 'text-[#8a5a00]', img: '/marks/cpuc-seal.webp', fit: 'seal' },
+  { mark: 'CDPH', sub: 'Public Health', tone: 'text-[#7b1e3a]', img: '/marks/cdph-logo.webp', fit: 'logo' },
+  { mark: 'LA', sub: 'Los Angeles County', tone: 'text-blue-700', img: '/marks/la-county-seal.webp', fit: 'seal' },
+  { mark: 'SF', sub: 'San Francisco', tone: 'text-[#0b6b4f]', img: '/marks/sf-seal.webp', fit: 'seal' },
   { mark: '211', sub: 'Local help', tone: 'text-[#7b1e3a]' },
-  { mark: 'CA', sub: 'State of California', tone: 'text-[#8a5a00]' },
+  { mark: 'CA', sub: 'State of California', tone: 'text-[#8a5a00]', img: '/marks/ca-seal.webp', fit: 'seal' },
 ]
 
-function Badge({ mark, sub, tone }: (typeof badges)[number]) {
+function Badge({ mark, sub, tone, img, fit }: Badge) {
+  const real = USE_REAL_MARKS && img
   return (
-    <span className="relative flex aspect-square w-[24cqw] shrink-0 flex-col items-center justify-center rounded-full bg-white shadow-[0_8px_24px_#010e2414] ring-1 ring-border-quaternary">
-      <span className={cx('absolute inset-[6%] rounded-full border border-dashed opacity-35', tone)} style={{ borderColor: 'currentColor' }} />
-      <span className={cx('font-serif text-[6.2cqw] leading-none font-semibold tracking-[-0.02em]', tone)}>{mark}</span>
-      <span className="mt-[1cqw] max-w-[72%] text-center text-[1.55cqw] leading-tight font-medium tracking-wide text-secondary uppercase">{sub}</span>
+    <span className="relative flex aspect-square w-[24cqw] shrink-0 flex-col items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_#010e2414] ring-1 ring-border-quaternary">
+      {real ? (
+        <img
+          src={img}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          className={fit === 'seal' ? 'h-[88%] w-[88%] object-contain' : 'w-[74%] object-contain'}
+        />
+      ) : (
+        <>
+          <span className={cx('absolute inset-[6%] rounded-full border border-dashed opacity-35', tone)} style={{ borderColor: 'currentColor' }} />
+          <span className={cx('font-serif text-[6.2cqw] leading-none font-semibold tracking-[-0.02em]', tone)}>{mark}</span>
+          <span className="mt-[1cqw] max-w-[72%] text-center text-[1.55cqw] leading-tight font-medium tracking-wide text-secondary uppercase">{sub}</span>
+        </>
+      )}
     </span>
   )
 }

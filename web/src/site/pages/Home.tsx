@@ -157,13 +157,13 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
 /* ── The big statement that sharpens as you scroll ── */
 
 // Chips sit on the x-height so they read as part of the sentence. The arrow
-// opens the chat; the lock opens and closes; the flag waves.
+// opens the chat; the lock stays locked and jiggles; the flag waves.
 const chipBase =
   'mx-[0.08em] inline-flex h-[0.86em] -translate-y-[0.04em] items-center justify-center overflow-hidden rounded-full align-middle'
 
 function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
   const start = useStartChat()
-  const [open, setOpen] = useState(false)
+  const [tug, setTug] = useState(0)
   const [waves, setWaves] = useState(0)
   if (chip === 'flag')
     return (
@@ -171,10 +171,12 @@ function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
         type="button"
         aria-label={label}
         onClick={() => setWaves((n) => n + 1)}
-        className={cx(chipBase, 'w-[1.3em] cursor-pointer bg-white ring-1 ring-border-tertiary transition-transform duration-300 ease-out-quint hover:scale-105 focus-ring')}
+        className={cx(
+          'mx-[0.08em] inline-flex h-[0.86em] w-[1.24em] -translate-y-[0.04em] cursor-pointer items-center justify-center overflow-hidden rounded-[0.16em] bg-white p-[0.06em] align-middle ring-1 ring-border-tertiary transition-transform duration-300 ease-out-quint hover:scale-105 focus-ring',
+        )}
       >
-        <span key={waves} className={cx('h-full w-full', waves > 0 && 'animate-[flag-wave_.9s_var(--ease-out-quint)]')}>
-          <CaliforniaFlag width={64} className="h-full w-full scale-[1.15] object-cover" />
+        <span key={waves} className={cx('block h-[0.74em] w-[1.11em] shrink-0 overflow-hidden rounded-[0.1em]', waves > 0 && 'animate-[flag-wave_.9s_var(--ease-out-quint)]')}>
+          <CaliforniaFlag width={96} className="!block !h-full !w-full" />
         </span>
       </button>
     )
@@ -183,14 +185,13 @@ function ChipIcon({ chip, label }: { chip: Chip; label: string }) {
       <button
         type="button"
         aria-label={label}
-        aria-pressed={open}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setTug((n) => n + 1)}
         className={cx(
           chipBase,
           'w-[0.86em] cursor-pointer bg-[radial-gradient(circle_at_30%_30%,#ffe0f2,#ffb3d9_45%,#c9b8ff)] text-[#7b2a5a] transition-transform duration-300 ease-out-quint hover:scale-105 active:scale-95 focus-ring',
         )}
       >
-        <Padlock open={open} className="h-[0.5em] w-[0.5em]" hole="#ffd3ea" />
+        <Padlock tug={tug} className="h-[0.5em] w-[0.5em]" hole="#ffd3ea" />
       </button>
     )
   return (

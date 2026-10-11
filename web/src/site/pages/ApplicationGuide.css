@@ -162,14 +162,22 @@
 .jr-box { position: relative; display: flex; width: .95rem; height: .95rem; flex-shrink: 0; border: 1px solid #000c1f40; border-radius: .25rem; }
 .jr-box-tick { position: absolute; inset: -1px; display: flex; align-items: center; justify-content: center; border-radius: .25rem; background: var(--navy); color: #fff; }
 .jr-signature {
-  position: relative; margin-top: .65rem; height: 4.1rem;
-  border-radius: .875rem; background: var(--soft); padding: .3rem .6rem 1rem;
+  position: relative; margin-top: .65rem; height: 4.6rem;
+  border-radius: .875rem; background: linear-gradient(180deg, #fbfbfd, #f3f5f9); padding: .1rem .6rem 1.15rem;
+  box-shadow: inset 0 0 0 1px var(--line);
   animation: jr-rise .45s var(--ease-out-quint) both; animation-delay: var(--d);
 }
-.jr-signature::after { content: ""; position: absolute; left: .75rem; right: .75rem; bottom: 1.05rem; height: 1px; background: #000c1f26; }
-.jr-ink { fill: none; stroke: var(--navy); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: jr-ink 1.5s cubic-bezier(.45, .05, .35, 1) both; animation-delay: var(--d); }
+.jr-signature::after { content: ""; position: absolute; left: .75rem; right: .75rem; bottom: 1.2rem; height: 1px; background: #000c1f2e; }
+.jr-sign-x { position: absolute; left: .7rem; bottom: 1.3rem; font-size: .75rem; line-height: 1; color: #000c1f59; }
+.jr-sign-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.jr-sign-text { font-family: "Mrs Saint Delafield", "Snell Roundhand", "Apple Chancery", cursive; font-size: 46px; fill: #0b2a6b; letter-spacing: .5px; }
+/* Ink flows left to right, like a pen */
+.jr-sign-reveal { transform-box: fill-box; transform-origin: 0 50%; animation: jr-sign 1.35s cubic-bezier(.55, .1, .45, .9) both; animation-delay: var(--d); }
+@keyframes jr-sign { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.jr-sign-date { animation: jr-rise .4s var(--ease-out-quint) both; animation-delay: var(--d); }
+.jr-ink { fill: none; stroke: #0b2a6b; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: jr-ink .45s cubic-bezier(.45, .05, .35, 1) both; animation-delay: var(--d); }
 @keyframes jr-ink { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.jr-sign-label { position: absolute; left: .75rem; bottom: .3rem; font-size: .5625rem; color: var(--muted); }
+.jr-sign-label { position: absolute; left: .75rem; right: .75rem; bottom: .3rem; display: flex; justify-content: space-between; font-size: .5625rem; color: var(--muted); }
 .jr-file-button {
   margin-top: .9rem; display: flex; height: 2.25rem; align-items: center; justify-content: center;
   border-radius: 999px; background: var(--navy); color: #fff; font-size: .75rem; font-weight: 500;
@@ -233,18 +241,25 @@
 /* ── Caption ── */
 .jr-caption { margin-top: 2rem; display: flex; align-items: flex-end; justify-content: space-between; gap: 2.5rem; padding: 0 1.25rem; }
 .jr-heading { font-family: var(--font-serif); font-variation-settings: "opsz" 60; font-size: clamp(1.875rem, 3.4vw, 2.625rem); line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
-.jr-actions { display: flex; flex-shrink: 0; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .75rem 1.25rem; max-width: 19rem; }
-.jr-primary { display: inline-flex; height: 2.75rem; align-items: center; cursor: pointer; border-radius: 999px; background: var(--color-blue-700); padding: 0 1.4rem; font-size: .9375rem; font-weight: 500; letter-spacing: -.02em; color: #fff; transition: background-color .2s, scale .2s var(--ease-out-quint); }
-.jr-primary:hover { background: var(--color-blue-800); }
-.jr-primary:active { scale: .98; }
-.jr-secondary { border-radius: 4px; font-size: .9375rem; font-weight: 500; letter-spacing: -.02em; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
-.jr-actions p { text-align: right; }
+.jr-actions { display: flex; flex-shrink: 0; align-items: center; gap: .5rem; padding-bottom: .25rem; }
+/* Two matched pills: same height, type and corner; weight carries the hierarchy */
+.jr-button {
+  display: inline-flex; height: 3rem; align-items: center; justify-content: center; cursor: pointer;
+  border-radius: 999px; padding: 0 1.5rem; white-space: nowrap;
+  font-size: .9375rem; font-weight: 500; letter-spacing: -.02em; line-height: 1;
+  transition: background-color .2s var(--ease-out-quint), box-shadow .2s var(--ease-out-quint), scale .2s var(--ease-out-quint);
+}
+.jr-button:active { scale: .98; }
+.jr-button.is-primary { background: var(--color-blue-700); color: #fff; box-shadow: 0 8px 20px -10px #00266699; }
+.jr-button.is-primary:hover { background: var(--color-blue-800); box-shadow: 0 10px 24px -10px #002666b3; }
+.jr-button.is-quiet { background: var(--color-background-tertiary); color: var(--ink); }
+.jr-button.is-quiet:hover { background: var(--color-background-secondary); }
 
 /* ── Smaller screens ── */
 @media (max-width: 860px) {
   .jr-caption { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 0 .5rem; }
-  .jr-actions { justify-content: flex-start; max-width: none; }
-  .jr-actions p { text-align: left; }
+  .jr-actions { width: 100%; padding-bottom: 0; }
+  .jr-button { flex: 1; padding: 0 1rem; }
 }
 @media (max-width: 760px) {
   .jr { height: 41rem; border-radius: 2rem; }

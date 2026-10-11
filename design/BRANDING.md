@@ -81,7 +81,7 @@ Rhymes and Helvetica Now need paid licenses, so we don't copy their font files. 
 - Menu, gov-banner pop-up, page transitions (View Transitions API), the docked "Ask anything…" box and the big serif footer work as on america.gov.
 - English and Spanish: footer language menu, `?lang=es`, or the browser language. Copy lives in `web/src/site/copy.ts`; keep every claim true to what the service does.
 - "Submit feedback" posts to `/api/feedback` (`src/feedbackApi.ts`), which only logs it. Like america.gov, it warns if the text looks like it has a phone number, email or SSN.
-- Source badges are typographic (CDSS, DHCS…), not agency seals.
+- Source badges on the home page show real marks where a public-domain copy is on Wikimedia Commons, rendered to small WebP files in `web/public/marks/`: the Great Seal of California (`File:Seal_of_California.svg`), the Los Angeles County seal, the San Francisco seal, the CPUC seal, the CDPH logo and the CalFresh logo (for CDSS). There is no public-domain DHCS logo or 211 helpline logo, so those stay typographic. **Legal note:** commercial use of the Great Seal is a misdemeanor under California Government Code §402, counties restrict their seals, and seals can imply endorsement. Get clearance before launch, or set `USE_REAL_MARKS = false` in `web/src/site/media.tsx` to go back to typographic badges.
 - The California flag is the official Bear Flag (`web/public/ca-flag.svg`, public domain, from Wikimedia Commons `File:Flag_of_California.svg`). The U.S. flag in the logo is still the simplified 16×9 version for small sizes.
 
 ## Before this goes public
