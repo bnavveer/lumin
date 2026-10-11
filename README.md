@@ -10,7 +10,7 @@ Rules and dollar amounts were researched on **October 11, 2026**. Benefits chang
 |---|---|
 | [`benefits-map.html`](benefits-map.html) | The guide. Open it in any browser; no build step or server needed. |
 | [`research/`](research/) | The research notes behind the page, with a source link for each fact. |
-| [`web/`](web/) | The app (React + Vite + Tailwind). Right now it's a gallery of UI components in america.gov's style, made for California, with film-look California photos and data for the first five programs (CalFresh, Medi-Cal, CalWORKs, General Relief, CFAP), all applied for through BenefitsCal. Programs and application websites are in `web/src/data/`. Run `cd web && npm install && npm run dev`. |
+| [`web/`](web/) | The website (React + Vite + Tailwind), built page for page like america.gov but for California benefits: home, chat, how it works, privacy, about, coming soon, FAQ, privacy policy and terms, in English and Spanish. The chat talks to the agent through `/api/chat` (see `src/chatApi.ts`). Run `cd web && npm install && npm run dev`; Vite forwards `/api` to the server on port 3000 (`API_URL` changes it). Without the server the chat shows "Something went wrong. Try again". The component gallery is at `/kit`. Programs and application websites are in `web/src/data/`, and every word on the site is in `web/src/site/copy.ts`. |
 | [`design/BRANDING.md`](design/BRANDING.md) | The brand spec: colors, fonts, spacing taken from america.gov, plus what to change before going public. |
 
 ### The page

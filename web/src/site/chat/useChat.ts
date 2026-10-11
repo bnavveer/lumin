@@ -135,7 +135,7 @@ export function useChat() {
     return () => { live = false; clearInterval(t) }
   }, [shouldPoll, sessionId, apply])
 
-  return { messages, view, busy, failed, restoring, send, retry, reset }
+  return { sessionId, messages, view, busy, failed, restoring, send, retry, reset }
 }
 
 // A question typed on another page (home hero, the docked box, the FAQ)

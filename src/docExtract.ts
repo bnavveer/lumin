@@ -199,7 +199,7 @@ export async function startExtraction(documentId: string): Promise<{ provider: E
     return { provider, status: r.status };
   }
 
-  const session = await deps.createSession(buildPrompt(docType, url), `Aid read ${docType}`);
+  const session = await deps.createSession(buildPrompt(docType, url), `Lumin read ${docType}`);
   await update(documentId, { status: 'reading', extract_provider: 'devin', extract_session: session.id });
   return { provider, sessionId: session.id, url: session.url, status: 'reading' };
 }

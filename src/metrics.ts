@@ -1,4 +1,4 @@
-// Time-saved metrics: Aid cohort vs baseline cohort (Source event), computed from Keewano.
+// Time-saved metrics: Lumin cohort vs baseline cohort (Source event), computed from Keewano.
 import type { CohortMetrics, TimeSavedMetrics } from '../web/src/lib/types.js';
 import { keewanoSql } from './keewano.js';
 
@@ -52,10 +52,10 @@ export function aggregateCohorts(rows: Row[]): { baseline: CohortMetrics; aid: C
 export function formatHeadline(m: TimeSavedMetrics): string {
   const { baseline: b, aid: a } = m;
   if (a.medianHoursToSubmit == null || b.medianHoursToSubmit == null || b.medianHoursToSubmit <= 0) {
-    return `Aid households submit ${a.submittedPct}% of applications vs ${b.submittedPct}% without Aid`;
+    return `Lumin households submit ${a.submittedPct}% of applications vs ${b.submittedPct}% without Lumin`;
   }
   const faster = Math.max(0, round1(b.medianHoursToSubmit - a.medianHoursToSubmit));
-  return `Aid households submit ${faster} hours faster (${a.medianHoursToSubmit}h vs ${b.medianHoursToSubmit}h median), ` +
+  return `Lumin households submit ${faster} hours faster (${a.medianHoursToSubmit}h vs ${b.medianHoursToSubmit}h median), ` +
     `${a.submittedPct}% submitted vs ${b.submittedPct}%, and miss ${a.interviewMissedPct}% of interviews vs ${b.interviewMissedPct}%`;
 }
 

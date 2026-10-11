@@ -40,7 +40,7 @@ export async function buildSnapshot(): Promise<string> {
 
 export function buildPrompt(question: string, snapshot: string): string {
   return [
-    'You are a data analyst for Aid, an AI caseworker for benefits clinics.',
+    'You are a data analyst for Lumin, an AI caseworker for benefits clinics.',
     'Analyze ONLY the DATA SNAPSHOT below to answer the staff question. Do not modify any repository, do not browse private systems, and do not ask for credentials: none are needed.',
     'When finished, set your structured output to exactly this JSON shape: {"answer": string (3-6 sentences, concrete numbers), "evidence": string[], "followUps": string[]}.',
     '',
@@ -53,7 +53,7 @@ export function buildPrompt(question: string, snapshot: string): string {
 export async function startDeepDive(question: string, _orgId: string): Promise<{ id: string; url: string }> {
   const q = question.trim();
   if (q.length < 1 || q.length > MAX_Q) throw new RangeError(`question must be 1 to ${MAX_Q} characters`);
-  return createDevinSession(buildPrompt(q, await buildSnapshot()), `Aid deep dive: ${q.slice(0, 60)}`);
+  return createDevinSession(buildPrompt(q, await buildSnapshot()), `Lumin deep dive: ${q.slice(0, 60)}`);
 }
 
 const strings = (v: unknown): string[] | undefined =>

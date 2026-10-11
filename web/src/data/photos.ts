@@ -1,7 +1,6 @@
 // Generated from /tmp/ca-photos-raw/credits.json, then hand-edited alt text.
 // Images are in /public/photos with a film look from scripts/vintage.py.
-// All public domain, CC0 or CC BY 2.0. CC BY photos need the credit shown
-// near the photo (use <PhotoCredit>).
+// Source and license metadata for the site’s photographs.
 
 export type PhotoInfo = {
   id: string
@@ -211,13 +210,14 @@ export const photos: PhotoInfo[] = [
 
 export const photoById = Object.fromEntries(photos.map((p) => [p.id, p])) as Record<string, PhotoInfo>
 
+// The hero shows no credit line, so it only uses photos that don't need one
+// (CC0 or public domain). CC BY photos must be credited where they appear.
 export const heroPhotos = [
   'golden-gate',
   'bixby-bridge',
-  'yosemite-tunnel-view',
   'venice-palms-sunset',
   'cable-car',
   'joshua-tree',
-  'santa-monica-pier',
   'lake-tahoe',
+  'la-skyline-sunset',
 ].map((id) => photoById[id])

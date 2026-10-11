@@ -41,16 +41,11 @@ type ProactiveMessage = (hid: string, kind: ActionKind) => Promise<Array<{ text:
 let proactiveMessage: ProactiveMessage | undefined;
 /** Optional conversation wording; until configured, use the existing nudge templates. */
 export function setProactiveMessage(fn?: ProactiveMessage): void { proactiveMessage = fn; }
-async function conversationText(hid: string, kind: ActionKind): Promise<string | undefined> {
+async function conversationText(hid: string, kind: ActionKind): Promise<string | null | undefined> {
   if (!proactiveMessage) return undefined;
-  try {
-    const msgs = await proactiveMessage(hid, kind);
-    const text = msgs.map(m => m.text).join('\n\n').trim();
-    return text || undefined;
-  } catch (err) {
-    console.warn('[demoRunner] conversation engine unavailable, using chooseNudge:', errMsg(err));
-    return undefined;
-  }
+  const msgs = await proactiveMessage(hid, kind);
+  const text = msgs.map(m => m.text).join('\n\n').trim();
+  return text || null; // A configured engine's silence means suppressed, not permission to fall back.
 }
 
 async function handleAction(a: Action, allow: Set<string>, r: TickResult): Promise<void> {
@@ -62,13 +57,14 @@ async function handleAction(a: Action, allow: Set<string>, r: TickResult): Promi
   if (!(await claimAction(a.householdId, a.kind, today()))) return skip('already sent today');
 
   let text = await conversationText(a.householdId, a.kind);
+  if (text === null) return skip('conversation suppressed this message');
   let variantId: string | undefined;
   if (!text) {
     if (NUDGE_KINDS.has(a.kind)) {
       const n = await chooseNudge(a.kind as NudgeKind, h.firstName ?? 'there');
       text = n.text; variantId = n.variantId;
     } else {
-      text = `Hi ${h.firstName ?? 'there'}, it's Aid with an update on your application. Reply HELP anytime. Aid`;
+      text = `Hi ${h.firstName ?? 'there'}, it's Lumin with an update on your application. Reply HELP anytime. Lumin`;
     }
   }
   await outbox(a.householdId, h.phone, text);

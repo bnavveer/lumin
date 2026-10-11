@@ -7,6 +7,10 @@ const state = vi.hoisted(() => ({ demo: false, fail: false }));
 vi.mock('../src/channels.js', () => ({
   liveConversation: () => ({ createWebSession: () => ({ sessionId: '11111111-1111-4111-8111-111111111111' }) }),
 }));
+vi.mock('../src/workflow/repo.js', async (importOriginal) => ({
+  ...await importOriginal<typeof import('../src/workflow/repo.js')>(),
+  listHouseholdWorkflows: vi.fn(async () => []),
+}));
 
 vi.mock('../src/env.js', () => ({
   env: (n: string) => n,
@@ -36,7 +40,7 @@ vi.mock('../src/autopilot.js', () => ({
 }));
 vi.mock('../src/staffAsk.js', () => ({ askStaffQuestion: vi.fn(async () => { if (state.fail) throw new Error('x'); return 'answer'; }) }));
 vi.mock('../src/metrics.js', () => ({ getTimeSavedMetrics: vi.fn(async () => ({ source: 'keewano' })) }));
-vi.mock('../src/documents.js', () => ({ signedUrl: vi.fn(async (p: string) => `https://signed/${p}`) }));
+vi.mock('../src/documents.js', () => ({ MAX_BYTES: 10 * 1024 * 1024, extFor: () => 'pdf', signedUrl: vi.fn(async (p: string) => `https://signed/${p}`) }));
 vi.mock('../src/links.js', () => ({ verifyPacketToken: (_id: string, t: string) => t === 'good' }));
 vi.mock('../src/demo.js', () => ({
   demoCases: () => [{ id: 'demo' }], demoCaseDetail: (id: string) => ({ household: { id } }),
@@ -45,6 +49,7 @@ vi.mock('../src/demo.js', () => ({
 
 import { createApp } from '../src/server.js';
 import * as store from '../src/store.js';
+import { listHouseholdWorkflows } from '../src/workflow/repo.js';
 
 const packet = { renderPacket: vi.fn(async () => '<p>packet</p>'), sign: vi.fn(async () => undefined) };
 const auth = { headers: { authorization: 'Bearer ok' } };
@@ -55,6 +60,16 @@ let app: ReturnType<typeof createApp>;
 beforeEach(() => { state.demo = false; state.fail = false; app = createApp({ packet }); vi.clearAllMocks(); });
 
 describe('server', () => {
+  it('mounts applicant authentication and scopes staff workflow visibility to its clinic', async () => {
+    expect((await app.request('/api/me')).status).toBe(401);
+    expect((await app.request(`/api/staff/cases/${HID}/workflows`)).status).toBe(401);
+    expect((await app.request(`/api/staff/cases/${OTHER}/workflows`, auth)).status).toBe(404);
+    expect(listHouseholdWorkflows).not.toHaveBeenCalled();
+    const response = await app.request(`/api/staff/cases/${HID}/workflows`, auth);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+    expect(listHouseholdWorkflows).toHaveBeenCalledWith(HID);
+  });
   it('mounts the shared chat without swallowing later API routes', async () => {
     app.post('/api/dev/probe', c => c.json({ ok: true }));
     const response = await app.request('/api/chat/sessions', { method: 'POST' });
@@ -144,7 +159,7 @@ describe('server', () => {
   it('packet token is enforced', async () => {
     const bad = await app.request(`/p/${HID}?t=bad`);
     expect(bad.status).toBe(403);
-    expect(await bad.text()).toContain('This link has expired. Text Aid for a new one.');
+    expect(await bad.text()).toContain('This link has expired. Text Lumin for a new one.');
     expect(packet.renderPacket).not.toHaveBeenCalled();
     expect((await app.request(`/p/${HID}/sign?t=bad`, { method: 'POST' })).status).toBe(403);
     expect(packet.sign).not.toHaveBeenCalled();
@@ -161,14 +176,19 @@ describe('server', () => {
     expect(await r.text()).toContain('Something went wrong');
   });
 
-  it('county application returns a formatted confirmation and saves it', async () => {
-    const r = await app.request('/county/api/applications', json({ householdId: HID, kind: 'minimal', payload: { a: 1 } }));
-    const { confirmation } = await r.json();
-    expect(confirmation).toMatch(/^LA-\d{4}-\d{6}$/);
-    expect(store.saveSubmission).toHaveBeenCalledWith(HID, 'minimal', confirmation, { a: 1 });
-    const unknown = await app.request('/county/api/applications', json({ householdId: '33333333-3333-4333-8333-333333333333', kind: 'full', payload: {} }));
-    expect(unknown.status).toBe(400);
-    expect((await app.request('/api/county/applications')).status).toBe(200);
+  it('keeps county simulation gated and out of the real submission ledger', async () => {
+    const body = { householdId: HID, kind: 'minimal', payload: { a: 1 } };
+    expect((await app.request('/county/api/applications', json(body, auth.headers))).status).toBe(404);
+    state.demo = true;
+    expect((await app.request('/county/api/applications', json(body))).status).toBe(401);
+    const r = await app.request('/county/api/applications', json(body, auth.headers));
+    const result = await r.json();
+    expect(result.confirmation).toMatch(/^MOCK-\d{4}-\d{6}$/);
+    expect(result).toMatchObject({ demo: true, filed: false });
+    expect(store.saveSubmission).not.toHaveBeenCalled();
+    expect((await app.request('/county/api/applications', json({ ...body, householdId: OTHER }, auth.headers))).status).toBe(404);
+    expect((await app.request('/api/county/applications')).status).toBe(401);
+    expect((await app.request('/api/county/applications', auth)).status).toBe(200);
   });
 
   it('falls back to demo data in DEMO_MODE only', async () => {

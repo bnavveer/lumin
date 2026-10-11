@@ -5,7 +5,7 @@ beforeEach(() => { resetInsightsCache(); vi.spyOn(console, 'error').mockImplemen
 afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 
 describe('NUDGE_VARIANTS', () => {
-  it('has 2-3 variants per kind, under 320 chars, signed Aid, unique ids', () => {
+  it('has 2-3 variants per kind, under 320 chars, signed Lumin, unique ids', () => {
     const ids = new Set<string>();
     for (const vs of Object.values(NUDGE_VARIANTS)) {
       expect(vs.length).toBeGreaterThanOrEqual(2);
@@ -13,7 +13,7 @@ describe('NUDGE_VARIANTS', () => {
       for (const v of vs) {
         const t = v.text('Maria');
         expect(t.length).toBeLessThan(320);
-        expect(t.trimEnd().endsWith('Aid')).toBe(true);
+        expect(t.trimEnd().endsWith('Lumin')).toBe(true);
         expect(t).toContain('Maria');
         expect(ids.has(v.id)).toBe(false);
         ids.add(v.id);

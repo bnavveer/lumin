@@ -6,10 +6,10 @@
 // like phishing, and pretending to be a federal agency can be a crime.
 // Keep `banner` honest until this runs on a real government domain.
 export const brand = {
-  name: 'America.gov',
+  name: 'Lumin',
   region: 'California',
   heroTitle: 'Hello, California',
-  heroSubtitle: 'Tell us about your household. We’ll find every benefit you qualify for and apply for you.',
+  heroSubtitle: 'Find benefits that fit your household, gather your documents, and finish your applications in one place.',
   composerPlaceholder: 'Try “I’m a single mom in Fresno”',
   banner: {
     short: 'Prototype. Not an official government website.',

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Button, IconButton } from '../../components/Button'
 import { ChatNotice, ComposerShell, QuickReplies, UserMessage } from '../../components/Chat'
 import { ChatComposer } from '../../components/ChatComposer'
@@ -27,6 +27,8 @@ export function Chat() {
   const [notice, setNotice] = useState<Notice>(null)
   const speech = useSpeech(lang, setText)
   const bottom = useRef<HTMLDivElement>(null)
+  const composer = useRef<HTMLDivElement>(null)
+  const followLatest = useRef(true)
 
   // A question asked on another page starts the conversation.
   useEffect(() => {
@@ -40,10 +42,28 @@ export function Chat() {
     if (speech.error) setNotice(speech.error === 'denied' ? 'voice-denied' : 'voice-unsupported')
   }, [speech.error])
 
-  // Keep the newest message in view.
+  // Reading older messages must not be interrupted by a background reply.
   useEffect(() => {
-    bottom.current?.scrollIntoView({ behavior: chat.messages.length > 2 ? 'smooth' : 'auto', block: 'end' })
-  }, [chat.messages.length, chat.busy, chat.failed])
+    const onScroll = () => {
+      const end = bottom.current?.getBoundingClientRect().bottom
+      const edge = composer.current?.getBoundingClientRect().top ?? innerHeight
+      if (end !== undefined) followLatest.current = end >= 0 && end <= edge + 100
+    }
+    addEventListener('scroll', onScroll, { passive: true })
+    return () => removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Position after React commits and the composer has resized. Avoid smooth-scroll
+  // races when an optimistic message is replaced by the persisted conversation.
+  useLayoutEffect(() => {
+    if (!followLatest.current || !chat.messages.length) return
+    const frame = requestAnimationFrame(() => {
+      const end = bottom.current?.getBoundingClientRect().bottom
+      const edge = composer.current?.getBoundingClientRect().top ?? innerHeight
+      if (end !== undefined) window.scrollTo({ top: Math.max(0, window.scrollY + end - edge + 24), behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [chat.messages, chat.busy, chat.failed])
 
   const lastAssistant = [...chat.messages].reverse().find((m) => m.role === 'assistant')
   const lastIsAssistant = chat.messages.at(-1)?.role === 'assistant'
@@ -52,6 +72,7 @@ export function Chat() {
   const empty = chat.messages.length === 0 && !chat.busy && !chat.restoring
 
   function submit(q: string) {
+    followLatest.current = true
     setNotice(null)
     speech.clearError()
     void chat.send(q)
@@ -70,7 +91,7 @@ export function Chat() {
       <div className="sticky top-0 z-30 bg-white/85 backdrop-blur-xl">
         <Header />
       </div>
-      <main id="main" className="mx-auto flex min-h-[calc(100dvh-6rem)] w-full max-w-[44rem] flex-col px-6 pt-6 pb-64 max-mobile:px-4 max-mobile:pb-56">
+      <main id="main" style={{ overflowAnchor: 'none' }} className="mx-auto flex min-h-[calc(100dvh-6rem)] w-full max-w-[44rem] flex-col px-6 pt-6 pb-64 max-mobile:px-4 max-mobile:pb-56">
         <h1 className="sr-only">{t.chat.title}</h1>
         <ChannelLinks lang={lang} />
         {chat.messages.length > 0 && (
@@ -101,12 +122,19 @@ export function Chat() {
         )}
         <div ref={bottom} className="h-px scroll-mb-64" />
         {!closed && chat.view?.screening && chat.messages.length > 0 && (
-          <ProgramMatches screening={chat.view.screening} linked={chat.view.linked} disabled={chat.busy} lang={lang} onAsk={submit} />
+          <ProgramMatches
+            screening={chat.view.screening}
+            linked={chat.view.linked}
+            disabled={chat.busy}
+            lang={lang}
+            onAsk={submit}
+            accountHref={`/account${chat.sessionId ? `?chatSessionId=${encodeURIComponent(chat.sessionId)}` : ''}`}
+          />
         )}
       </main>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-white from-60% to-transparent px-4 pt-12 pb-[calc(16px+env(safe-area-inset-bottom))]">
-        <div id="message-input" className="pointer-events-auto mx-auto w-full max-w-[44rem]">
+        <div ref={composer} id="message-input" className="pointer-events-auto mx-auto w-full max-w-[44rem]">
           <ComposerShell notice={renderNotice()}>
             <ChatComposer
               variant="inline"

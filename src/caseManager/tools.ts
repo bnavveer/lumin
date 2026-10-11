@@ -9,6 +9,7 @@ import { bg, type ConversationDeps } from './deps.js';
 import type { Approval, ConversationState } from './state.js';
 import { APPROVAL_KINDS } from './state.js';
 import { docsText, likelyPrograms, statusText } from './status.js';
+import { T } from './prompts.js';
 
 export interface TurnContext {
   deps: ConversationDeps;
@@ -31,6 +32,8 @@ export const HouseholdInput = z.object({
   adultAge: z.number().int().min(15).max(120),
   immigrationStatus: z.enum(['citizen', 'green_card', 'humanitarian', 'undocumented', 'unknown']),
   childrenAreCitizens: z.boolean(),
+}).refine(h => h.childrenUnder18 <= h.size, {
+  message: 'Children under 18 cannot exceed the household size.', path: ['childrenUnder18'],
 });
 
 const matchesBrief = (h: Household) => checkEligibility(h).map((m) => ({
@@ -53,7 +56,12 @@ export function buildTools(ctx: TurnContext): ToolSet {
       description: 'Save the full household screening profile (replaces any partial one) and return what they likely qualify for.',
       inputSchema: HouseholdInput,
       execute: logged('update_household', async (input: z.infer<typeof HouseholdInput>) => {
-        const h: Household = { ...ctx.household, ...input };
+        if (screened(ctx)) return {
+          error: 'Your existing household needs an intake correction and a fresh confirmation text. No profile changes were saved.',
+        };
+        const parsed = HouseholdInput.safeParse(input);
+        if (!parsed.success) return { error: 'Check the household counts and answers. No profile changes were saved.' };
+        const h: Household = { ...ctx.household, ...parsed.data };
         await deps.repo.upsertHousehold(h);
         ctx.household = h;
         ctx.state = { ...ctx.state, stage: 'active', pendingContext: { ...ctx.state.pendingContext, screened: true } };
@@ -76,7 +84,7 @@ export function buildTools(ctx: TurnContext): ToolSet {
         screened(ctx) ? { matches: matchesBrief(ctx.household) } : { error: 'Not screened yet: collect answers and call update_household.' }),
     }),
     vault_status: tool({
-      description: 'Which documents Aid already has for this person and which are still missing.',
+      description: 'Which documents Lumin already has for this person and which are still missing.',
       inputSchema: z.object({}),
       execute: logged('vault_status', async () => ({ summary: await docsText(deps, ctx.household, screened(ctx)) })),
     }),
@@ -106,7 +114,7 @@ export function buildTools(ctx: TurnContext): ToolSet {
       })),
     }),
     propose_action: tool({
-      description: 'Propose a consequential action (submit application, fill BenefitsCal, call an office, reuse documents, start renewal). It ONLY creates a request; the person must reply YES. Aid appends the YES/NO question automatically.',
+      description: 'Propose a consequential action (submit application, fill BenefitsCal, call an office, reuse documents, start renewal). It ONLY creates a request; the person must reply YES. Lumin appends the YES/NO question automatically.',
       inputSchema: z.object({
         kind: z.enum(APPROVAL_KINDS as unknown as [string, ...string[]]),
         description: z.string().min(5).max(200).describe('Short context note shown in quotes after the fixed action text.'),
@@ -119,7 +127,7 @@ export function buildTools(ctx: TurnContext): ToolSet {
         };
         const approval = await proposeAction(deps, hid, a.kind as Approval['kind'], payload, a.description);
         ctx.proposed.push(approval);
-        return { pending: true, approvalId: approval.id, tell: 'Aid will append the exact YES/NO question itself. Do NOT ask for YES/NO or restate the action; at most add one short sentence of context.' };
+        return { pending: true, approvalId: approval.id, tell: 'Lumin will append the exact YES/NO question itself. Do NOT ask for YES/NO or restate the action; at most add one short sentence of context.' };
       }),
     }),
     get_status: tool({
@@ -128,11 +136,11 @@ export function buildTools(ctx: TurnContext): ToolSet {
       execute: logged('get_status', async () => ({ status: await statusText(deps, ctx.household, screened(ctx)) })),
     }),
     escalate_to_human: tool({
-      description: 'Hand the case to a human caseworker (person asked, upset, crisis, or something Aid cannot handle).',
+      description: 'Hand the case to a human caseworker (person asked, upset, crisis, or something Lumin cannot handle).',
       inputSchema: z.object({ reason: z.enum(['requested', 'upset', 'crisis', 'complex', 'other']) }),
       execute: logged('escalate_to_human', async ({ reason }: { reason: string }) => {
         await escalate(ctx, reason);
-        return { escalated: true, tell: `Say a caseworker at ${ctx.clinic} will text within 1 business day.` };
+        return { escalated: true, tell: T.human(ctx.clinic) };
       }),
     }),
   };

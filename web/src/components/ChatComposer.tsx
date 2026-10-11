@@ -72,6 +72,10 @@ export function ChatComposer({
   const hasText = text.trim().length > 0
   const canSend = (hasText || Boolean(submitEmpty)) && !disabled && !busy
 
+  useEffect(() => {
+    if (autoFocus) ref.current?.focus({ preventScroll: true })
+  }, [autoFocus])
+
   // Grow with the text, including text set from outside (voice input).
   useEffect(() => {
     const el = ref.current
@@ -127,7 +131,6 @@ export function ChatComposer({
           rows={1}
           value={text}
           disabled={disabled}
-          autoFocus={autoFocus}
           aria-placeholder={shownPlaceholder}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={onKeyDown}
@@ -182,7 +185,12 @@ export function ChatComposer({
           variant={canSend || busy ? 'primary' : 'secondary'}
           size={variant === 'dock' ? 'md' : 'lg'}
           disabled={!canSend}
-          className={cx(!canSend && !busy && 'disabled:text-tertiary', busy && 'disabled:bg-blue-700 disabled:text-white')}
+          className={cx(
+            // Send is California-flag red when there's something to send
+            (canSend || busy) && 'bg-flag-ca-red hover:bg-flag-ca-red-dark',
+            !canSend && !busy && 'disabled:text-tertiary',
+            busy && 'disabled:bg-flag-ca-red disabled:text-white',
+          )}
         />
       </div>
     </form>

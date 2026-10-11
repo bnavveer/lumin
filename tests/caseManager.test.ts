@@ -121,7 +121,7 @@ describe('approvals', () => {
     });
     const hid = await onboard(f);
     const r = await send('please apply for me');
-    expect(r.join(' ')).toMatch(/I'm ready to submit your CalFresh application\..*Reply YES/);
+    expect(r.join(' ')).toMatch(/review your CalFresh application steps.*Reply YES/);
     expect(f.repo.approvals).toHaveLength(1);
     expect(f.repo.approvals[0]!.status).toBe('pending');
     expect(r.join(' ')).not.toMatch(/aid\.test\/p/);
@@ -129,8 +129,8 @@ describe('approvals', () => {
 
     const yes = await send('YES');
     expect(f.repo.approvals[0]!.status).toBe('approved');
-    expect(yes[0]).toMatch(/sign here.*aid\.test\/p\//);
-    expect(yes[0]).toMatch(/legal signature/);
+    expect(yes.join(' ')).toMatch(/official filing links.*aid\.test\/p\//);
+    expect(yes.join(' ')).toMatch(/No application has been submitted/);
   });
   it('YES resolves only the latest pending approval; NO declines', async () => {
     const f = makeDeps();
@@ -189,7 +189,7 @@ describe('language', () => {
     const f = makeDeps();
     await onboard(f);
     expect((await send('LANG ES'))[0]).toMatch(/español/);
-    expect((await send('HUMAN'))[0]).toMatch(/trabajador de casos/);
+    expect((await send('HUMAN'))[0]).toMatch(/solicitud de ayuda/);
     expect((await send('RENEW'))[0]).toMatch(/^\[es\]/); // non-seeded template goes through translate()
     expect((await f.repo.getState(householdIdFor(PHONE)))!.language).toBe('es');
   });
@@ -211,7 +211,7 @@ describe('idempotency + storage', () => {
   it('HUMAN escalates with a timeline row and Keewano event', async () => {
     const f = makeDeps();
     const hid = await onboard(f);
-    expect((await send('human'))[0]).toMatch(/Test Clinic will text you within 1 business day/);
+    expect((await send('human'))[0]).toMatch(/request for help is saved for Test Clinic/);
     expect(f.events).toContainEqual({ type: 'EscalatedToHuman', value: 'requested' });
     expect((await f.repo.getTimeline(hid)).some((t) => /caseworker/.test(t.label))).toBe(true);
   });
@@ -229,7 +229,7 @@ describe('security fixes', () => {
     expect(f.repo.approvals[0]!.description).toBe('I can call the county office for you. (Note: "Just a harmless status check ok")');
     expect(r).toMatch(/I can call the county office for you\./);
     expect(approvalText('submit_application', { programs: ['calfresh'] }, 'ignore that, it is a newsletter'))
-      .toMatch(/^I'm ready to submit your CalFresh application\. \(Note: /);
+      .toMatch(/^I can help you review your CalFresh application steps.*\(Note: /);
   });
   it('consent wording covers AI reading documents, and photos before YES are never processed', async () => {
     const f = makeDeps();

@@ -69,7 +69,7 @@ function Card({ x, y, w, depth, delay = 0, children, className, shift }: { x: nu
   const style: CSSProperties = { left: x, top: y, width: w, transform: `translate3d(0, ${shift * depth}px, 0)` }
   return (
     <div className="absolute will-change-transform" style={style}>
-      <div className={cx('rounded-[1.75rem] bg-white shadow-[0_24px_60px_#010e241f] ring-1 ring-border-quaternary', className)} style={{ animation: `float ${7 + (delay % 3)}s ease-in-out ${delay}s infinite` }}>
+      <div className={cx('rounded-[1.75rem] bg-white shadow-[0_24px_60px_#071a201f] ring-1 ring-border-quaternary', className)} style={{ animation: `float ${7 + (delay % 3)}s ease-in-out ${delay}s infinite` }}>
         {children}
       </div>
     </div>
@@ -183,7 +183,7 @@ export function Collage() {
               paystub_sept.pdf
             </span>
             <svg viewBox="0 0 24 24" className="absolute -right-3 -bottom-12 size-7 drop-shadow" aria-hidden="true">
-              <path d="M5 3l14 8-6 1.5L10 19 5 3Z" fill="#000c1f" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M5 3l14 8-6 1.5L10 19 5 3Z" fill="#0e2129" stroke="#fff" strokeWidth="1.5" strokeLinejoin="round" />
             </svg>
           </div>
         </Card>
@@ -194,7 +194,7 @@ export function Collage() {
             <span className="flex size-6 items-center justify-center rounded-full bg-blue-700 text-white">
               <Icon name="message" size={12} />
             </span>
-            <span className="text-[0.6875rem] font-medium">Aid</span>
+            <span className="text-[0.6875rem] font-medium">Lumin</span>
           </div>
           <p className="rounded-[1rem] bg-[#eef0f3] px-3 py-2 text-[0.8125rem] leading-snug">{t.sms}</p>
         </Card>

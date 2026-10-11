@@ -1,9 +1,10 @@
 /*
- * Design tokens taken from america.gov's production stylesheet (Oct 2026).
- * Values match theirs except the fonts: america.gov uses Rhymes (serif) and
- * Helvetica Now (sans), both paid licenses. We use the closest free
- * substitutes, Newsreader and Inter. To switch to the licensed fonts later,
- * change --font-serif and --font-sans.
+ * Lumin's California theme. Layout tokens (radii, spacing, motion) started
+ * from america.gov's stylesheet; the colors are our own:
+ *   Pacific  (blue-* scale) deep ocean blue-green for ink, actions and links
+ *   Poppy    the state flower, the single bright accent
+ *   Golden hour washes: fog, sand, sage, blush for atmospheric backgrounds
+ * The scale keeps the name blue-* so existing classes keep working.
  */
 @import "@fontsource-variable/inter/opsz.css";
 @import "@fontsource-variable/newsreader/opsz.css";
@@ -13,12 +14,12 @@
   /* Palette (america.gov names) */
   --color-white: #fff;
   --color-black: #000;
-  --color-blue-50: #f1f5fb;
-  --color-blue-500: #0066c5; /* links */
-  --color-blue-600: #004ac3; /* focus, drop tint */
-  --color-blue-700: #002664; /* primary button, "Menu" */
-  --color-blue-800: #00163b; /* primary hover */
-  --color-blue-900: #000c1f; /* ink: all primary text */
+  --color-blue-50: #edf6f7;
+  --color-blue-500: #0b6e86; /* links */
+  --color-blue-600: #0f7a93; /* focus, drop tint */
+  --color-blue-700: #0b4a5e; /* primary button, "Menu" */
+  --color-blue-800: #073847; /* primary hover */
+  --color-blue-900: #0e2129; /* ink: all primary text */
   --color-red-600: #d80007;
   --color-green-600: #007f26;
   --color-green-50: #e6f6ec;
@@ -28,29 +29,40 @@
   --color-grey-200: #e3e4e6;
   --color-page-top: #f2f3f4; /* gov-banner strip */
 
+  /* California accents */
+  --color-poppy: #f2741f;
+  --color-poppy-50: #fff1e6;
+  --color-gold: #f5b94a;
+  --color-fog: #e6f0f2;
+  --color-sand: #f7ead6;
+  --color-sage: #d3dfcb;
+  --color-redwood: #8e3b25;
+  --color-flag-ca-red: #ba0c2f; /* red stripe of the California flag */
+  --color-flag-ca-red-dark: #960a26;
+
   /* Flag colors from the america.gov favicon */
   --color-flag-red: #e64133;
   --color-flag-blue: #1d49bb;
 
   /* Semantic text (ink at 100 / 65 / 45 / 15 %) */
   --color-primary: var(--color-blue-900);
-  --color-secondary: #000c1fa6;
-  --color-tertiary: #000c1f73;
-  --color-disabled: #000c1f26;
+  --color-secondary: #0e2129a6;
+  --color-tertiary: #0e212973;
+  --color-disabled: #0e212926;
   --color-link: var(--color-blue-500);
   --color-destructive: var(--color-red-600);
 
   /* Semantic surfaces */
   --color-background-primary: var(--color-white);
-  --color-background-secondary: #0026641a; /* blue-700 @ 10% */
-  --color-background-tertiary: #0026640d; /* blue-700 @ 5%: cards, user bubble */
-  --color-background-overlay: #000c1f1a;
+  --color-background-secondary: #0b4a5e1a; /* blue-700 @ 10% */
+  --color-background-tertiary: #0b4a5e0d; /* blue-700 @ 5%: cards, user bubble */
+  --color-background-overlay: #0e21291a;
 
   /* Borders (ink at 85 / 45 / 10 / 5 %) */
-  --color-border-primary: #000c1fd9;
-  --color-border-secondary: #000c1f73;
-  --color-border-tertiary: #000c1f1a;
-  --color-border-quaternary: #000c1f0d;
+  --color-border-primary: #0e2129d9;
+  --color-border-secondary: #0e212973;
+  --color-border-tertiary: #0e21291a;
+  --color-border-quaternary: #0e21290d;
 
   /* Type */
   --font-serif: "Newsreader Variable", "Times New Roman", Times, serif;
@@ -74,9 +86,9 @@
   --radius-64: 64px;
 
   /* Elevation */
-  --shadow-elevation-1: 0 10px 40px 0 #010e2414;
-  --shadow-soft-sm: 0 3.5px 9.6px #010e2414;
-  --shadow-soft-md: 0 5.859px 16.04px #010e2414;
+  --shadow-elevation-1: 0 10px 40px 0 #071a2014;
+  --shadow-soft-sm: 0 3.5px 9.6px #071a2014;
+  --shadow-soft-md: 0 5.859px 16.04px #071a2014;
   --shadow-focus: 0 0 0 2px #fff, 0 0 0 4px var(--color-blue-900);
 
   --blur-frost: 25px;
@@ -334,3 +346,62 @@ html { scroll-padding-top: 1.5rem; }
 @keyframes pick {
   to { border-color: var(--color-blue-700); background-color: var(--color-blue-50); }
 }
+@keyframes flag-wave {
+  0% { transform: none; }
+  25% { transform: skewY(-6deg) scaleX(.96); }
+  50% { transform: skewY(5deg) scaleX(.98); }
+  75% { transform: skewY(-2deg); }
+  100% { transform: none; }
+}
+
+/* Home: document vault (media.tsx DocumentVault). Resting state is final. */
+.vault-doc { animation: vault-fly 1s cubic-bezier(.22, 1, .36, 1) both; animation-delay: var(--d); }
+.vault-text { animation: rise .5s var(--ease-out-quint) both; animation-delay: var(--d); }
+.vault-check { animation: vault-pop .4s var(--ease-out-quint) both; animation-delay: var(--d); }
+.vault-next { animation: rise .6s var(--ease-out-quint) both; animation-delay: var(--d); }
+@keyframes vault-fly {
+  from { opacity: 0; transform: translate(var(--fx), var(--fy)) rotate(var(--fr)) scale(1.35); box-shadow: 0 18px 30px #0006; }
+  30% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes vault-pop { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+/* Padlock that stays locked: the shackle tugs and the lock shakes */
+@keyframes lock-tug {
+  0%, 100% { transform: none; }
+  30% { transform: translateY(-1.6px); }
+  55% { transform: translateY(0); }
+}
+@keyframes lock-shake {
+  0%, 100% { transform: none; }
+  20% { transform: translateX(-1.2px) rotate(-6deg); }
+  45% { transform: translateX(1.2px) rotate(5deg); }
+  70% { transform: translateX(-.6px) rotate(-2deg); }
+}
+
+/* ── Sheets and the menu: animate in, and out when closed ── */
+.sheet[open] { animation: sheet-in .34s var(--ease-drawer) both; }
+.sheet[data-placement="corner"][open] { transform-origin: calc(100% - 3rem) 1.5rem; animation-name: menu-in; animation-duration: .42s; }
+.sheet[open][data-closing] { animation: sheet-out .24s var(--ease-standard) both; }
+.sheet[data-placement="corner"][open][data-closing] { animation-name: menu-out; animation-duration: .26s; }
+.sheet[open]::backdrop { animation: backdrop-in .3s var(--ease-standard) both; }
+.sheet[open][data-closing]::backdrop { animation: backdrop-out .26s var(--ease-standard) both; }
+.sheet[data-placement="corner"][open] nav li { animation: menu-item .5s var(--ease-out-quint) both; animation-delay: calc(90ms + var(--i, 0) * 32ms); }
+.sheet[data-placement="corner"][open][data-closing] nav li { animation: none; }
+@keyframes sheet-out { to { opacity: 0; transform: translateY(6px) scale(.98); } }
+@keyframes menu-in {
+  from { opacity: 0; transform: scale(.86); filter: blur(6px); border-radius: 999px; }
+  60% { opacity: 1; filter: none; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menu-out {
+  to { opacity: 0; transform: scale(.9); filter: blur(4px); }
+}
+@keyframes menu-item {
+  from { opacity: 0; transform: translateY(10px); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Photos and marks can't be dragged out of the page */
+img { -webkit-user-drag: none; user-select: none; }

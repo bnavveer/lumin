@@ -5,7 +5,7 @@ import { IconButton } from './Button'
 import { ChatComposer } from './ChatComposer'
 import { cx } from './cx'
 import { Icon } from './icons'
-import { Photo, PhotoCredit } from './Photo'
+import { Photo } from './Photo'
 
 // Home hero: serif headline, gray subline, then the question box on a photo
 // card that rotates through `slides` every 6 seconds (pausable).
@@ -41,7 +41,6 @@ export function Hero({
     return () => clearInterval(t)
   }, [playing, count])
 
-  const current = slides[index]
   return (
     <section className="flex flex-col items-center px-4 text-center">
       <h1 className="type-site-hero">{title}</h1>
@@ -84,7 +83,6 @@ export function Hero({
             />
           </div>
         )}
-        {current && <PhotoCredit photo={current} className="mt-4" />}
       </div>
     </section>
   )

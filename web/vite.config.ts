@@ -7,6 +7,6 @@ const api = process.env.API_URL ?? 'http://localhost:3000'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  server: { proxy: { '/api': api } },
-  preview: { proxy: { '/api': api } },
+  server: { proxy: { '/api': api, '/p/': api } },
+  preview: { proxy: { '/api': api, '/p/': api } },
 })

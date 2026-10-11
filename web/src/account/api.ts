@@ -17,7 +17,7 @@ export class ApiError extends Error {
 
 export type TokenGetter = () => Promise<string | null>
 
-async function request<T>(getToken: TokenGetter, path: string, init: RequestInit = {}): Promise<T> {
+export async function request<T>(getToken: TokenGetter, path: string, init: RequestInit = {}): Promise<T> {
   const token = await getToken()
   const headers = new Headers(init.headers)
   if (token) headers.set('authorization', `Bearer ${token}`)
@@ -26,7 +26,7 @@ async function request<T>(getToken: TokenGetter, path: string, init: RequestInit
   try {
     res = await fetch(path, { ...init, headers })
   } catch {
-    throw new ApiError(0, 'Could not reach Aid. Check your connection and try again.')
+    throw new ApiError(0, 'Could not reach Lumin. Check your connection and try again.')
   }
   if (!res.ok) {
     const body = (await res.json().catch(() => null)) as { error?: string } | null
@@ -39,7 +39,7 @@ const json = (body: unknown): RequestInit => ({ method: 'POST', body: JSON.strin
 
 export interface Api {
   me(): Promise<Me>
-  updateProfile(p: { firstName?: string; phone?: string }): Promise<Me>
+  updateProfile(p: { firstName?: string | null; phone?: string | null }): Promise<Me>
   suggestions(chatSessionId?: string): Promise<ApplicationScreening>
   listWorkflows(): Promise<WorkflowSummary[]>
   createWorkflow(programs: ApplicationProgram[], chatSessionId?: string): Promise<Workflow>
@@ -56,7 +56,7 @@ export function makeApi(getToken: TokenGetter): Api {
   const r = <T>(path: string, init?: RequestInit) => request<T>(getToken, path, init)
   return {
     me: () => r<Me>('/api/me'),
-    updateProfile: (p: { firstName?: string; phone?: string }) => r<Me>('/api/me/profile', json(p)),
+    updateProfile: (p: { firstName?: string | null; phone?: string | null }) => r<Me>('/api/me/profile', json(p)),
     suggestions: (chatSessionId?: string) =>
       r<ApplicationScreening>(`/api/me/suggestions${chatSessionId ? `?chatSessionId=${encodeURIComponent(chatSessionId)}` : ''}`),
     listWorkflows: () => r<WorkflowSummary[]>('/api/workflows'),

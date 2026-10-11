@@ -1,4 +1,8 @@
 import { lazy, Suspense } from 'react'
+import { AuthProvider } from '../account/auth'
+import { ApplicationDetail, AuthPage, Dashboard as AccountDashboard } from '../account/pages'
+import { DocumentsPage, ScreeningPage } from '../account/manage'
+import { StaffCase, StaffDashboard } from '../staff/pages'
 import { FeedbackProvider } from './feedback'
 import { LangProvider } from './lang'
 import { About } from './pages/About'
@@ -9,7 +13,6 @@ import { Home } from './pages/Home'
 import { HowItWorks } from './pages/HowItWorks'
 import { Legal, NotFound } from './pages/Legal'
 import { Privacy } from './pages/Privacy'
-import { AuthProvider } from '../account/auth'
 import { Dashboard } from '../account/Dashboard'
 import { Login, Signup } from '../account/AuthPages'
 import { WorkflowPage } from '../account/WorkflowPage'
@@ -21,6 +24,10 @@ const Kit = lazy(() => import('../App'))
 function Routes() {
   const { path } = useRouter()
   if (path.startsWith('/workflows/')) return <WorkflowPage />
+  const application = /^\/applications\/([^/]+)$/.exec(path)
+  if (application) return <ApplicationDetail id={application[1]} />
+  const staffCase = /^\/staff\/cases\/([^/]+)$/.exec(path)
+  if (staffCase) return <StaffCase id={staffCase[1]} />
   switch (path) {
     case '/login':
       return <Login />
@@ -28,6 +35,17 @@ function Routes() {
       return <Signup />
     case '/dashboard':
       return <Dashboard />
+    case '/account':
+    case '/applications':
+      return <AccountDashboard />
+    case '/account/screening':
+      return <ScreeningPage />
+    case '/account/documents':
+      return <DocumentsPage />
+    case '/staff/login':
+      return <AuthPage staff />
+    case '/staff':
+      return <StaffDashboard />
     case '/':
       return <Home />
     case '/chat':

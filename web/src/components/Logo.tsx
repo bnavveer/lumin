@@ -1,8 +1,8 @@
 import { brand } from '../brand/brand'
 import { cx } from './cx'
-import { CaliforniaFlag, USFlag } from './Flags'
+import { CaliforniaFlag } from './Flags'
 
-// Flag + serif wordmark, like the america.gov header. `showRegion` adds a
+// Text-only Lumin wordmark. `showRegion` adds a
 // California chip so people know the answers are for California.
 export function Logo({
   size = 'md',
@@ -25,7 +25,6 @@ export function Logo({
       aria-label={plain ? undefined : `${brand.name} home`}
       className={cx('inline-flex min-w-0 items-center gap-2.5 rounded-8 focus-ring', className)}
     >
-      <USFlag width={size === 'lg' ? 36 : 28} />
       <span
         className={cx(
           'font-serif whitespace-nowrap tracking-[-0.04em] text-primary [font-variation-settings:"opsz"_36]',

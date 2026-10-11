@@ -12,18 +12,18 @@ const UNKNOWN_NUMBER = 'Please answer calls from unknown numbers, it will be me.
 
 export const NUDGE_VARIANTS: Record<NudgeKind, NudgeVariant[]> = {
   interview_nudge: [
-    { id: 'interview_direct', text: n => `Hi ${n}, your benefits interview is coming up soon. Reply 1 to confirm, or 2 and I'll call to reschedule. ${UNKNOWN_NUMBER} - Aid` },
-    { id: 'interview_warm', text: n => `Hi ${n}, it's Aid. Your interview is within 2 days and I want to make sure you don't lose your spot. Reply 1 to confirm, or 2 and I'll call to reschedule. ${UNKNOWN_NUMBER} - Aid` },
-    { id: 'interview_call', text: n => `${n}, the county will call you for your interview soon. Reply 1 to confirm, or 2 and I'll call to reschedule. They may show as an unknown number, so please pick up. - Aid` },
+    { id: 'interview_direct', text: n => `Hi ${n}, your benefits interview is coming up soon. Reply 1 to confirm, or 2 and I'll call to reschedule. ${UNKNOWN_NUMBER} - Lumin` },
+    { id: 'interview_warm', text: n => `Hi ${n}, it's Lumin. Your interview is within 2 days and I want to make sure you don't lose your spot. Reply 1 to confirm, or 2 and I'll call to reschedule. ${UNKNOWN_NUMBER} - Lumin` },
+    { id: 'interview_call', text: n => `${n}, the county will call you for your interview soon. Reply 1 to confirm, or 2 and I'll call to reschedule. They may show as an unknown number, so please pick up. - Lumin` },
   ],
   docs_nudge: [
-    { id: 'docs_photo', text: n => `Hi ${n}, I still need your recent pay stubs to finish your application. Just text me a photo of them right here. - Aid` },
-    { id: 'docs_quick', text: n => `Hi ${n}, one thing left: a photo of your last two pay stubs. Snap them with your phone and send them here, it takes a minute. - Aid` },
-    { id: 'docs_deadline', text: n => `${n}, your application is waiting on pay stubs. Text me a photo of them today so we can submit before anything expires. - Aid` },
+    { id: 'docs_photo', text: n => `Hi ${n}, I still need your recent pay stubs to finish your application. Just text me a photo of them right here. - Lumin` },
+    { id: 'docs_quick', text: n => `Hi ${n}, one thing left: a photo of your last two pay stubs. Snap them with your phone and send them here, it takes a minute. - Lumin` },
+    { id: 'docs_deadline', text: n => `${n}, your application is waiting on pay stubs. Text me a photo of them today so we can submit before anything expires. - Lumin` },
   ],
   renewal_start: [
-    { id: 'renewal_start', text: n => `Hi ${n}, your benefits renewal is due soon. Reply YES and I'll prepare the paperwork for you to sign, no forms needed. - Aid` },
-    { id: 'renewal_urgent', text: n => `${n}, don't let your benefits lapse: renewal is due within a month. Reply YES and I'll do the heavy lifting. - Aid` },
+    { id: 'renewal_start', text: n => `Hi ${n}, your benefits renewal is due soon. Reply YES and I'll prepare the paperwork for you to sign, no forms needed. - Lumin` },
+    { id: 'renewal_urgent', text: n => `${n}, don't let your benefits lapse: renewal is due within a month. Reply YES and I'll do the heavy lifting. - Lumin` },
   ],
 };
 

@@ -79,16 +79,16 @@ const SCREENING_LABELS: Record<keyof ScreeningFields, string> = {
 };
 
 /**
- * The text we send so the person can double-check what Aid heard, whichever channel it came from.
+ * The text we send so the person can double-check what Lumin heard, whichever channel it came from.
  * Immigration status is deliberately left out: texts show up on lock screens and shared phones.
  */
 export function confirmationText(f: IntakeFields, origin: Channel): string {
   const lines = [
     origin === 'web'
-      ? 'Aid: someone started a benefits application on our website with this number. Please check the info:'
+      ? 'Lumin: someone started a benefits application on our website with this number. Please check the info:'
       : origin === 'voice'
-        ? 'Aid: thanks for calling. Here is what I heard, please check it:'
-        : 'Aid: please check your info:',
+        ? 'Lumin: thanks for calling. Here is what I heard, please check it:'
+        : 'Lumin: please check your info:',
     ...(f.firstName ? [`Name: ${f.firstName}`] : []),
     `County: ${f.county ? COUNTY_NAME[f.county] : '?'}`,
     `People in your home: ${f.size ?? '?'} (${f.childrenUnder18 ?? '?'} under 18)`,

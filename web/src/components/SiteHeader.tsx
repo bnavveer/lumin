@@ -1,4 +1,4 @@
-import { useState, type AnchorHTMLAttributes, type ComponentType, type ReactNode } from 'react'
+import { useState, type AnchorHTMLAttributes, type ComponentType, type CSSProperties, type ReactNode } from 'react'
 import { brand } from '../brand/brand'
 import { Button } from './Button'
 import { cx } from './cx'
@@ -80,8 +80,8 @@ export function MenuSheet({
     <Sheet open={open} onClose={onClose} title={title} hideTitle placement="corner" closeLabel={closeLabel}>
       <nav aria-label="Main">
         <ul className="flex flex-col items-center gap-1 py-6 text-center">
-          {nav.map((n) => (
-            <li key={n.label}>
+          {nav.map((n, i) => (
+            <li key={n.label} style={{ '--i': i } as CSSProperties}>
               {n.href ? (
                 <L href={n.href} onClick={onClose} aria-current={n.current ? 'page' : undefined} className={item}>
                   {n.label}

@@ -10,21 +10,21 @@ export const LANG_NAME: Record<Lang, string> = {
 
 export const T = {
   consentAsk: (clinic: string): string =>
-    `Hi! This is Aid, the benefits helper from ${clinic}. Reply YES to let Aid help with your benefits, contact offices for you, and use AI services to read the documents you send. Msg&data rates may apply. Reply STOP to opt out.`,
+    `Hi! This is Lumin, the benefits helper from ${clinic}. Reply YES to let Lumin help with your benefits, contact offices for you, and use AI services to read the documents you send. Msg&data rates may apply. Reply STOP to opt out.`,
   consentStillNeeded: (): string =>
-    'Aid needs your OK first. Reply YES to let Aid help with your benefits, contact offices for you, and use AI services to read the documents you send, or STOP to opt out.',
+    'Lumin needs your OK first. Reply YES to let Lumin help with your benefits, contact offices for you, and use AI services to read the documents you send, or STOP to opt out.',
   consentThanks: (): string =>
     "Thanks! You're all set. A few quick questions so I can see what you qualify for: how many people live with you, your household's monthly income before taxes, your county, kids under 18, and your citizenship or immigration status?",
   consentThanksScreened: (): string =>
     "Thanks! You're all set. Text me anytime: STATUS for your case, DOCS for your papers, or send a photo of a document. Reply HELP for more.",
   optOut: (): string =>
-    'Aid: You are unsubscribed and will get no more messages. Reply START to resubscribe.',
+    'Lumin: You are unsubscribed and will get no more messages. Reply START to resubscribe.',
   optIn: (): string =>
-    'Aid: You are subscribed again. Reply HELP for help or STOP to opt out.',
+    'Lumin: You are subscribed again. Reply HELP for help or STOP to opt out.',
   help: (): string =>
-    'Aid help: STATUS = your case, DOCS = your papers, HUMAN = a caseworker, RENEW = renewal, LANG ES = Español. Send a photo of any document. Msg&data rates may apply. Reply STOP to opt out.',
+    'Lumin help: STATUS = your case, DOCS = your papers, HUMAN = a caseworker, RENEW = renewal, LANG ES = Español. Send a photo of any document. Msg&data rates may apply. Reply STOP to opt out.',
   human: (clinic: string): string =>
-    `Got it. A caseworker at ${clinic} will text you within 1 business day. You can keep texting me in the meantime.`,
+    `Your request for help is saved for ${clinic}. I cannot promise a response time. For urgent benefits help, contact your county office or 211.`,
   langSet: (): string => 'Okay! I will text you in English from now on.',
   photoGot: (): string => 'Got it! Reading your document now. I will text you what I found.',
   photoFailed: (): string => 'Sorry, I could not save that photo. Please try again, or send it as a clear JPG or PDF.',
@@ -32,7 +32,7 @@ export const T = {
   declined: (what: string): string => `No problem, I will hold off on: ${what}. Text me when you are ready.`,
   interviewConfirmed: (): string => 'Great, your interview is confirmed. The county may call from an unknown number, so please pick up. Good luck!',
   rescheduleAsk: (): string => 'Want me to call the county to reschedule your interview? Reply YES or NO.',
-  renewAsk: (): string => "Your renewal: want me to prepare the paperwork for you to sign? I'll fill it in from what I already have. Reply YES or NO.",
+  renewAsk: (): string => 'Want to review your saved information and the official renewal steps? You will complete and sign with the county. Reply YES or NO.',
   approvalAsk: (description: string): string => `${description} Reply YES to go ahead or NO to wait.`,
   fallback: (): string => 'Sorry, I had trouble with that. Text HELP for options, or HUMAN to reach a caseworker.',
 } as const;
@@ -45,13 +45,14 @@ export function systemPrompt(opts: {
   const h = opts.household;
   const profile = h && opts.screened
     ? `Household: ${h.size} people, ${MONEY(h.monthlyIncome)}/mo, county ${h.county}, ${h.childrenUnder18} kids under 18, status ${h.immigrationStatus}.`
-    : 'Household not screened yet. Collect: household size, monthly gross income, county (Los Angeles or San Francisco), kids under 18, pregnant?, adult age, immigration status, kids citizens?. Ask only for what is missing, at most 2 questions per text. When you have enough (assume pregnant=no, kids citizens=yes, age 30 if not given), call update_household.';
+    : 'Household not screened yet. Collect: household size, monthly gross income, county (Los Angeles or San Francisco), kids under 18, pregnant?, adult age, immigration status, kids citizens?. Ask only for what is missing, at most 2 questions per text. Never assume missing answers. Only call update_household with answers the person explicitly provided.';
   return [
-    `You are Aid, a warm benefits caseworker texting for ${opts.clinic}. Today is ${opts.today}.`,
+    `You are Lumin, a warm benefits caseworker texting for ${opts.clinic}. Today is ${opts.today}.`,
     `Write in ${LANG_NAME[opts.state.language]} unless the person writes in another language, then match theirs.`,
     `Keep each reply under ${SMS_LIMIT} characters, plain text, no markdown, 6th-grade reading level.`,
     'Never promise approval. Never ask for SSNs, passwords, or bank numbers by text. Never invent facts: use tools.',
     'You can NOT submit, call, fill forms, or share documents yourself. To do any of those, call propose_action; the person must reply YES.',
+    'Current application capability: prepare a review and link to the official agency application. Automated filling is a demo only. YES approves assistance, not a legal signature. Never say an application was filled, signed, filed, a call was placed, or documents were shared without a tool result proving that exact action. The person signs and submits on the official site.',
     'Benefits questions: use answer_question. Places near them: find_local_resources. Case questions: get_status. Papers: vault_status.',
     'If a screened person wants to apply, call propose_action (submit_application, with programs) right away; missing papers can follow.',
     'If they are upset, in crisis, or ask for a person, call escalate_to_human.',
@@ -77,12 +78,12 @@ export function splitSms(text: string, limit = SMS_LIMIT): string[] {
 /** Hand-written Spanish for compliance-critical templates (no LLM round trip, exact wording). */
 export function spanishSeeds(clinic: string): Array<[string, string]> {
   return [
-    [T.optOut(), 'Aid: Ya no está suscrito y no recibirá más mensajes. Responda START para volver a suscribirse.'],
-    [T.optIn(), 'Aid: Está suscrito de nuevo. Responda AYUDA para ayuda o ALTO para cancelar.'],
-    [T.help(), 'Ayuda de Aid: ESTADO = su caso, DOCS = sus papeles, HUMANO = un trabajador de casos, RENOVAR = renovación, LANG EN = English. Mande foto de cualquier documento. Pueden aplicar tarifas de mensajes y datos. Responda ALTO para cancelar.'],
-    [T.consentAsk(clinic), `¡Hola! Soy Aid, el asistente de beneficios de ${clinic}. Responda SI para que Aid le ayude con sus beneficios, contacte oficinas por usted y use servicios de IA para leer los documentos que envíe. Pueden aplicar tarifas de mensajes y datos. Responda ALTO para cancelar.`],
-    [T.consentStillNeeded(), 'Aid necesita su permiso primero. Responda SI para que Aid le ayude con sus beneficios, contacte oficinas y use servicios de IA para leer sus documentos, o ALTO para cancelar.'],
-    [T.human(clinic), `Entendido. Un trabajador de casos de ${clinic} le escribirá dentro de 1 día hábil. Mientras tanto, puede seguir escribiéndome.`],
+    [T.optOut(), 'Lumin: Ya no está suscrito y no recibirá más mensajes. Responda START para volver a suscribirse.'],
+    [T.optIn(), 'Lumin: Está suscrito de nuevo. Responda AYUDA para ayuda o ALTO para cancelar.'],
+    [T.help(), 'Ayuda de Lumin: ESTADO = su caso, DOCS = sus papeles, HUMANO = un trabajador de casos, RENOVAR = renovación, LANG EN = English. Mande foto de cualquier documento. Pueden aplicar tarifas de mensajes y datos. Responda ALTO para cancelar.'],
+    [T.consentAsk(clinic), `¡Hola! Soy Lumin, el asistente de beneficios de ${clinic}. Responda SI para que Lumin le ayude con sus beneficios, contacte oficinas por usted y use servicios de IA para leer los documentos que envíe. Pueden aplicar tarifas de mensajes y datos. Responda ALTO para cancelar.`],
+    [T.consentStillNeeded(), 'Lumin necesita su permiso primero. Responda SI para que Lumin le ayude con sus beneficios, contacte oficinas y use servicios de IA para leer sus documentos, o ALTO para cancelar.'],
+    [T.human(clinic), `Su solicitud de ayuda está guardada para ${clinic}. No puedo prometer cuándo responderán. Para ayuda urgente con beneficios, contacte a su condado o al 211.`],
     [T.photoGot(), '¡Recibido! Estoy leyendo su documento. Le escribiré lo que encontré.'],
     [T.interviewConfirmed(), 'Perfecto, su entrevista está confirmada. El condado puede llamar de un número desconocido, por favor conteste. ¡Suerte!'],
     [T.rescheduleAsk(), '¿Quiere que llame al condado para cambiar la fecha de su entrevista? Responda SI o NO.'],

@@ -29,24 +29,3 @@ export function Photo({
     </picture>
   )
 }
-
-export function PhotoCredit({ photo, className }: { photo: PhotoInfo; className?: string }) {
-  return (
-    <p className={cx('type-label-s leading-normal text-tertiary', className)}>
-      {photo.subject}. Photo:{' '}
-      <a href={photo.sourceUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-        {photo.author}
-      </a>
-      ,{' '}
-      {photo.licenseUrl ? (
-        <a href={photo.licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-          {photo.license}
-        </a>
-      ) : (
-        photo.license
-      )}
-      . Film look added.
-      {photo.restricted && <span className="mt-1 block text-amber-700">{photo.restricted}</span>}
-    </p>
-  )
-}

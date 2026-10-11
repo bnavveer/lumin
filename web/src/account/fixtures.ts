@@ -47,14 +47,14 @@ export const fixtureWorkflow: Workflow = {
     {
       id: 's4', kind: 'fill', program: 'calfresh', title: 'Fill out the CalFresh application', status: 'running',
       summary: 'Entering household members\nEntering income and expenses\nAnswering the interview questions',
-      evidence: [ev({ id: 'e6', kind: 'live_view', title: 'Live browser', url: 'https://example.com/live', detail: 'Aid is filling the BenefitsCal form in a private browser.', source: 'kernel' }, 3)],
+      evidence: [ev({ id: 'e6', kind: 'live_view', title: 'Live browser', url: 'https://example.com/live', detail: 'Lumin is filling the BenefitsCal form in a private browser.', source: 'kernel' }, 3)],
       startedAt: at(6), finishedAt: null,
     },
     { id: 's5', kind: 'sign', program: 'calfresh', title: 'Sign the application', status: 'waiting_on_you', summary: 'Review and sign so the county accepts it.', evidence: [], startedAt: null, finishedAt: null },
     { id: 's6', kind: 'submit', program: 'calfresh', title: 'Submit to the county', status: 'pending', summary: '', evidence: [], startedAt: null, finishedAt: null },
     {
       id: 's7', kind: 'call', program: 'medi_cal', title: 'Call the county to schedule your interview', status: 'pending', summary: '',
-      evidence: [ev({ id: 'e7', kind: 'call_transcript', title: 'Call with DPSS', detail: 'Aid: Hello, I am calling on behalf of Maria Lopez about her CalFresh application.\nDPSS: One moment, let me pull that up.\nDPSS: I can offer Thursday at 10:30.', source: 'dial' }, 1)],
+      evidence: [ev({ id: 'e7', kind: 'call_transcript', title: 'Call with DPSS', detail: 'Lumin: Hello, I am calling on behalf of Maria Lopez about her CalFresh application.\nDPSS: One moment, let me pull that up.\nDPSS: I can offer Thursday at 10:30.', source: 'dial' }, 1)],
       startedAt: null, finishedAt: null,
     },
     {
@@ -72,9 +72,9 @@ export const fixtureWorkflow: Workflow = {
     },
   ],
   nextSteps: [
-    { id: 'n1', title: 'Sign your CalFresh application', detail: 'Aid filled it out. Read it over, then sign with your finger or mouse.', actor: 'you', action: { type: 'sign', label: 'Open to sign', url: 'https://example.com/sign', stepId: 's5' } },
+    { id: 'n1', title: 'Sign your CalFresh application', detail: 'Lumin filled it out. Read it over, then sign with your finger or mouse.', actor: 'you', action: { type: 'sign', label: 'Open to sign', url: 'https://example.com/sign', stepId: 's5' } },
     { id: 'n2', title: 'Upload proof of your address', detail: 'A lease or a utility bill from the last 60 days works.', actor: 'you', action: { type: 'upload', label: 'Upload a document', url: null, stepId: 's3', docType: 'lease' } },
-    { id: 'n3', title: 'Aid is filling out the form', detail: 'Watch it happen in the live browser below.', actor: 'aid', action: null },
+    { id: 'n3', title: 'Lumin is filling out the form', detail: 'Watch it happen in the live browser below.', actor: 'aid', action: null },
     { id: 'n4', title: 'County reviews your application', detail: 'Expect an interview call within 7 to 14 days.', actor: 'county', action: null },
   ],
 }
@@ -82,7 +82,7 @@ export const fixtureWorkflow: Workflow = {
 const second: WorkflowSummary = {
   id: 'y', programs: ['pge_care', 'california_lifeline'], status: 'researching', updatedAt: at(180),
   progress: { done: 1, total: 6 },
-  nextStep: { id: 'n9', title: 'Aid is checking the PG&E rules', detail: '', actor: 'aid', action: null },
+  nextStep: { id: 'n9', title: 'Lumin is checking the PG&E rules', detail: '', actor: 'aid', action: null },
 }
 
 export const fixtureSummaries: WorkflowSummary[] = [
@@ -93,10 +93,10 @@ export const fixtureSummaries: WorkflowSummary[] = [
 export const fixtureScreening: ApplicationScreening = {
   preliminary: true, asOf: at(0), notice: 'Suggestions, not approval decisions.',
   matches: [
-    { program: 'calfresh', name: 'CalFresh', status: 'likely', reason: 'Your income is under the limit for a household of 3.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://benefitscal.com', nextStep: 'Aid fills out the county application for you.', sourceUrl: 'https://www.cdss.ca.gov/calfresh', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
-    { program: 'medi_cal', name: 'Medi-Cal', status: 'likely', reason: 'Children in your home qualify at higher incomes.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://benefitscal.com', nextStep: 'Aid applies together with CalFresh.', sourceUrl: 'https://www.dhcs.ca.gov', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
-    { program: 'pge_care', name: 'PG&E CARE', status: 'needs_info', reason: 'We need your utility account holder name.', missingFields: ['utility'], followUpQuestions: ['Whose name is on the PG&E bill?'], applicationUrl: 'https://www.pge.com/care', nextStep: 'Tell Aid whose name is on the bill.', sourceUrl: 'https://www.pge.com/care', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
-    { program: 'section8', name: 'Section 8 housing', status: 'not_eligible', reason: 'The waitlist is closed in your county right now.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://www.hacla.org', nextStep: 'Aid can check again when it reopens.', sourceUrl: 'https://www.hacla.org', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'referral' },
+    { program: 'calfresh', name: 'CalFresh', status: 'likely', reason: 'Your income is under the limit for a household of 3.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://benefitscal.com', nextStep: 'Lumin fills out the county application for you.', sourceUrl: 'https://www.cdss.ca.gov/calfresh', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
+    { program: 'medi_cal', name: 'Medi-Cal', status: 'likely', reason: 'Children in your home qualify at higher incomes.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://benefitscal.com', nextStep: 'Lumin applies together with CalFresh.', sourceUrl: 'https://www.dhcs.ca.gov', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
+    { program: 'pge_care', name: 'PG&E CARE', status: 'needs_info', reason: 'We need your utility account holder name.', missingFields: ['utility'], followUpQuestions: ['Whose name is on the PG&E bill?'], applicationUrl: 'https://www.pge.com/care', nextStep: 'Tell Lumin whose name is on the bill.', sourceUrl: 'https://www.pge.com/care', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'screening' },
+    { program: 'section8', name: 'Section 8 housing', status: 'not_eligible', reason: 'The waitlist is closed in your county right now.', missingFields: [], followUpQuestions: [], applicationUrl: 'https://www.hacla.org', nextStep: 'Lumin can check again when it reopens.', sourceUrl: 'https://www.hacla.org', rulesCheckedAt: at(0), rulesValidThrough: null, coverage: 'referral' },
   ],
 }
 

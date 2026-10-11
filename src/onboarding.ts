@@ -245,7 +245,7 @@ export async function setupStatus(orgId: string): Promise<{ checks: SetupCheck[]
       if (!has('DIAL_API_KEY') || !has('DIAL_FROM_NUMBER_ID')) return { ok: false, detail: 'Calling is not configured' };
       const { data } = await db().from('orgs').select('aid_phone').eq('id', orgId).maybeSingle();
       const phone = (data as { aid_phone: string | null } | null)?.aid_phone;
-      return phone ? { ok: true, detail: `Calling from ${phone}` } : { ok: true, detail: 'Calling ready; Aid number pending' };
+      return phone ? { ok: true, detail: `Calling from ${phone}` } : { ok: true, detail: 'Calling ready; Lumin number pending' };
     }),
     timed('devin', 'Devin (county portal filing)', async () =>
       has('DEVIN_API_KEY') ? { ok: true, detail: 'API key set' } : { ok: false, detail: 'Missing API key' }),
