@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import 'dotenv/config';
 import { generateSeed, type SeedHousehold } from '../src/seedData.js';
 import { ingest } from '../src/keewano.js';
@@ -26,7 +27,7 @@ async function seedOne(s: SeedHousehold, store: typeof import('../src/store.js')
     for (const x of s.events) await store.addTimeline(hid, x.event.type, x.at);
     for (const m of s.messages) await store.appendMessage(hid, m.role, m.content);
   }
-  if (!supabaseOnly) await ingest(hid, s.events, `seed-${hid}`);
+  if (!supabaseOnly) await ingest(hid, s.events, randomUUID());
 }
 
 async function main(): Promise<void> {

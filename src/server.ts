@@ -24,6 +24,7 @@ import { verifyPacketToken } from './links.js';
 import { registerOnboardingRoutes } from './onboardingRoutes.js';
 import { registerMockBenefitscal } from './benefitscal/mockSite.js';
 import { registerInboxRoutes } from './inbox.js';
+import { registerWebKnowledgeRoutes } from './webKnowledge.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
@@ -243,6 +244,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerOnboardingRoutes(app);
   registerMockBenefitscal(app);
   registerInboxRoutes(app);
+  registerWebKnowledgeRoutes(app);
 
   // ── Static SPA ──
   if (existsSync(resolve(WEB_DIST, 'index.html'))) {
