@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { County, Program } from './contracts.js';
 import { optionalEnv } from './env.js';
 import { keewanoSql } from './keewano.js';
+import { hasModel } from './llm/routes.js';
 import { admin } from './supabase.js';
 
 export const PROGRAMS = ['calfresh', 'medi_cal', 'calworks', 'general_relief', 'cfap', 'section8'] as const satisfies readonly Program[];
@@ -239,7 +240,7 @@ export async function setupStatus(orgId: string): Promise<{ checks: SetupCheck[]
       return { ok: true, detail: `${Number(r?.n ?? 0).toLocaleString('en-US')} events across ${Number(r?.households ?? 0).toLocaleString('en-US')} households` };
     }),
     timed('claude', 'Claude (the caseworker brain)', async () =>
-      has('ANTHROPIC_API_KEY') ? { ok: true, detail: 'API key set' } : { ok: false, detail: 'Missing API key' }),
+      hasModel() ? { ok: true, detail: 'AI credential set' } : { ok: false, detail: 'Missing AI credential (NEON_AI_GATEWAY_* or ANTHROPIC_API_KEY)' }),
     timed('dial', 'Dial (phone calls)', async () => {
       if (!has('DIAL_API_KEY') || !has('DIAL_FROM_NUMBER_ID')) return { ok: false, detail: 'Calling is not configured' };
       const { data } = await db().from('orgs').select('aid_phone').eq('id', orgId).maybeSingle();
