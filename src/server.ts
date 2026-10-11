@@ -29,6 +29,7 @@ import { registerWebKnowledgeRoutes } from './webKnowledge.js';
 import { createApp as createConversationApp } from './app.js';
 import { liveConversation } from './channels.js';
 import { registerVaultRoutes } from './vaultRoutes.js';
+import { registerConversationRoutes } from './caseManager/routes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 import { clientIp } from './clientIp.js';
 
@@ -256,6 +257,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerKnowledgeRoutes(app);
   registerWebKnowledgeRoutes(app);
   registerVaultRoutes(app);
+  registerConversationRoutes(app);
   app.route('/', createConversationApp(liveConversation(), {
     phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
     apiNotFound: false, // Keep later dev/staff routes reachable on the parent app.

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Hono } from 'hono';
 import { clientIp } from '../src/clientIp.js';
 
@@ -6,6 +6,7 @@ const app = new Hono().get('/', (c) => c.text(clientIp(c)));
 const ip = async (headers: Record<string, string>) => (await app.request('/', { headers })).text();
 
 describe('clientIp', () => {
+  beforeEach(() => { delete process.env.TRUST_PROXY; });
   afterEach(() => { delete process.env.TRUST_PROXY; });
 
   it('ignores spoofable proxy headers unless TRUST_PROXY=true', async () => {
