@@ -52,3 +52,7 @@ Rules and dollar amounts were researched on **October 11, 2026**. Benefits chang
 - Some numbers are calculated from the poverty line rather than taken from an official table (e.g. the CalFresh limit of ≈ $2,660/mo for 1 person, Medicaid's 138% ≈ $22,025).
 - The calculator is a screening guide, not an eligibility decision. Offices count income differently (some subtract rent or child care first). If you're close to a limit, apply anyway.
 - Not sure where to start? Call or text **211** for free local help.
+
+## Running Aid (Lane B)
+
+Set up your environment from [`.env.example`](.env.example), start the API with `npm run dev:api`, and follow the step-by-step demo in [`docs/DEMO.md`](docs/DEMO.md). The autopilot loop runs by default; trigger one tick with `POST /api/dev/autopilot/run` (DEMO_MODE only).
