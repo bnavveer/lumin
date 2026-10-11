@@ -1,24 +1,19 @@
 // Every name and claim that would change in a rebrand lives here.
-//
-// The site is not a government site, so the top banner must NOT say
-// "An official website of the United States government". A non-.gov site
-// that collects personal information while claiming to be official looks
-// like phishing, and pretending to be a federal agency can be a crime.
-// Keep `banner` honest until this runs on a real government domain.
+// Aid is a B2B SaaS prototype for clinics and health plans. It is not a government site.
 export const brand = {
-  name: 'America.gov',
+  name: 'Aid',
   region: 'California',
-  heroTitle: 'Hello, California',
-  heroSubtitle: 'Tell us about your household. We’ll find every benefit you qualify for and apply for you.',
+  heroTitle: 'Your AI caseworker that gets patients enrolled and keeps them covered.',
+  heroSubtitle: 'Aid texts your patients, screens them for 6 California programs, collects documents by photo, files the applications and makes the phone calls.',
   composerPlaceholder: 'Try “I’m a single mom in Fresno”',
   banner: {
-    short: 'Prototype. Not an official government website.',
+    short: 'Hackathon prototype · demo data',
     title: 'About this website',
     items: [
       {
         icon: 'building',
-        title: 'This is not a .gov website',
-        body: 'This is a prototype. Official government websites end in .gov or ca.gov.',
+        title: 'Aid is a software company, not a government agency',
+        body: 'Aid sells software to clinics, health plans and nonprofits. This is a hackathon prototype running on demo data.',
       },
       {
         icon: 'lock',

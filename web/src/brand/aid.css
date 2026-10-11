@@ -1,0 +1,31 @@
+/* Aid additions on top of the kit tokens. */
+@keyframes row-flash {
+  0% { background-color: #fff2b8; }
+  100% { background-color: transparent; }
+}
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(0 127 38 / 0.45); }
+  100% { box-shadow: 0 0 0 8px rgb(0 127 38 / 0); }
+}
+.row-new { animation: row-flash 6s var(--ease-standard) 1; }
+.live-dot { animation: live-pulse 1.8s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .row-new, .live-dot { animation: none; }
+  .row-new { background-color: #fff2b8; }
+}
+
+/* Dark-mode accent tokens (the accent is the only token set that adapts so far). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-accent: #3ddcc0;
+    --color-accent-strong: #6ee7d2;
+    --color-accent-soft: #0b2f2a;
+    --color-on-accent: #04201b;
+  }
+}
+:root[data-theme='dark'] {
+  --color-accent: #3ddcc0;
+  --color-accent-strong: #6ee7d2;
+  --color-accent-soft: #0b2f2a;
+  --color-on-accent: #04201b;
+}

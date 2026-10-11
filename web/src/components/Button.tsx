@@ -12,7 +12,7 @@ const base =
 
 const variants: Record<Variant, string> = {
   // america.gov "Menu" button
-  primary: 'bg-blue-700 text-white hover:bg-blue-800',
+  primary: 'bg-accent text-on-accent hover:bg-accent-strong',
   // carousel controls, close buttons
   secondary: 'bg-background-tertiary text-primary hover:bg-background-secondary',
   outline: 'border border-border-primary text-primary hover:bg-background-tertiary',
