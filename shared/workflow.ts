@@ -1,0 +1,94 @@
+// Browser-safe wire contract for applicant accounts + application workflows. No runtime imports.
+// Server: src/workflow/routes.ts. Client: web/src/account/*.
+import type { ApplicationProgram, ApplicationScreening } from './chat.js';
+
+export type WorkflowStatus =
+  | 'researching' | 'needs_documents' | 'ready_to_fill' | 'filling' | 'awaiting_signature'
+  | 'submitted' | 'following_up' | 'done' | 'needs_attention';
+export type StepKind = 'research' | 'documents' | 'fill' | 'sign' | 'submit' | 'call' | 'notify' | 'follow_up';
+export type StepStatus = 'pending' | 'running' | 'waiting_on_you' | 'done' | 'failed' | 'skipped';
+export type EvidenceKind =
+  | 'citation' | 'document' | 'live_view' | 'replay' | 'screenshot' | 'call_transcript'
+  | 'message' | 'confirmation' | 'keewano_event';
+
+export interface Evidence {
+  id: string;
+  kind: EvidenceKind;
+  title: string;
+  url: string | null;      // only http(s); never secrets
+  detail: string | null;   // short excerpt / summary
+  source: string | null;   // e.g. "research/apply-food-cash-tax.md", "exa:hacla.org", "kernel", "dial"
+  at: string;              // ISO
+}
+
+export interface WorkflowStep {
+  id: string;
+  kind: StepKind;
+  program: ApplicationProgram | null;
+  title: string;
+  status: StepStatus;
+  summary: string;
+  evidence: Evidence[];
+  startedAt: string | null;
+  finishedAt: string | null;
+}
+
+export interface NextStep {
+  id: string;
+  title: string;
+  detail: string;
+  actor: 'you' | 'aid' | 'county';
+  action: null | {
+    type: 'upload' | 'sign' | 'approve' | 'open_url' | 'chat' | 'run';
+    label: string;
+    url: string | null;
+    stepId: string | null;
+    docType?: string | null;
+  };
+}
+
+export interface Workflow {
+  id: string;
+  householdId: string;
+  programs: ApplicationProgram[];
+  status: WorkflowStatus;
+  createdAt: string;
+  updatedAt: string;
+  steps: WorkflowStep[];
+  nextSteps: NextStep[];
+  liveViewUrl: string | null;
+}
+
+export interface WorkflowSummary {
+  id: string;
+  programs: ApplicationProgram[];
+  status: WorkflowStatus;
+  updatedAt: string;
+  progress: { done: number; total: number };
+  nextStep: NextStep | null;
+}
+
+export interface Me {
+  userId: string;
+  email: string;
+  householdId: string | null;
+  phone: string | null;
+  firstName: string | null;
+}
+
+// ── HTTP API (all /api/me/* and /api/workflows/* require `Authorization: Bearer <supabase access token>`) ──
+// POST /api/auth/signup            { email, password, firstName?, phone? } -> { ok: true }   (public, rate-limited;
+//                                    client then calls supabase.auth.signInWithPassword)
+// GET  /api/me                     -> Me
+// POST /api/me/profile             { firstName?, phone? } -> Me   (links/creates the household by phone)
+// GET  /api/me/suggestions?chatSessionId=  -> ApplicationScreening  (from a web chat session or the household)
+// GET  /api/workflows              -> WorkflowSummary[]
+// POST /api/workflows              { programs: ApplicationProgram[], chatSessionId?: string } -> Workflow
+// GET  /api/workflows/:id          -> Workflow
+// GET  /api/workflows/:id/events   -> text/event-stream; each `event: update` carries a Workflow JSON
+// POST /api/workflows/:id/documents  multipart { file, docType } -> Workflow
+// POST /api/workflows/:id/approve  { stepId, decision: 'approve' | 'decline' } -> Workflow
+// POST /api/workflows/:id/run      { stepId } -> Workflow   (start/retry a step)
+// Errors: non-2xx with { error: string }.
+export type CreateWorkflowRequest = { programs: ApplicationProgram[]; chatSessionId?: string };
+export type SuggestionsResponse = ApplicationScreening;
