@@ -22,6 +22,7 @@ import { signedUrl } from './documents.js';
 import { requireStaff, isDemoMode } from './auth.js';
 import { verifyPacketToken } from './links.js';
 import { registerOnboardingRoutes } from './onboardingRoutes.js';
+import { registerMockBenefitscal } from './benefitscal/mockSite.js';
 import { registerInboxRoutes } from './inbox.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 
@@ -240,6 +241,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
 
   // ── Self-serve clinic setup ──
   registerOnboardingRoutes(app);
+  registerMockBenefitscal(app);
   registerInboxRoutes(app);
 
   // ── Static SPA ──
