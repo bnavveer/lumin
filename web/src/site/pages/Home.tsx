@@ -206,15 +206,46 @@ const HeroStage = memo(function HeroStage({
     el.style.transition = ms ? `transform ${Math.round(ms)}ms cubic-bezier(.22, 1, .36, 1)` : 'none'
     el.style.transform = `translate3d(${-s * 100}%, 0, 0)`
   }, [])
-  useLayoutEffect(() => {
-    place(slot, nextMs.current)
-    nextMs.current = 750
-  }, [slot, place])
+  // The real photo a slot shows: slot 0 is a copy of the last photo, slot
+  // count + 1 a copy of the first.
+  const realSlot = useCallback((s: number) => ((((s - 1) % count) + count) % count) + 1, [count])
 
-  const go = useCallback((d: number) => {
+  useLayoutEffect(() => {
+    // Never sit outside the track (that showed black after a few loops).
+    if (slot < 0 || slot > count + 1) {
+      nextMs.current = 0
+      setSlot(realSlot(slot))
+      return
+    }
+    const ms = nextMs.current
+    place(slot, ms)
     nextMs.current = 750
-    setSlot((s) => s + d)
-  }, [])
+    // Landing on a copy: jump to the real photo once the glide ends. The
+    // transitionend event usually does this; the timer covers background tabs
+    // and interrupted glides, where that event never arrives.
+    if (slot === 0 || slot === count + 1) {
+      const t = setTimeout(() => {
+        nextMs.current = 0
+        setSlot((cur) => (cur === slot ? realSlot(cur) : cur))
+      }, ms + 80)
+      return () => clearTimeout(t)
+    }
+  }, [slot, place, count, realSlot])
+
+  const go = useCallback(
+    (d: number) => {
+      setSlot((s) => {
+        // If we're on a copy (or anywhere unexpected), first snap to the real
+        // photo without animating, so the next glide always has a photo to go to.
+        const from = s >= 1 && s <= count ? s : realSlot(s)
+        if (from !== s) place(from, 0)
+        trackRef.current?.getBoundingClientRect() // apply the snap before the glide starts
+        nextMs.current = 750
+        return from + d
+      })
+    },
+    [count, place, realSlot],
+  )
 
   useEffect(() => {
     if (!playing || holding || dragging || count < 2) return
@@ -227,7 +258,7 @@ const HeroStage = memo(function HeroStage({
     if (e.target !== e.currentTarget) return
     if (slot === 0 || slot === count + 1) {
       nextMs.current = 0
-      setSlot(slot === 0 ? count : 1)
+      setSlot(realSlot(slot))
     }
   }
 
@@ -286,7 +317,7 @@ const HeroStage = memo(function HeroStage({
     const v = last.t > first.t ? (last.x - first.x) / (last.t - first.t) : 0
     const offset = d.pos + slot * d.w // how far from the current photo's resting spot
     const dir = offset < -d.w * 0.2 || (v < -0.35 && offset < -12) ? 1 : offset > d.w * 0.2 || (v > 0.35 && offset > 12) ? -1 : 0
-    const target = slot + dir
+    const target = slot + dir < 0 || slot + dir > count + 1 ? realSlot(slot) + dir : slot + dir
     const distance = Math.abs(-target * d.w - d.pos)
     // A fast flick finishes quickly; a slow drag eases in gently.
     const ms = Math.min(650, Math.max(260, distance / Math.max(Math.abs(v), 0.9)))

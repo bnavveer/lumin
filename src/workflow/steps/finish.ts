@@ -15,10 +15,10 @@ export async function runSign(ctx: StepCtx): Promise<StepOutcome> {
   const url = (fillStep?.meta.signUrl as string | undefined) ?? null;
   const asks: Ask[] = [{
     title: 'Review and sign your application',
-    detail: 'Aid filled everything up to the signature. Only you can sign. Open the signature page, check it, sign, then tap "I signed".',
-    action: { type: 'sign', label: 'I signed', url, stepId: ctx.step.id },
+    detail: 'Lumin filled everything up to the signature. Only you can sign. Open the signature page, check it, sign, then tap "I’ve signed".',
+    action: { type: 'sign', label: 'Open the signature page', url, stepId: ctx.step.id },
   }];
-  return { status: 'waiting_on_you', summary: 'Waiting for your signature. Aid never signs for you.', meta: { ...ctx.step.meta, asks } };
+  return { status: 'waiting_on_you', summary: 'Waiting for your signature. Lumin never signs for you.', meta: { ...ctx.step.meta, asks } };
 }
 
 export async function runSubmit(ctx: StepCtx): Promise<StepOutcome> {
@@ -50,7 +50,7 @@ function callInstruction(ctx: StepCtx): string {
   const conf = confirmationOf(ctx);
   const waitlist = ctx.wf.programs.includes('section8');
   return [
-    `You are Aid, an assistant calling the ${county} benefits office on behalf of ${name}, who gave permission for this call.`,
+    `You are Lumin, an assistant calling the ${county} benefits office on behalf of ${name}, who gave permission for this call.`,
     conf ? `Their ${joinNames(bcPrograms(ctx))} application was submitted with confirmation number ${conf}.` : '',
     'Ask when the eligibility interview will be scheduled and whether any documents are still needed.',
     waitlist ? 'Also ask whether the Section 8 housing choice voucher waitlist is open right now.' : '',
@@ -61,17 +61,17 @@ function callInstruction(ctx: StepCtx): string {
 export async function runCall(ctx: StepCtx): Promise<StepOutcome> {
   if (ctx.step.meta.approved !== true) {
     const asks: Ask[] = [{
-      title: 'Let Aid call the county for you?',
-      detail: 'Aid will call the county office to confirm your interview and ask what is still needed. Nothing is called until you approve.',
+      title: 'Let Lumin call the county for you?',
+      detail: 'Lumin will call the county office to confirm your interview and ask what is still needed. Nothing is called until you approve.',
       action: { type: 'approve', label: 'Approve the call', url: null, stepId: ctx.step.id },
     }];
-    return { status: 'waiting_on_you', summary: 'Waiting for your OK before Aid makes a phone call.', meta: { ...ctx.step.meta, asks } };
+    return { status: 'waiting_on_you', summary: 'Waiting for your OK before Lumin makes a phone call.', meta: { ...ctx.step.meta, asks } };
   }
   if (ctx.deps.calls) return ctx.deps.calls.runStep(ctx);
   const { dial } = ctx.deps;
   const to = dial.officePhone();
   if (!dial.configured() || !to) {
-    return { status: 'skipped', summary: 'Calling is not set up on this server (no Dial account or demo office number), so Aid did not call.' };
+    return { status: 'skipped', summary: 'Calling is not set up on this server (no Dial account or demo office number), so Lumin did not call.' };
   }
   await ctx.progress('Calling the county office…');
   const callId = typeof ctx.step.meta.callId === 'string'
@@ -100,16 +100,16 @@ export function statusText(ctx: StepCtx): string {
   const conf = confirmationOf(ctx);
   const bc = bcPrograms(ctx);
   const others = ctx.wf.programs.filter(p => !isBenefitsCal(p));
-  const parts = ['Aid:'];
+  const parts = ['Lumin:'];
   if (conf && bc.length) parts.push(`Your ${joinNames(bc)} application is submitted, confirmation ${conf}; the county usually calls for an interview within 10 days.`);
-  if (others.length) parts.push(`Next for ${others.map(programName).join(', ')}: see your Aid dashboard for the link and what to bring.`);
+  if (others.length) parts.push(`Next for ${others.map(programName).join(', ')}: see your Lumin dashboard for the link and what to bring.`);
   return parts.join(' ');
 }
 
 export async function runNotify(ctx: StepCtx): Promise<StepOutcome> {
   const phone = ctx.account?.phone ?? null;
-  if (!phone) return { status: 'skipped', summary: 'No phone number on your account, so Aid did not text you. Add one in your profile.' };
-  if (!ctx.deps.dial.configured()) return { status: 'skipped', summary: 'Texting is not set up on this server (no Dial account), so Aid did not text you.' };
+  if (!phone) return { status: 'skipped', summary: 'No phone number on your account, so Lumin did not text you. Add one in your profile.' };
+  if (!ctx.deps.dial.configured()) return { status: 'skipped', summary: 'Texting is not set up on this server (no Dial account), so Lumin did not text you.' };
   const body = statusText(ctx);
   await ctx.deps.dial.sendText(phone, body);
   await ctx.evidence({ kind: 'message', title: `Text sent to ${phone.slice(0, -4).replace(/\d/g, '•')}${phone.slice(-4)}`, url: null, detail: body, source: 'dial' });
@@ -124,5 +124,5 @@ export async function runFollowUp(ctx: StepCtx): Promise<StepOutcome> {
     detail: 'Screened, documents, signature and submission events are on your case. The Keewano autopilot uses them to schedule reminders.',
     source: 'keewano',
   });
-  return { status: 'done', summary: 'Aid will remind you about interviews and renewals (Keewano autopilot watches your case).' };
+  return { status: 'done', summary: 'Lumin will remind you about interviews and renewals (Keewano autopilot watches your case).' };
 }

@@ -8,10 +8,12 @@ import { PAGES, type ExtraAnswers } from '../benefitscal/spec.js';
 export const RELATIONSHIPS = ['spouse', 'child', 'parent', 'sibling', 'other_relative', 'unrelated'] as const satisfies readonly Relationship[];
 export const PAY_FREQUENCIES = ['weekly', 'biweekly', 'semi_monthly', 'monthly'] as const satisfies readonly PayFrequency[];
 export const MAX_MEMBERS = 19;
-export const LIMITS = { grossPay: 100_000, hoursPerWeek: 168, rentAmount: 50_000 } as const;
+export const LIMITS = { grossPay: 100_000, hoursPerWeek: 168, rentAmount: 50_000, savingsTotal: 10_000_000, vehicleValue: 1_000_000 } as const;
+export const VOTER = ['yes', 'already', 'no'] as const;
 const DETAIL_KEYS = [
   'legalFirstName', 'middleName', 'lastName', 'dateOfBirth', 'homeless', 'street', 'apt', 'city', 'zip', 'members',
-  'hasJob', 'employerName', 'payFrequency', 'grossPay', 'hoursPerWeek', 'rentAmount', 'paysUtilities', 'interviewPreference',
+  'hasJob', 'employerName', 'payFrequency', 'grossPay', 'hoursPerWeek', 'jobContinues', 'rentAmount', 'paysUtilities', 'interviewPreference',
+  'savingsTotal', 'hasVehicle', 'vehicleValue', 'filesTaxes', 'voterRegistration',
 ] as const satisfies readonly (keyof ApplicationDetails)[];
 export type DetailKey = typeof DETAIL_KEYS[number];
 
@@ -52,6 +54,12 @@ export function detailsPatchSchema(now: () => Date) {
     rentAmount: z.number().finite().min(0).max(LIMITS.rentAmount).nullable().optional(),
     paysUtilities: z.boolean().nullable().optional(),
     interviewPreference: z.enum(['phone', 'in_person']).nullable().optional(),
+    jobContinues: z.boolean().nullable().optional(),
+    savingsTotal: z.number().finite().min(0).max(LIMITS.savingsTotal).nullable().optional(),
+    hasVehicle: z.boolean().nullable().optional(),
+    vehicleValue: z.number().finite().min(0).max(LIMITS.vehicleValue).nullable().optional(),
+    filesTaxes: z.boolean().nullable().optional(),
+    voterRegistration: z.enum(VOTER).nullable().optional(),
   }).strict();
 }
 export type DetailsPatch = { [K in keyof ApplicationDetails]?: ApplicationDetails[K] | null };
@@ -72,6 +80,9 @@ const FIELD_ERRORS: Partial<Record<DetailKey, string>> = {
   hoursPerWeek: 'Enter hours per week as a number from 0 to 168.',
   rentAmount: `Enter monthly rent as a number from 0 to ${LIMITS.rentAmount.toLocaleString('en-US')}. Use 0 if you pay none.`,
   interviewPreference: 'Choose a phone or in-person interview.',
+  savingsTotal: `Enter the total in checking and savings as a number from 0 to ${LIMITS.savingsTotal.toLocaleString('en-US')}. Use 0 if none.`,
+  vehicleValue: `Enter what the car is worth as a number from 0 to ${LIMITS.vehicleValue.toLocaleString('en-US')}.`,
+  voterRegistration: 'Choose yes, already registered, or no for voter registration.',
 };
 
 /** A plain-language message for the first problem in a failed parse of the patch. */
@@ -142,6 +153,12 @@ export const AgentDetailsSchema = z.object({
   rentAmount: z.number().min(0).max(LIMITS.rentAmount).describe('Rent or mortgage per MONTH, USD; 0 if none'),
   paysUtilities: z.boolean().describe('Pays gas/electric/heating/cooling separately from rent'),
   interviewPreference: z.enum(['phone', 'in_person']),
+  jobContinues: z.boolean().describe('The job is ongoing (not ending soon)'),
+  savingsTotal: z.number().min(0).max(LIMITS.savingsTotal).describe('Rough total of money they have saved or on hand, USD; just the amount, never account numbers; 0 if none'),
+  hasVehicle: z.boolean().describe('Does anyone in the household own a car or other vehicle'),
+  vehicleValue: z.number().min(0).max(LIMITS.vehicleValue).describe('Current value of the vehicle, USD (rough is fine)'),
+  filesTaxes: z.boolean().describe('Will they file taxes this year'),
+  voterRegistration: z.enum(VOTER).describe('Register to vote with this application: yes, already (already registered), or no'),
 }).partial();
 export type AgentDetailsInput = z.infer<typeof AgentDetailsSchema>;
 
@@ -205,9 +222,15 @@ export function detailsToExtra(d: ApplicationDetails): ExtraAnswers {
     put('pay_frequency', d.payFrequency);
     if (d.grossPay !== undefined) put('gross_pay', String(d.grossPay));
     if (d.hoursPerWeek !== undefined) put('hours_per_week', String(d.hoursPerWeek));
+    if (d.jobContinues !== undefined) put('job_continues', yn(d.jobContinues));
   }
   if (d.rentAmount !== undefined) { put('rent_amount', String(d.rentAmount)); put('rent_frequency', 'monthly'); }
   if (d.paysUtilities !== undefined) put('pays_utilities', d.paysUtilities); // checkbox: boolean
   put('interview_type', d.interviewPreference);
+  if (d.savingsTotal !== undefined) put('bank_balance', String(d.savingsTotal));
+  if (d.hasVehicle !== undefined) put('has_vehicle', yn(d.hasVehicle));
+  if (d.hasVehicle && d.vehicleValue !== undefined) put('vehicle_value', String(d.vehicleValue));
+  if (d.filesTaxes !== undefined) put('files_taxes', yn(d.filesTaxes));
+  put('voter_registration', d.voterRegistration);
   return out;
 }

@@ -305,7 +305,7 @@ describe('application details (save_application_details)', () => {
     t.setScript(async turn => {
       await turn.tools.saveAnswers({ ...full, size: 1, childrenUnder18: 0 });
       last = await turn.tools.saveApplicationDetails({
-        legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: true, hasJob: false, rentAmount: 0, interviewPreference: 'phone',
+        legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: true, hasJob: false, rentAmount: 0, interviewPreference: 'phone', savingsTotal: 250, hasVehicle: false, filesTaxes: true, voterRegistration: 'already',
       });
       return 'ok';
     });

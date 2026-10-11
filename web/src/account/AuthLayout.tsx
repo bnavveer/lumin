@@ -2,7 +2,7 @@ import { useId, useState, type InputHTMLAttributes, type ReactNode } from 'react
 import { cx } from '../components/cx'
 import { Icon, type IconName } from '../components/icons'
 import { Photo } from '../components/Photo'
-import { photoById } from '../data/photos'
+import { accountPhotos, photoById } from '../data/photos'
 import { Page } from '../site/chrome'
 
 // Sign in, create account, signed-out and "check your email" share this layout:
@@ -15,13 +15,26 @@ const perks: { icon: IconName; title: string; body: string }[] = [
   { icon: 'clock', title: 'Next steps', body: 'See what each application needs from you, and when.' },
 ]
 
-// Which photo each account screen uses. Pick from the credit-free account set.
-export const accountPhotoFor: Record<string, string> = {
-  login: 'lake-tahoe',
-  signup: 'golden-gate',
-  email: 'bixby-bridge',
-  signedOut: 'venice-palms-sunset',
-  staff: 'cable-car',
+// Photos come from the 15 credit-free account photos (data/photos.ts). Sign in,
+// sign up and the signed-out screen rotate through them, but each visit keeps
+// the same photo so moving between screens doesn't flicker. A few screens have
+// a fixed photo that suits them.
+const fixedPhoto: Record<string, string> = {
+  email: 'route-101-farm-hills',
+  staff: 'mission-san-juan-capistrano',
+}
+export function accountPhotoFor(slot: string): string {
+  if (fixedPhoto[slot]) return fixedPhoto[slot]
+  let seed = 0
+  try {
+    const saved = sessionStorage.getItem('site.accountPhoto')
+    seed = saved ? Number(saved) : Math.floor(Math.random() * accountPhotos.length)
+    sessionStorage.setItem('site.accountPhoto', String(seed))
+  } catch {
+    /* storage blocked: first photo */
+  }
+  const offset = { login: 0, signup: 1, signedOut: 2 }[slot] ?? 0
+  return accountPhotos[(seed + offset) % accountPhotos.length].id
 }
 
 export function AuthLayout({
@@ -39,7 +52,8 @@ export function AuthLayout({
   photoSlot?: string
   showPerks?: boolean
 }) {
-  const picked = photoById[photo ?? accountPhotoFor[photoSlot] ?? 'lake-tahoe'] ?? photoById['lake-tahoe']
+  const [chosen] = useState(() => photo ?? accountPhotoFor(photoSlot))
+  const picked = photoById[chosen] ?? accountPhotos[0]
   return (
     <Page dock={false}>
       <div className="mx-auto grid max-w-[78rem] grid-cols-[minmax(0,1fr)_minmax(0,1fr)] items-stretch gap-6 px-6 pt-8 max-[900px]:grid-cols-1 max-mobile:px-3 max-mobile:pt-2">

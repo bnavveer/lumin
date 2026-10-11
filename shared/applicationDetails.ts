@@ -29,9 +29,15 @@ export interface ApplicationDetails {
   payFrequency?: PayFrequency;
   grossPay?: number; // per pay period, before taxes
   hoursPerWeek?: number;
+  jobContinues?: boolean; // the job is ongoing (not ending soon)
   rentAmount?: number; // per month; 0 if none
   paysUtilities?: boolean;
   interviewPreference?: 'phone' | 'in_person';
+  savingsTotal?: number; // money in checking and savings, USD; 0 if none (an amount only)
+  hasVehicle?: boolean;
+  vehicleValue?: number; // current value, USD
+  filesTaxes?: boolean; // will file taxes this year
+  voterRegistration?: 'yes' | 'already' | 'no'; // register to vote with this application?
 }
 
 /** The screening answers readiness depends on (subset of the saved screening). */
@@ -97,8 +103,14 @@ export function applicationReadiness(d: ApplicationDetails, s: ReadinessScreenin
     need('employerName', 'Employer', !blank(d.employerName))
     need('payFrequency', 'How often you’re paid', !blank(d.payFrequency))
     need('grossPay', 'Pay before taxes', !blank(d.grossPay))
+    need('jobContinues', 'Whether the job is ongoing', d.jobContinues !== undefined)
   }
   need('rentAmount', 'Rent or mortgage per month', !blank(d.rentAmount))
+  need('savingsTotal', 'Money in checking and savings', !blank(d.savingsTotal))
+  need('hasVehicle', 'Whether anyone owns a car', d.hasVehicle !== undefined)
+  if (d.hasVehicle) need('vehicleValue', 'What the car is worth', !blank(d.vehicleValue))
+  need('filesTaxes', 'Whether you’ll file taxes this year', d.filesTaxes !== undefined)
+  need('voterRegistration', 'Voter registration', !blank(d.voterRegistration))
   need('interviewPreference', 'Phone or in-person interview', !blank(d.interviewPreference))
 
   const missing = items.filter((i) => !i.done).map(({ field, label, source }) => ({ field, label, source }))

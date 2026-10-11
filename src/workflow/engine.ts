@@ -36,7 +36,7 @@ export function buildSteps(workflowId: string, programs: ApplicationProgram[], t
 
   for (const p of programs) add('research', `Research what ${programName(p)} needs`, p);
   if (bc.length) add('documents', 'Gather your documents');
-  else add('documents', 'Gather your documents', null, { status: 'skipped', summary: 'Aid is not filling a form for these programs, so no uploads are needed here.' });
+  else add('documents', 'Gather your documents', null, { status: 'skipped', summary: 'Lumin is not filling a form for these programs, so no uploads are needed here.' });
   if (bc.length) add('fill', `Fill the BenefitsCal application (${joinNames(bc)})`, bc[0]!, { meta: { programs: bc, ...(target === 'real' ? { target } : {}) } });
   for (const p of others) {
     add('fill', `Apply for ${programName(p)}`, p, {
@@ -279,7 +279,7 @@ export function createEngine(deps: WorkflowDeps) {
         const extracted = await deps.docs.extract(doc.id).catch(() => null);
         if (extracted && docsStep) {
           await deps.repo.addEvidence({
-            id: randomUUID(), stepId: docsStep.id, kind: 'document', title: `Aid read your ${file.docType.replace('_', ' ')}`,
+            id: randomUUID(), stepId: docsStep.id, kind: 'document', title: `Lumin read your ${file.docType.replace('_', ' ')}`,
             url: null, detail: Object.entries(extracted).filter(([, v]) => v !== null && typeof v !== 'object').slice(0, 6)
               .map(([k, v]) => `${k}: ${String(v)}`).join(', ') || null, source: `vault:${doc.id}`, at: nowIso(),
           });

@@ -119,6 +119,7 @@ export const fixtureApi: Api = {
   approve: () => delay(fixtureWorkflow),
   run: () => delay(fixtureWorkflow),
   screening: () => delay(fixtureScreeningAnswers),
+  linkChat: () => delay({ userId: 'fixture-user', email: 'maria@example.com', householdId: 'h1', phone: '+13105550142', firstName: 'Maria', contactLocked: true }),
   applicationDetails: () => delay(detailsResponse()),
   saveApplicationDetails: (d) => {
     const next: Record<string, unknown> = { ...fixtureDetails }

@@ -393,7 +393,7 @@ describe('saved contact details (engine /api/me routes)', () => {
 describe('fill uses the saved application details', () => {
   const DETAILS: ApplicationDetails = {
     legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: false, street: '100 Main St',
-    city: 'Los Angeles', zip: '90012', hasJob: false, rentAmount: 1200, paysUtilities: true, interviewPreference: 'in_person',
+    city: 'Los Angeles', zip: '90012', hasJob: false, rentAmount: 1200, paysUtilities: true, interviewPreference: 'in_person', savingsTotal: 250, hasVehicle: false, filesTaxes: true, voterRegistration: 'already',
   };
 
   it('practice replica: real values first, placeholders only for unanswered keys, counted in the summary', async () => {
@@ -406,9 +406,22 @@ describe('fill uses the saved application details', () => {
       first_name: 'Maria', last_name: 'Lopez', dob: '1990-04-12', homeless: 'no', street: '100 Main St', zip: '90012',
       has_job: 'no', rent_amount: '1200', rent_frequency: 'monthly', pays_utilities: true, interview_type: 'in_person',
       email: expect.stringContaining('@aid-demo.example'), bank_balance: '250',
+      has_vehicle: 'no', files_taxes: 'yes', voter_registration: 'already',
     });
     expect(extra).not.toHaveProperty('employer_name'); // nobody has a job: no invented employer
-    expect(t.step(wf, 'fill').summary).toMatch(/Placeholder values were used for 5 fields/);
+    // Only the email is a placeholder here: this test server can't look up account emails.
+    expect(t.step(wf, 'fill').summary).toMatch(/Placeholder values were used for 1 field /);
+  });
+
+  it('practice replica: with complete details and the account email, nothing is a placeholder', async () => {
+    const t = setup();
+    t.deps.auth.emailOf = async () => 'maria@example.test';
+    const token = await t.signup('fill2@aid.test', { phone: '4155550122' });
+    t.setDetails(token, DETAILS);
+    const wf = await t.toSignature(token);
+    const extra = vi.mocked(t.deps.fill.run).mock.calls.at(-1)![0].extra!;
+    expect(extra).toMatchObject({ email: 'maria@example.test' });
+    expect(t.step(wf, 'fill').summary).not.toMatch(/Placeholder/);
   });
 
   it('practice replica with no details says how many placeholders it used', async () => {

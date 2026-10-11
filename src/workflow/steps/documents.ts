@@ -56,12 +56,12 @@ export async function runDocuments(ctx: StepCtx): Promise<StepOutcome> {
   const asks: Ask[] = [
     ...missing.map((t): Ask => ({
       title: `Upload your ${DOC_LABEL[t].toLowerCase()}`,
-      detail: 'A clear photo or PDF works. Aid reads it and attaches it to your application.',
+      detail: 'A clear photo or PDF works. Lumin reads it and attaches it to your application.',
       action: { type: 'upload', label: `Upload ${DOC_LABEL[t].toLowerCase()}`, url: null, stepId: ctx.step.id, docType: t },
     })),
     {
       title: 'Continue without the missing documents',
-      detail: 'Aid can still fill the application; the county will ask for them later.',
+      detail: 'Lumin can still fill the application; the county will ask for them later.',
       action: { type: 'approve', label: 'Continue without', url: null, stepId: ctx.step.id },
     },
   ];

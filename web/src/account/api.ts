@@ -50,6 +50,7 @@ export interface Api {
   me(): Promise<Me>
   updateProfile(p: { firstName?: string | null; phone?: string | null; currentPassword?: string }): Promise<Me>
   screening(): Promise<Record<string, unknown>>
+  linkChat(chatSessionId: string): Promise<Me>
   applicationDetails(): Promise<ApplicationDetailsResponse>
   saveApplicationDetails(d: { [K in keyof ApplicationDetails]?: ApplicationDetails[K] | null }): Promise<ApplicationDetailsResponse>
   documents(): Promise<AccountDocument[]>
@@ -74,6 +75,7 @@ export function makeApi(getToken: TokenGetter): Api {
     me: () => r<Me>('/api/me'),
     updateProfile: (p: { firstName?: string | null; phone?: string | null; currentPassword?: string }) => r<Me>('/api/me/profile', json(p)),
     screening: () => r<Record<string, unknown>>('/api/me/screening'),
+    linkChat: (chatSessionId: string) => r<Me>('/api/me/link-chat', json({ chatSessionId })),
     applicationDetails: () => r<ApplicationDetailsResponse>('/api/me/application-details'),
     saveApplicationDetails: (d) => r<ApplicationDetailsResponse>('/api/me/application-details', json(d)),
     documents: () => r<AccountDocument[]>('/api/me/documents'),

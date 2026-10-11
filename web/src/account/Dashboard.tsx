@@ -41,10 +41,18 @@ function DashboardView() {
   const [starting, setStarting] = useState(false)
 
   const me = useAsync(() => api.me(), [api])
-  // The chat can fill in answers and application details, so refresh after each reply.
+  // Link this chat to the account (once it exists, after Lumin's first reply)
+  // so the answers and application details it collects land in the account.
+  // Then refresh after each reply, since the chat keeps filling things in.
   const replies = chat.messages.filter((m) => m.role === 'assistant').length
-  const details = useAsync(() => api.applicationDetails(), [api, replies])
-  const answers = useAsync(() => api.screening(), [api, replies])
+  const chatId = chat.view?.sessionId
+  const [linked, setLinked] = useState<string | null>(null)
+  useEffect(() => {
+    if (!chatId || replies === 0 || linked === chatId) return
+    api.linkChat(chatId).then(() => setLinked(chatId), () => setLinked(chatId))
+  }, [api, chatId, replies, linked])
+  const details = useAsync(() => api.applicationDetails(), [api, replies, linked])
+  const answers = useAsync(() => api.screening(), [api, replies, linked])
   const docs = useAsync(() => api.documents(), [api])
   const workflows = useAsync(() => api.listWorkflows(), [api])
   const sessionId = chat.view?.sessionId ?? undefined

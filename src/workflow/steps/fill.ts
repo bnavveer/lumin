@@ -41,8 +41,9 @@ const JOB_KEYS = new Set(['employer_name', 'hours_per_week', 'job_continues']);
  * The person's own application details, with practice placeholders only for keys they have not answered
  * (never job placeholders when they said nobody has a job). Returns which keys are placeholders.
  */
-export function practiceExtra(details: ApplicationDetails, hid: string): { extra: ExtraAnswers; placeholders: string[] } {
-  const own = detailsToExtra(details);
+export function practiceExtra(details: ApplicationDetails, hid: string, email?: string | null): { extra: ExtraAnswers; placeholders: string[] } {
+  const own = detailsToExtra(details)
+  if (email) own.email = email;
   const demo = demoExtra(hid);
   const placeholders = Object.keys(demo).filter(k => own[k] === undefined && !(details.hasJob === false && JOB_KEYS.has(k)));
   return { extra: { ...Object.fromEntries(placeholders.map(k => [k, demo[k]!])), ...own }, placeholders };
@@ -54,7 +55,8 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
   if (ctx.step.meta.target === 'real') return runRealFill(ctx);
   const { fill } = ctx.deps;
   const details = await ctx.deps.repo.getApplicationDetails(ctx.wf.userId).catch(() => ({} as ApplicationDetails));
-  const { extra, placeholders } = practiceExtra(details, ctx.household.id);
+  const email = await ctx.deps.auth.emailOf?.(ctx.wf.userId).catch(() => null)
+  const { extra, placeholders } = practiceExtra(details, ctx.household.id, email);
   const placeholderNote = placeholders.length
     ? ` Placeholder values were used for ${placeholders.length} field${placeholders.length === 1 ? '' : 's'} you haven't answered yet (practice replica only).`
     : '';
@@ -94,7 +96,7 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
         if (url) {
           liveShown = true;
           await ctx.setLiveView(url);
-          await ctx.evidence({ kind: 'live_view', title: 'Watch Aid fill your application live', url, detail: 'Kernel cloud browser', source: 'kernel' });
+          await ctx.evidence({ kind: 'live_view', title: 'Watch Lumin fill your application live', url, detail: 'Kernel cloud browser', source: 'kernel' });
         }
         return;
       }

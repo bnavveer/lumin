@@ -171,6 +171,7 @@ describe('application details storage', () => {
 
   it('signup confirmation links land on the dashboard', async () => {
     expect(signupRedirect('https://lumin.example/')).toBe('https://lumin.example/dashboard');
+    vi.stubEnv('PUBLIC_BASE_URL', '') // don't depend on the developer's .env
     expect(signupRedirect(undefined)).toBeUndefined();
     vi.stubEnv('PUBLIC_BASE_URL', 'https://lumin.example//');
     const signUp = vi.fn(async (_input: unknown) => ({ data: { session: null, user: { id: 'new' } }, error: null }));

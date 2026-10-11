@@ -138,6 +138,10 @@ export function liveWorkflowDeps(): WorkflowDeps {
         return { id: data.user.id, email: data.user.email ?? '' };
       },
       verifyPassword: supabasePasswordCheck(),
+      async emailOf(userId) {
+        const { data, error } = await admin().auth.admin.getUserById(userId);
+        return error ? null : data?.user?.email ?? null;
+      },
     },
     households: { get: (id) => getHousehold(id), upsert: (h) => upsertHousehold(h) },
     chatFields,

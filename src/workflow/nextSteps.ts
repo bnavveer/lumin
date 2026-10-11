@@ -86,7 +86,7 @@ export function deriveNextSteps(lw: LoadedWorkflow): NextStep[] {
   if (submitted) {
     county.push({
       id: `${submitted.id}:county`, actor: 'county', title: 'County reviews your application',
-      detail: 'The county usually calls for an interview within about 10 days. Aid will remind you.',
+      detail: 'The county usually calls for an interview within about 10 days. Lumin will remind you.',
       action: null,
     });
   }

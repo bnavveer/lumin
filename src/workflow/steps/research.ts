@@ -24,7 +24,7 @@ export async function runResearch(ctx: StepCtx): Promise<StepOutcome> {
   const name = programName(program);
   const county = COUNTY_NAME[ctx.household.county] ?? 'California';
   const { research } = ctx.deps;
-  await ctx.progress(`Researching ${name}: reading Aid's research notes and checking official sites…`);
+  await ctx.progress(`Researching ${name}: reading Lumin's research notes and checking official sites…`);
   await ctx.log({ type: 'AgentToolCalled', value: 'workflow_research' });
 
   const q = `What documents, eligibility rules and steps are needed to apply for ${name} in California (${county})?`;
@@ -61,6 +61,6 @@ export async function runResearch(ctx: StepCtx): Promise<StepOutcome> {
   } catch {
     summary = firstSentences(combined, 3);
   }
-  if (!summary) summary = `Aid found ${seen.size} sources on ${name}.`;
+  if (!summary) summary = `Lumin found ${seen.size} sources on ${name}.`;
   return { status: 'done', summary: clip(summary, 700) };
 }

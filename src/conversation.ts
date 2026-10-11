@@ -156,12 +156,17 @@ export function createConversation(d: ConversationDeps) {
           // Application details are not screening answers: saving them never resets a confirmation.
           await d.repo.save({ ...i, fields: { ...i.fields, application: saved } });
         }
-        const readiness = readinessFor(saved, i.fields);
+        // Read the answers again: in one turn the agent may save answers after these details.
+        const latest = (await d.repo.get(intakeId))?.fields ?? i.fields;
+        const readiness = readinessFor(saved, latest);
         const where = home.owner ? 'Saved to their Lumin account.'
           : 'Saved with this chat. It moves into their Lumin account when they sign in and link this chat.';
+        const fromAnswers = readiness.missing.filter(m => m.source === 'screening').map(m => m.label);
+        const fromDetails = readiness.missing.filter(m => m.source === 'details').map(m => m.label);
         return readiness.complete
           ? `${where} Every application detail is in. They can review everything and start the application from their Lumin account.`
-          : `${where} Still needed for the application: ${readiness.missing.map(m => m.label).join('; ')}.`;
+          : `${where} Still needed for the application: ${[...fromDetails, ...fromAnswers].join('; ')}.`
+            + (fromAnswers.length ? ` (${fromAnswers.join(', ')}: save with save_answers. These do not need a confirmation text to count for the application.)` : '');
       },
       async saveAnswers(fields, phone) {
         const i = await d.repo.get(intakeId);

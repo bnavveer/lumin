@@ -3,6 +3,8 @@ import { applicationReadiness, type ApplicationDetails, type HouseholdMember, ty
 import { brand } from '../brand/brand'
 import { cx } from '../components/cx'
 import { Icon } from '../components/icons'
+import { Photo } from '../components/Photo'
+import { photoById } from '../data/photos'
 import { Link } from '../site/router'
 import { makeApi } from './api'
 import { useAuth } from './auth'
@@ -86,7 +88,11 @@ function DetailsView() {
           <Icon name="arrow-left" size={15} />
           Back to your dashboard
         </Link>
-        <h1 className="mt-5 font-serif text-[clamp(2.25rem,4vw,3.25rem)] leading-[1.02] tracking-[-0.035em] [font-variation-settings:'opsz'_72]">
+        <div className="relative mt-5 h-44 overflow-hidden rounded-[2rem] bg-[#c9d6d4] max-mobile:h-36" aria-hidden="true">
+          <Photo photo={photoById['central-valley-almond-orchard']} sizes="(max-width: 768px) 100vw, 736px" priority />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#071a2066] to-transparent" />
+        </div>
+        <h1 className="mt-6 font-serif text-[clamp(2.25rem,4vw,3.25rem)] leading-[1.02] tracking-[-0.035em] [font-variation-settings:'opsz'_72]">
           Application details
         </h1>
         <p className="mt-3 type-body-m text-secondary">
@@ -181,6 +187,15 @@ function DetailsView() {
                   <Field label="Hours per week" type="number" value={draft.hoursPerWeek?.toString()} onChange={(v) => set('hoursPerWeek', v === '' ? undefined : Number(v))} inputMode="numeric" optional />
                 </Grid>
               )}
+              {draft.hasJob && (
+                <Choice
+                  legend="Is this job ongoing?"
+                  needed={needed.has('jobContinues')}
+                  value={draft.jobContinues === undefined ? undefined : draft.jobContinues ? 'yes' : 'no'}
+                  options={[['yes', 'Yes'], ['no', 'No, it’s ending']]}
+                  onChange={(v) => set('jobContinues', v === 'yes')}
+                />
+              )}
             </Section>
 
             <Section title="Housing costs">
@@ -191,6 +206,38 @@ function DetailsView() {
                 <input type="checkbox" checked={draft.paysUtilities === true} onChange={(e) => set('paysUtilities', e.target.checked)} className="size-5 accent-blue-700" />
                 I pay for gas, electric or heating separately
               </label>
+            </Section>
+
+            <Section title="Money and taxes">
+              <Grid>
+                <Field label="Money in checking and savings" type="number" prefix="$" needed={needed.has('savingsTotal')} value={draft.savingsTotal?.toString()} onChange={(v) => set('savingsTotal', v === '' ? undefined : Number(v))} inputMode="decimal" hint="A rough total is fine. Enter 0 if none." />
+              </Grid>
+              <Choice
+                legend="Does anyone in your household own a car?"
+                needed={needed.has('hasVehicle')}
+                value={draft.hasVehicle === undefined ? undefined : draft.hasVehicle ? 'yes' : 'no'}
+                options={[['yes', 'Yes'], ['no', 'No']]}
+                onChange={(v) => set('hasVehicle', v === 'yes')}
+              />
+              {draft.hasVehicle && (
+                <Grid>
+                  <Field label="What it’s worth today" type="number" prefix="$" needed={needed.has('vehicleValue')} value={draft.vehicleValue?.toString()} onChange={(v) => set('vehicleValue', v === '' ? undefined : Number(v))} inputMode="decimal" hint="A rough guess is fine." />
+                </Grid>
+              )}
+              <Choice
+                legend="Will you file taxes this year?"
+                needed={needed.has('filesTaxes')}
+                value={draft.filesTaxes === undefined ? undefined : draft.filesTaxes ? 'yes' : 'no'}
+                options={[['yes', 'Yes'], ['no', 'No']]}
+                onChange={(v) => set('filesTaxes', v === 'yes')}
+              />
+              <Choice
+                legend="Would you like to register to vote with this application?"
+                needed={needed.has('voterRegistration')}
+                value={draft.voterRegistration}
+                options={[['yes', 'Yes'], ['already', 'I’m already registered'], ['no', 'No']]}
+                onChange={(v) => set('voterRegistration', v as Draft['voterRegistration'])}
+              />
             </Section>
 
             <Section title="Your interview">

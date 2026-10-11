@@ -26,6 +26,8 @@ export interface WorkflowDeps {
     getUser(token: string): Promise<{ id: string; email: string } | null>;
     /** Re-check the applicant's password before a saved name/phone changes. Absent: such changes are refused. */
     verifyPassword?(email: string, password: string): Promise<boolean>;
+    /** The account's email, for the application's contact email. */
+    emailOf?(userId: string): Promise<string | null>;
   };
   households: {
     get(id: string): Promise<Household | undefined>;

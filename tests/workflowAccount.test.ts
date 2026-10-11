@@ -239,7 +239,7 @@ describe('application details API', () => {
   const COMPLETE: ApplicationDetails = {
     legalFirstName: 'Maria', lastName: 'Lopez', dateOfBirth: '1990-04-12', homeless: false,
     street: '100 Main St', city: 'Los Angeles', zip: '90012', hasJob: true, employerName: 'Grocery Co',
-    payFrequency: 'biweekly', grossPay: 900, rentAmount: 1200, interviewPreference: 'phone',
+    payFrequency: 'biweekly', grossPay: 900, jobContinues: true, rentAmount: 1200, interviewPreference: 'phone', savingsTotal: 250, hasVehicle: false, filesTaxes: true, voterRegistration: 'already',
     members: [
       { firstName: 'Ana', lastName: 'Lopez', dateOfBirth: '2015-06-01', relationship: 'child' },
       { firstName: 'Luis', lastName: 'Lopez', dateOfBirth: '1988-01-30', relationship: 'spouse' },

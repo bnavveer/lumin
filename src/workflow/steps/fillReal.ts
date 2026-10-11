@@ -22,6 +22,7 @@ export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
   let details;
   try { details = await ctx.deps.repo.getApplicationDetails(ctx.wf.userId); }
   catch (e) { return { status: 'failed', summary: `Could not load your application details: ${clip(errMsg(e), 160)}. Try again.` }; }
+  const email = await ctx.deps.auth.emailOf?.(ctx.wf.userId).catch(() => null)
   const readiness = applicationReadiness(details, { county: ctx.household.county, size: ctx.household.size, monthlyIncome: ctx.household.monthlyIncome });
   if (!readiness.complete) {
     const missing = readiness.missing.map(m => m.label);
@@ -50,7 +51,7 @@ export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
   const sessionId = opened.sessionId ?? prevSession;
   const live = httpUrl(opened.liveViewUrl);
   const meta = { ...ctx.step.meta, target: 'real', kernelSessionId: sessionId, ...(opened.replayViewUrl ? { replayUrl: opened.replayViewUrl } : {}) };
-  await ctx.progress('Opening benefitscal.com. Sign in yourself in the live browser; Aid never sees your password.', meta);
+  await ctx.progress('Opening benefitscal.com. Sign in yourself in the live browser; Lumin never sees your password.', meta);
   if (live) {
     await ctx.setLiveView(live);
     if (!typing) await ctx.evidence({ kind: 'live_view', title: 'Sign in to BenefitsCal here (real site)', url: live, detail: 'Kernel cloud browser. You type your own password and code.', source: 'kernel' });
@@ -61,7 +62,7 @@ export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
   await mkdir(dir, { recursive: true });
   try {
     const result = await runRealSite({
-      page: opened.page, household: ctx.household, details: detailsToExtra(details), typing,
+      page: opened.page, household: ctx.household, details: { ...detailsToExtra(details), ...(email ? { email } : {}) }, typing,
       onEvent: (e) => { void ctx.progress(clip(e.message, 200), meta).catch(() => undefined); },
       screenshot: async (name) => {
         const p = join(dir, `${name}.png`);
@@ -83,7 +84,7 @@ export async function runRealFill(ctx: StepCtx): Promise<StepOutcome> {
     await opened.detach();
     if (sessionId) scheduleKernelCleanup(sessionId, holdSeconds() * 1000, async () => { await opened.close(); });
     if (result.status === 'preview_done') {
-      return { status: 'waiting_on_you', meta: { ...meta, asks: [] }, summary: 'Preview ready: review the proposed values, then approve to let Aid type them. Nothing was typed.' };
+      return { status: 'waiting_on_you', meta: { ...meta, asks: [] }, summary: 'Preview ready: review the proposed values, then approve to let Lumin type them. Nothing was typed.' };
     }
     return { status: result.status === 'stopped_before_signing' ? 'done' : 'failed', meta, summary: result.note };
   } catch (e) {
