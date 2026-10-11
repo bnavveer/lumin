@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import { lookup } from 'node:dns/promises';
+import { isIP } from 'node:net';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { DocType, DocumentRecord } from './contracts.js';
 import { admin } from './supabase.js';
@@ -34,19 +36,86 @@ export function objectPath(orgId: string, hid: string, docId: string, ct: string
   return `${orgId}/${hid}/${docId}.${ext}`;
 }
 
-const PRIVATE_HOST = /^(localhost|.*\.local|.*\.internal|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|0\.0\.0\.0|\[?::1\]?$)/i;
+const PRIVATE_NAME = /(^|\.)(localhost|local|internal)$/i;
+const MAX_REDIRECTS = 3;
 
-export async function storeDocumentFromUrl(
-  hid: string, url: string, contentType: string, docType: DocType,
-): Promise<DocumentRecord> {
+function ipv4Private(ip: string): boolean {
+  const [a, b] = ip.split('.').map(Number) as [number, number];
+  return a === 0 || a === 10 || a === 127 || a >= 224
+    || (a === 100 && b >= 64 && b <= 127)
+    || (a === 169 && b === 254)
+    || (a === 172 && b >= 16 && b <= 31)
+    || (a === 192 && b === 168)
+    || (a === 198 && (b === 18 || b === 19));
+}
+
+/** True for loopback, private, link-local, CGNAT, multicast and unspecified addresses (v4 and v6). */
+export function isPrivateAddress(ip: string): boolean {
+  const v = isIP(ip);
+  if (v === 4) return ipv4Private(ip);
+  if (v !== 6) return true;
+  const lower = ip.toLowerCase();
+  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(lower);
+  if (mapped) return ipv4Private(mapped[1]!);
+  if (/^::ffff:[0-9a-f]{1,4}:[0-9a-f]{1,4}$/.test(lower)) return true;
+  return lower === '::' || lower === '::1'
+    || /^f[cd]/.test(lower) || /^fe[89ab]/.test(lower) || /^ff/.test(lower);
+}
+
+type Resolver = (host: string) => Promise<string[]>;
+const defaultResolver: Resolver = async (host) => (await lookup(host, { all: true })).map((a) => a.address);
+let resolveHost: Resolver = defaultResolver;
+/** Test seam: override DNS resolution. Call with no args to restore. */
+export function setHostResolver(r?: Resolver): void { resolveHost = r ?? defaultResolver; }
+
+async function assertPublicUrl(raw: string): Promise<URL> {
   let parsed: URL;
   try {
-    parsed = new URL(url);
+    parsed = new URL(raw);
   } catch {
     throw new Error('[documents] invalid url');
   }
   if (parsed.protocol !== 'https:') throw new Error('[documents] only https urls are allowed');
-  if (PRIVATE_HOST.test(parsed.hostname)) throw new Error('[documents] url host not allowed');
+  const host = parsed.hostname.replace(/^\[|\]$/g, '');
+  if (PRIVATE_NAME.test(host)) throw new Error('[documents] url host not allowed');
+  let addrs: string[];
+  if (isIP(host)) addrs = [host];
+  else {
+    try {
+      addrs = await resolveHost(host);
+    } catch {
+      throw new Error('[documents] url host not allowed');
+    }
+  }
+  if (addrs.length === 0 || addrs.some(isPrivateAddress)) throw new Error('[documents] url host not allowed');
+  return parsed;
+}
+
+async function readCapped(res: Response): Promise<Uint8Array> {
+  if (!res.body) return new Uint8Array(0);
+  const reader = res.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > MAX_BYTES) {
+      await reader.cancel().catch(() => {});
+      throw new Error('[documents] file too large');
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { out.set(c, off); off += c.byteLength; }
+  return out;
+}
+
+export async function storeDocumentFromUrl(
+  hid: string, url: string, contentType: string, docType: DocType,
+): Promise<DocumentRecord> {
+  let target = await assertPublicUrl(url);
 
   const ext = extFor(contentType);
   if (!ext) throw new Error(`[documents] unsupported content type`);
@@ -57,18 +126,25 @@ export async function storeDocumentFromUrl(
   if (!hh) throw new Error('[documents] household not found');
   const orgId = (hh as { org_id: string }).org_id;
 
+  const signal = AbortSignal.timeout(FETCH_TIMEOUT_MS);
   let res: Response;
-  try {
-    res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
-  } catch (e) {
-    throw new Error(`[documents] download failed: ${e instanceof Error ? e.name : 'error'}`);
+  for (let hops = 0; ; hops++) {
+    try {
+      res = await fetch(target, { signal, redirect: 'manual' });
+    } catch (e) {
+      throw new Error(`[documents] download failed: ${e instanceof Error ? e.name : 'error'}`);
+    }
+    const location = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null;
+    if (!location) break;
+    await res.body?.cancel().catch(() => {});
+    if (hops >= MAX_REDIRECTS) throw new Error('[documents] too many redirects');
+    target = await assertPublicUrl(new URL(location, target).toString());
   }
   if (!res.ok) throw new Error(`[documents] download failed: status ${res.status}`);
 
   const declared = Number(res.headers.get('content-length'));
   if (Number.isFinite(declared) && declared > MAX_BYTES) throw new Error('[documents] file too large');
-  const bytes = new Uint8Array(await res.arrayBuffer());
-  if (bytes.byteLength > MAX_BYTES) throw new Error('[documents] file too large');
+  const bytes = await readCapped(res);
   if (bytes.byteLength === 0) throw new Error('[documents] empty file');
 
   const id = randomUUID();
