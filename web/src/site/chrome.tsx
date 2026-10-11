@@ -10,6 +10,7 @@ import { setPendingQuestion } from './chat/useChat'
 import type { Copy, Lang } from './copy'
 import { useOpenFeedback } from './feedback'
 import { useLang, useT } from './lang'
+import { useAuth } from '../account/auth'
 import { Link, useRouter } from './router'
 
 // Shared page chrome: banner, header, footer and the docked question box.
@@ -34,6 +35,7 @@ function useNav(): NavItem[] {
   const t = useT().menu
   const { path } = useRouter()
   const openFeedback = useOpenFeedback()
+  const { user } = useAuth()
   const items: [string, string][] = [
     [t.home, '/'],
     [t.how, '/how-it-works'],
@@ -41,6 +43,7 @@ function useNav(): NavItem[] {
     [t.about, '/about'],
     [t.soon, '/coming-soon'],
     [t.faq, '/faq'],
+    ...(user ? ([['Dashboard', '/dashboard']] as [string, string][]) : ([['Sign in', '/login']] as [string, string][])),
   ]
   return [...items.map(([label, href]) => ({ label, href, current: path === href })), { label: t.feedback, onSelect: openFeedback }]
 }

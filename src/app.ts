@@ -23,7 +23,8 @@ export function createApp(conv: Conversation, options: { phone?: string; webRoot
     app.use('*', serveStatic({ root: options.webRoot }));
     // Client-side page routes must survive reloads; missing assets remain 404s.
     const index = serveStatic({ root: options.webRoot, path: 'index.html' });
-    for (const path of ['/', '/chat', '/how-it-works', '/privacy', '/about', '/coming-soon', '/faq', '/privacy-policy', '/terms', '/kit']) app.get(path, index);
+    for (const path of ['/', '/chat', '/how-it-works', '/privacy', '/about', '/coming-soon', '/faq', '/privacy-policy', '/terms', '/kit', '/login', '/signup', '/dashboard']) app.get(path, index);
+    app.get('/workflows/:id', index);
   }
   return app;
 }

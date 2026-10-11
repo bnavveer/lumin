@@ -9,6 +9,10 @@ import { Home } from './pages/Home'
 import { HowItWorks } from './pages/HowItWorks'
 import { Legal, NotFound } from './pages/Legal'
 import { Privacy } from './pages/Privacy'
+import { AuthProvider } from '../account/auth'
+import { Dashboard } from '../account/Dashboard'
+import { Login, Signup } from '../account/AuthPages'
+import { WorkflowPage } from '../account/WorkflowPage'
 import { RouterProvider, useRouter } from './router'
 
 // The component gallery stays available at /kit for design work.
@@ -16,7 +20,14 @@ const Kit = lazy(() => import('../App'))
 
 function Routes() {
   const { path } = useRouter()
+  if (path.startsWith('/workflows/')) return <WorkflowPage />
   switch (path) {
+    case '/login':
+      return <Login />
+    case '/signup':
+      return <Signup />
+    case '/dashboard':
+      return <Dashboard />
     case '/':
       return <Home />
     case '/chat':
@@ -50,9 +61,11 @@ export function Site() {
   return (
     <RouterProvider>
       <LangProvider>
-        <FeedbackProvider>
-          <Routes />
-        </FeedbackProvider>
+        <AuthProvider>
+          <FeedbackProvider>
+            <Routes />
+          </FeedbackProvider>
+        </AuthProvider>
       </LangProvider>
     </RouterProvider>
   )
