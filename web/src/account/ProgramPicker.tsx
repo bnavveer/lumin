@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import type { FillTarget } from '../../../shared/workflow'
 import type { ApplicationMatch, ApplicationProgram, ApplicationScreening } from '../../../shared/chat'
 import { StatusBadge, type Status } from '../components/Benefits'
 import { Button } from '../components/Button'
 import { cx } from '../components/cx'
 import { Icon } from '../components/icons'
+import { setFillTarget } from './api'
 import { ErrorState, Skeleton } from './ui'
 
 // Suggestions from GET /api/me/suggestions as selectable cards. The "likely"
@@ -34,6 +36,8 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
     else next.add(p)
     setPicked(next)
   }
+  const [target, setTarget] = useState<FillTarget>('mock')
+  const chooseTarget = (t: FillTarget) => { setTarget(t); setFillTarget(t) }
   const ordered = [...matches].sort((a, b) => rank(a) - rank(b))
 
   return (
@@ -68,14 +72,47 @@ export function ProgramPicker({ screening, loading, error, onRetry, starting, on
       </div>
 
       {ordered.length > 0 && (
+        <TargetChoice value={target} onChange={chooseTarget} />
+      )}
+      {ordered.length > 0 && (
         <div className="mt-6 flex flex-wrap items-center gap-4">
-          <Button size="lg" disabled={selected.size === 0 || starting} aria-busy={starting} iconRight={starting ? 'spinner' : 'arrow-right'} onClick={() => onStart([...selected])}>
+          <Button size="lg" disabled={selected.size === 0 || starting} aria-busy={starting} iconRight={starting ? 'spinner' : 'arrow-right'} onClick={() => { setFillTarget(target); onStart([...selected]) }}>
             {starting ? 'Starting…' : `Start applying${selected.size ? ` (${selected.size})` : ''}`}
           </Button>
           <p className="type-body-s text-secondary">{screening?.notice ?? 'These are suggestions, not approval decisions.'}</p>
         </div>
       )}
     </section>
+  )
+}
+
+const targets: { value: FillTarget; title: string; body: string }[] = [
+  { value: 'mock', title: 'Practice site (demo replica)', body: 'Aid fills a replica of BenefitsCal end to end and stops at the signature.' },
+  { value: 'real', title: 'Real BenefitsCal', body: 'Opens the real benefitscal.com in a live browser. You sign in yourself; Aid shows what it would fill and never submits or signs.' },
+]
+
+function TargetChoice({ value, onChange }: { value: FillTarget; onChange: (t: FillTarget) => void }) {
+  return (
+    <fieldset className="mt-6 min-w-0">
+      <legend className="type-body-m font-medium">Where should Aid fill it out?</legend>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        {targets.map((t) => (
+          <label key={t.value} className={cx(
+            'flex cursor-pointer items-start gap-3 rounded-24 border-2 bg-background-primary p-4 transition-colors duration-150 has-[:focus-visible]:shadow-focus',
+            value === t.value ? 'border-blue-700' : 'border-transparent hover:border-border-tertiary',
+          )}>
+            <input type="radio" name="fill-target" className="peer sr-only" value={t.value} checked={value === t.value} onChange={() => onChange(t.value)} />
+            <span aria-hidden="true" className={cx('mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2', value === t.value ? 'border-blue-700' : 'border-border-secondary')}>
+              {value === t.value && <span className="size-2.5 rounded-full bg-blue-700" />}
+            </span>
+            <span>
+              <span className="block type-card-title">{t.title}</span>
+              <span className="mt-1 block type-body-s text-secondary">{t.body}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   )
 }
 
