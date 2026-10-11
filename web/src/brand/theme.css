@@ -37,6 +37,8 @@
   --color-sand: #f7ead6;
   --color-sage: #d3dfcb;
   --color-redwood: #8e3b25;
+  --color-flag-ca-red: #ba0c2f; /* red stripe of the California flag */
+  --color-flag-ca-red-dark: #960a26;
 
   /* Flag colors from the america.gov favicon */
   --color-flag-red: #e64133;
@@ -375,3 +377,31 @@ html { scroll-padding-top: 1.5rem; }
   45% { transform: translateX(1.2px) rotate(5deg); }
   70% { transform: translateX(-.6px) rotate(-2deg); }
 }
+
+/* ── Sheets and the menu: animate in, and out when closed ── */
+.sheet[open] { animation: sheet-in .34s var(--ease-drawer) both; }
+.sheet[data-placement="corner"][open] { transform-origin: calc(100% - 3rem) 1.5rem; animation-name: menu-in; animation-duration: .42s; }
+.sheet[open][data-closing] { animation: sheet-out .24s var(--ease-standard) both; }
+.sheet[data-placement="corner"][open][data-closing] { animation-name: menu-out; animation-duration: .26s; }
+.sheet[open]::backdrop { animation: backdrop-in .3s var(--ease-standard) both; }
+.sheet[open][data-closing]::backdrop { animation: backdrop-out .26s var(--ease-standard) both; }
+.sheet[data-placement="corner"][open] nav li { animation: menu-item .5s var(--ease-out-quint) both; animation-delay: calc(90ms + var(--i, 0) * 32ms); }
+.sheet[data-placement="corner"][open][data-closing] nav li { animation: none; }
+@keyframes sheet-out { to { opacity: 0; transform: translateY(6px) scale(.98); } }
+@keyframes menu-in {
+  from { opacity: 0; transform: scale(.86); filter: blur(6px); border-radius: 999px; }
+  60% { opacity: 1; filter: none; }
+  to { opacity: 1; transform: none; }
+}
+@keyframes menu-out {
+  to { opacity: 0; transform: scale(.9); filter: blur(4px); }
+}
+@keyframes menu-item {
+  from { opacity: 0; transform: translateY(10px); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* Photos and marks can't be dragged out of the page */
+img { -webkit-user-drag: none; user-select: none; }

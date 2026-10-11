@@ -210,13 +210,14 @@ export const photos: PhotoInfo[] = [
 
 export const photoById = Object.fromEntries(photos.map((p) => [p.id, p])) as Record<string, PhotoInfo>
 
+// The hero shows no credit line, so it only uses photos that don't need one
+// (CC0 or public domain). CC BY photos must be credited where they appear.
 export const heroPhotos = [
   'golden-gate',
   'bixby-bridge',
-  'yosemite-tunnel-view',
   'venice-palms-sunset',
   'cable-car',
   'joshua-tree',
-  'santa-monica-pier',
   'lake-tahoe',
+  'la-skyline-sunset',
 ].map((id) => photoById[id])

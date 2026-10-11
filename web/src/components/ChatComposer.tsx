@@ -185,7 +185,12 @@ export function ChatComposer({
           variant={canSend || busy ? 'primary' : 'secondary'}
           size={variant === 'dock' ? 'md' : 'lg'}
           disabled={!canSend}
-          className={cx(!canSend && !busy && 'disabled:text-tertiary', busy && 'disabled:bg-blue-700 disabled:text-white')}
+          className={cx(
+            // Send is California-flag red when there's something to send
+            (canSend || busy) && 'bg-flag-ca-red hover:bg-flag-ca-red-dark',
+            !canSend && !busy && 'disabled:text-tertiary',
+            busy && 'disabled:bg-flag-ca-red disabled:text-white',
+          )}
         />
       </div>
     </form>

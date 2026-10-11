@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState, type RefObject } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent as ReactPointerEvent, type TransitionEvent } from 'react'
 import { ChatComposer } from '../../components/ChatComposer'
 import { cx } from '../../components/cx'
 import { CaliforniaFlag } from '../../components/Flags'
@@ -8,10 +8,10 @@ import { heroPhotos } from '../../data/photos'
 import { setPendingAttach } from '../chat/useChat'
 import { useSpeech } from '../chat/useSpeech'
 import { Collage } from '../collage'
-import { composerLabels, Dock, Footer, Header, SkipLink, useStartChat } from '../chrome'
+import { composerLabels, Footer, Header, SkipLink, useStartChat } from '../chrome'
 import type { Chip, Statement as StatementTokens } from '../copy'
 import { pillClass, Reveal } from '../blocks'
-import { useInView, usePlaying, useReducedMotion } from '../hooks'
+import { usePlaying, useReducedMotion } from '../hooks'
 import { useLang } from '../lang'
 import { DocumentVault, Padlock, ProgramMosaic, SourceBadges, TextThread } from '../media'
 import { Link, useRouter } from '../router'
@@ -19,47 +19,36 @@ import { ApplicationGuide } from './ApplicationGuide'
 
 export function Home() {
   const { t } = useLang()
-  const [heroRef, heroVisible] = useInView<HTMLDivElement>({ once: false, margin: '0px' })
   return (
     <>
       <SkipLink />
       <main id="main" tabIndex={-1} className="outline-none">
-        <HomeHero composerRef={heroRef} />
+        <HomeHero />
         <ApplicationGuide />
         <Statement tokens={t.home.statement} />
         <Features />
         <More />
       </main>
       <Footer />
-      <Dock visible={!heroVisible} />
     </>
   )
 }
 
 /* ── Hero: golden-hour panel, a wide California photo, the question box docked on it ── */
 
-function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | null> }) {
+function HomeHero() {
   const { t, lang } = useLang()
   const start = useStartChat()
   const { navigate } = useRouter()
-  const count = heroPhotos.length
   const [index, setIndex] = useState(0)
-  const [playing] = usePlaying()
   const [text, setText] = useState('')
   const [focused, setFocused] = useState(false)
   const speech = useSpeech(lang, setText)
   const example = t.home.examples[index % t.home.examples.length]
-
   // Hold the slide while someone is typing or talking.
   const holding = focused || text.length > 0 || speech.listening
-  useEffect(() => {
-    if (!playing || holding || count < 2) return
-    const id = setInterval(() => setIndex((i) => (i + 1) % count), 7000)
-    return () => clearInterval(id)
-  }, [playing, holding, count])
+  const { slot, bar, docked } = useDockOnScroll()
 
-  const photo = heroPhotos[index]
-  const go = (d: number) => setIndex((i) => (i + d + count) % count)
   return (
     <div className="px-6 max-mobile:px-0">
       <section
@@ -74,12 +63,13 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
         </div>
 
         <div className="relative mx-6 aspect-[16/7.2] overflow-hidden rounded-[2.25rem] bg-[#c9d6d4] shadow-[0_30px_80px_-20px_#12323d59] max-[1100px]:aspect-[16/10] max-mobile:mx-3 max-mobile:aspect-[4/5.4] max-mobile:rounded-[1.75rem]">
-          <HeroSlides index={index} />
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#071a20b3] via-[#071a2040] to-transparent" />
+          <HeroStage holding={holding} onIndex={setIndex} prevLabel={t.home.carousel.prev} nextLabel={t.home.carousel.next} />
 
+          {/* The slot keeps the bar's place in the photo; the bar itself docks to the bottom of the screen */}
+          <div ref={slot} className="absolute inset-x-0 bottom-[5rem] mx-auto w-[min(46rem,calc(100%-2rem))] max-mobile:bottom-[4.5rem]">
           <div
-            ref={composerRef}
-            className="absolute inset-x-0 bottom-[4.75rem] mx-auto w-[min(46rem,calc(100%-2rem))] max-mobile:bottom-[4.25rem]"
+            ref={bar}
+            className={cx(docked ? 'fixed inset-x-0 bottom-[calc(1.25rem+env(safe-area-inset-bottom))] z-40 mx-auto w-[min(46rem,calc(100%-2rem))]' : 'relative')}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           >
@@ -97,45 +87,29 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
                 navigate('/chat')
               }}
               labels={composerLabels(t)}
-              className="!border-white/80 !shadow-[0_20px_50px_-12px_#071a2080]"
+              className={cx(
+                'transition-[border-color,box-shadow] duration-500',
+                docked
+                  ? '!border-[#0e212926] !shadow-[0_22px_60px_-14px_#071a2066]'
+                  : '!border-white/80 !shadow-[0_20px_50px_-12px_#071a2080]',
+              )}
             />
             {speech.error && (
-              <p role="alert" className="mt-2 text-center type-body-s text-white">
+              <p role="alert" className={cx('mt-2 text-center type-body-s', docked ? 'text-secondary' : 'text-white')}>
                 {speech.error === 'denied' ? t.chat.voiceDenied : t.chat.voiceUnsupported}
               </p>
             )}
           </div>
-
-          <div className="absolute inset-x-6 bottom-5 flex items-end justify-between gap-4 text-white max-mobile:inset-x-4 max-mobile:bottom-4">
-            <p className="min-w-0 type-label-s leading-snug text-white/85 [text-shadow:0_1px_8px_#0008]">
-              <span className="block text-[0.8125rem] font-medium text-white">{photo.subject}</span>
-              <span className="max-mobile:hidden">
-                {t.lang === 'es' ? 'Foto' : 'Photo'}:{' '}
-                <a href={photo.sourceUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-                  {photo.author}
-                </a>
-                ,{' '}
-                <a href={photo.licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">
-                  {photo.license}
-                </a>
-              </span>
-            </p>
-            <div className="flex shrink-0 items-center gap-3">
-              <div className="flex gap-1.5 max-mobile:hidden" aria-hidden="true">
-                {heroPhotos.map((p, i) => (
-                  <span key={p.id} className={cx('h-1 rounded-full transition-all duration-500 ease-out-quint', i === index ? 'w-6 bg-poppy' : 'w-1.5 bg-white/60')} />
-                ))}
-              </div>
-              <button type="button" onClick={() => go(-1)} aria-label={t.home.carousel.prev} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/35 focus-ring">
-                <Icon name="chevron-left" size={18} />
-              </button>
-              <button type="button" onClick={() => go(1)} aria-label={t.home.carousel.next} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/35 focus-ring">
-                <Icon name="chevron-right" size={18} />
-              </button>
-            </div>
           </div>
+          <div
+            aria-hidden="true"
+            className={cx(
+              'pointer-events-none fixed inset-x-0 bottom-0 z-30 h-32 bg-gradient-to-t from-white via-white/80 to-transparent transition-opacity duration-500',
+              docked ? 'opacity-100' : 'opacity-0',
+            )}
+          />
           <span className="sr-only" aria-live="polite">
-            {`${t.composer.example} ${index + 1} ${t.home.carousel.of} ${count}: ${example}`}
+            {`${t.composer.example} ${index + 1} ${t.home.carousel.of} ${heroPhotos.length}: ${example}`}
           </span>
         </div>
       </section>
@@ -143,33 +117,169 @@ function HomeHero({ composerRef }: { composerRef: RefObject<HTMLDivElement | nul
   )
 }
 
-// The photo layer only depends on the slide index, so typing in the box
-// (which re-renders the hero) never touches it.
-const HeroSlides = memo(function HeroSlides({ index }: { index: number }) {
+// Once the hero's chat bar scrolls off the top, the same bar (with whatever was
+// typed) glides down and docks at the bottom of the screen; scrolling back up
+// glides it back into the photo. FLIP: measure where it was, let it move,
+// then animate from the old spot to the new one.
+function useDockOnScroll() {
+  const slot = useRef<HTMLDivElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
+  const [docked, setDocked] = useState(false)
+  const first = useRef<DOMRect | null>(null)
+
+  useEffect(() => {
+    const el = slot.current
+    if (!el) return
+    const io = new IntersectionObserver(([e]) => {
+      const next = !e.isIntersecting && e.boundingClientRect.top < 0
+      setDocked((d) => {
+        if (d !== next && bar.current) first.current = bar.current.getBoundingClientRect()
+        return next
+      })
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useLayoutEffect(() => {
+    const el = bar.current
+    const from = first.current
+    first.current = null
+    if (!el || !from || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    // While docked the slot needs the bar's height so the photo layout holds.
+    const to = el.getBoundingClientRect()
+    el.animate(
+      [{ transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)`, opacity: docked ? 0.6 : 1 }, { transform: 'none', opacity: 1 }],
+      { duration: docked ? 650 : 500, easing: 'cubic-bezier(.22, 1, .36, 1)' },
+    )
+  }, [docked])
+
+  useLayoutEffect(() => {
+    const s = slot.current
+    const b = bar.current
+    if (s && b) s.style.height = docked ? `${b.offsetHeight}px` : ''
+  }, [docked])
+
+  return { slot, bar, docked }
+}
+
+// The photo strip. Drag or swipe it sideways to change photos (it follows
+// your pointer, then settles), or use the arrows. It loops both ways using a
+// copy of the last photo before the first and the first after the last.
+// Memoized, so typing in the box above it never re-renders the photos.
+const HeroStage = memo(function HeroStage({
+  holding,
+  onIndex,
+  prevLabel,
+  nextLabel,
+}: {
+  holding: boolean
+  onIndex: (i: number) => void
+  prevLabel: string
+  nextLabel: string
+}) {
   const count = heroPhotos.length
-  const [loaded, setLoaded] = useState(() => new Set([0, 1]))
+  const [playing] = usePlaying()
+  const [slot, setSlot] = useState(1) // position in the track, 1..count are the real photos
+  const [animate, setAnimate] = useState(true)
+  const [dx, setDx] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const drag = useRef<{ x: number; t: number; id: number; w: number } | null>(null)
+  const index = (slot - 1 + count) % count
+  const [loaded, setLoaded] = useState(() => new Set([0, 1, count - 1]))
+
+  useEffect(() => onIndex(index), [index, onIndex])
   useEffect(() => {
     setLoaded((prev) => {
       const near = [index, (index + 1) % count, (index - 1 + count) % count]
       return near.every((n) => prev.has(n)) ? prev : new Set([...prev, ...near])
     })
   }, [index, count])
+
+  const go = useCallback((d: number) => {
+    setAnimate(true)
+    setSlot((s) => s + d)
+  }, [])
+
+  useEffect(() => {
+    if (!playing || holding || dragging || count < 2) return
+    const id = setInterval(() => go(1), 7000)
+    return () => clearInterval(id)
+  }, [playing, holding, dragging, count, go, slot])
+
+  // After sliding onto a copy, jump (without animating) to the real photo.
+  function onSettled(e: TransitionEvent<HTMLDivElement>) {
+    if (e.target !== e.currentTarget) return
+    if (slot === 0 || slot === count + 1) {
+      setAnimate(false)
+      setSlot(slot === 0 ? count : 1)
+    }
+  }
+
+  function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    if (e.button !== 0 || (e.target as Element).closest('button, a, form')) return
+    drag.current = { x: e.clientX, t: performance.now(), id: e.pointerId, w: e.currentTarget.clientWidth }
+    e.currentTarget.setPointerCapture(e.pointerId)
+    setAnimate(false)
+    setDragging(true)
+  }
+  function onPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!drag.current || drag.current.id !== e.pointerId) return
+    setDx(e.clientX - drag.current.x)
+  }
+  function onPointerUp(e: ReactPointerEvent<HTMLDivElement>) {
+    const d = drag.current
+    if (!d || d.id !== e.pointerId) return
+    drag.current = null
+    const moved = e.clientX - d.x
+    const speed = Math.abs(moved) / Math.max(1, performance.now() - d.t)
+    setDragging(false)
+    setDx(0)
+    setAnimate(true)
+    if (Math.abs(moved) > d.w * 0.18 || (Math.abs(moved) > 50 && speed > 0.5)) setSlot((s) => s + (moved < 0 ? 1 : -1))
+  }
+
+  const track = [heroPhotos[count - 1], ...heroPhotos, heroPhotos[0]]
   return (
-    <>
-      {heroPhotos.map((p, i) => (
-        <div
-          key={p.id}
-          aria-hidden={i !== index}
-          className={cx('absolute inset-0 transition-opacity duration-1000 ease-standard', i === index ? 'opacity-100' : 'opacity-0')}
-        >
-          {loaded.has(i) ? (
-            <div className={cx('h-full w-full', i === index && 'animate-[kenburns_9s_ease-out_both]')}>
-              <Photo photo={p} sizes="(max-width: 768px) 100vw, 1400px" priority={i === 0} />
+    <div
+      className={cx('absolute inset-0 touch-pan-y select-none', dragging ? 'cursor-grabbing' : 'cursor-grab')}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+    >
+      <div
+        className="flex h-full will-change-transform"
+        style={{
+          transform: `translate3d(calc(${-slot * 100}% + ${dx}px), 0, 0)`,
+          transition: animate ? 'transform .75s cubic-bezier(.22, 1, .36, 1)' : 'none',
+        }}
+        onTransitionEnd={onSettled}
+      >
+        {track.map((p, i) => {
+          const real = (i - 1 + count) % count
+          const active = i === slot
+          return (
+            <div key={`${p.id}-${i}`} aria-hidden={!active} className="relative h-full w-full shrink-0 overflow-hidden">
+              {loaded.has(real) ? (
+                <div className={cx('h-full w-full', active && !dragging && 'animate-[kenburns_9s_ease-out_both]')}>
+                  <Photo photo={p} sizes="(max-width: 768px) 100vw, 1400px" priority={real === 0} />
+                </div>
+              ) : null}
             </div>
-          ) : null}
-        </div>
-      ))}
-    </>
+          )
+        })}
+      </div>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-[#071a20b3] via-[#071a2040] to-transparent" />
+      <div className="absolute inset-x-0 bottom-5 flex justify-center gap-3 max-mobile:bottom-4">
+        <button type="button" onClick={() => go(-1)} aria-label={prevLabel} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-[background-color,scale] hover:bg-white/35 active:scale-95 focus-ring">
+          <Icon name="chevron-left" size={18} />
+        </button>
+        <button type="button" onClick={() => go(1)} aria-label={nextLabel} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-[background-color,scale] hover:bg-white/35 active:scale-95 focus-ring">
+          <Icon name="chevron-right" size={18} />
+        </button>
+      </div>
+    </div>
   )
 })
 
