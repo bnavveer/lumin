@@ -160,7 +160,7 @@ describe('routes', () => {
 });
 
 describe('setupStatus', () => {
-  const KEYS = ['ANTHROPIC_API_KEY', 'DIAL_API_KEY', 'DIAL_FROM_NUMBER_ID', 'DEVIN_API_KEY', 'KEEWANO_SDK_KEY', 'KEEWANO_PAT', 'DEMO_MODE'];
+  const KEYS = ['ANTHROPIC_API_KEY', 'NEON_AI_GATEWAY_BASE_URL', 'NEON_AI_GATEWAY_TOKEN', 'NEON_AI_TOKEN_AGENT', 'DIAL_API_KEY', 'DIAL_FROM_NUMBER_ID', 'DEVIN_API_KEY', 'KEEWANO_SDK_KEY', 'KEEWANO_PAT', 'DEMO_MODE'];
   const saved: Record<string, string | undefined> = {};
   beforeEach(() => {
     KEYS.forEach((k) => { saved[k] = process.env[k]; });
@@ -201,5 +201,16 @@ describe('setupStatus', () => {
     expect(by.claude!.ok).toBe(false);
     expect(by.dial!.ok).toBe(false);
     expect(by.devin!.ok).toBe(false);
+  });
+
+  it('treats a configured AI gateway as a working Claude credential', async () => {
+    KEYS.forEach((k) => delete process.env[k]);
+    process.env.NEON_AI_GATEWAY_BASE_URL = 'https://gw.example/v1';
+    process.env.NEON_AI_GATEWAY_TOKEN = 'gw-SECRET';
+    const { client } = fakeDb({ orgs: [{ id: 'o1', name: 'C', settings: {} }] });
+    setOnboardingClient(client);
+    const out = await setupStatus('o1');
+    expect(JSON.stringify(out)).not.toMatch(/SECRET/);
+    expect(out.checks.find((c) => c.key === 'claude')!.ok).toBe(true);
   });
 });
