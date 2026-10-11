@@ -6,7 +6,7 @@ import { cx } from '../../components/cx'
 import { Icon } from '../../components/icons'
 import { Markdown } from '../chat/Markdown'
 import { takePendingAttach, takePendingQuestion, useChat, type ChatMessage, type WebView } from '../chat/useChat'
-import { useSpeech } from '../chat/useSpeech'
+import { speechMessage, useSpeech } from '../chat/useSpeech'
 import { ProgramMatches } from '../chat/ProgramMatches'
 import { ChannelLinks } from '../chat/ChannelLinks'
 import { composerLabels, Header } from '../chrome'
@@ -18,14 +18,16 @@ import { useLang } from '../lang'
 // the bottom with any notice ("Something went wrong. Try again") sitting on
 // top of it. Wired to the real agent through /api/chat.
 
-type Notice = 'attach' | 'voice-unsupported' | 'voice-denied' | null
+type Notice = 'attach' | 'voice' | null
 
 export function Chat() {
   const { t, lang } = useLang()
   const chat = useChat()
   const [text, setText] = useState('')
   const [notice, setNotice] = useState<Notice>(null)
-  const speech = useSpeech(lang, setText)
+  const textRef = useRef(text)
+  textRef.current = text
+  const speech = useSpeech(lang, setText, () => textRef.current)
   const bottom = useRef<HTMLDivElement>(null)
   const composer = useRef<HTMLDivElement>(null)
   const followLatest = useRef(true)
@@ -39,7 +41,7 @@ export function Chat() {
   }, [])
 
   useEffect(() => {
-    if (speech.error) setNotice(speech.error === 'denied' ? 'voice-denied' : 'voice-unsupported')
+    if (speech.error) setNotice('voice')
   }, [speech.error])
 
   // Reading older messages must not be interrupted by a background reply.
@@ -191,10 +193,10 @@ export function Chat() {
           </ChatNotice>
         </Dismissable>
       )
-    if (notice === 'voice-unsupported' || notice === 'voice-denied')
+    if (notice === 'voice' && speech.error)
       return (
         <Dismissable onClose={() => setNotice(null)} label={t.menu.close}>
-          <ChatNotice tone="warning" title={notice === 'voice-denied' ? t.chat.voiceDenied : t.chat.voiceUnsupported} />
+          <ChatNotice tone="warning" title={speechMessage(speech.error, t.chat)} />
         </Dismissable>
       )
     if (chat.view?.status === 'awaiting_confirmation')

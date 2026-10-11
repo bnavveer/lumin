@@ -6,7 +6,7 @@ import { Icon } from '../../components/icons'
 import { Photo } from '../../components/Photo'
 import { heroPhotos } from '../../data/photos'
 import { setPendingAttach } from '../chat/useChat'
-import { useSpeech } from '../chat/useSpeech'
+import { speechMessage, useSpeech } from '../chat/useSpeech'
 import { Collage } from '../collage'
 import { composerLabels, Footer, Header, SkipLink, useStartChat } from '../chrome'
 import type { Chip, Statement as StatementTokens } from '../copy'
@@ -43,7 +43,9 @@ function HomeHero() {
   const [index, setIndex] = useState(0)
   const [text, setText] = useState('')
   const [focused, setFocused] = useState(false)
-  const speech = useSpeech(lang, setText)
+  const textRef = useRef(text)
+  textRef.current = text
+  const speech = useSpeech(lang, setText, () => textRef.current)
   const example = t.home.examples[index % t.home.examples.length]
   // Hold the slide while someone is typing or talking.
   const holding = focused || text.length > 0 || speech.listening
@@ -96,7 +98,7 @@ function HomeHero() {
             />
             {speech.error && (
               <p role="alert" className={cx('mt-2 text-center type-body-s', docked ? 'text-secondary' : 'text-white')}>
-                {speech.error === 'denied' ? t.chat.voiceDenied : t.chat.voiceUnsupported}
+                {speechMessage(speech.error, t.chat)}
               </p>
             )}
           </div>
@@ -117,47 +119,45 @@ function HomeHero() {
   )
 }
 
-// Once the hero's chat bar scrolls off the top, the same bar (with whatever was
-// typed) slides down into a docked spot at the top of the screen, above
-// everything else on the page; scrolling back up returns it to the photo. FLIP: measure where it was, let it move,
-// then animate from the old spot to the new one.
+// The hero's chat bar behaves like a sticky bar: it scrolls up with the photo,
+// and the moment it reaches its spot just below the top of the browser it
+// stays there (fixed), above everything else. Docking happens exactly where
+// the bar already is, so nothing jumps or appears out of nowhere. Scrolling
+// back up releases it into the photo at the same spot.
 function useDockOnScroll() {
   const slot = useRef<HTMLDivElement>(null)
   const bar = useRef<HTMLDivElement>(null)
   const [docked, setDocked] = useState(false)
-  const first = useRef<DOMRect | null>(null)
+  const dockTop = useRef(16) // where the docked bar sits; measured once it docks
 
   useEffect(() => {
-    const el = slot.current
-    if (!el) return
-    const io = new IntersectionObserver(([e]) => {
-      const next = !e.isIntersecting && e.boundingClientRect.top < 0
-      setDocked((d) => {
-        if (d !== next && bar.current) first.current = bar.current.getBoundingClientRect()
-        return next
-      })
-    })
-    io.observe(el)
-    return () => io.disconnect()
+    let raf = 0
+    const check = () => {
+      raf = 0
+      const el = slot.current
+      if (!el) return
+      setDocked(el.getBoundingClientRect().top <= dockTop.current)
+    }
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(check)
+    }
+    check()
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('resize', onScroll)
+    return () => {
+      removeEventListener('scroll', onScroll)
+      removeEventListener('resize', onScroll)
+      cancelAnimationFrame(raf)
+    }
   }, [])
-
-  useLayoutEffect(() => {
-    const el = bar.current
-    const from = first.current
-    first.current = null
-    if (!el || !from || matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    // While docked the slot needs the bar's height so the photo layout holds.
-    const to = el.getBoundingClientRect()
-    el.animate(
-      [{ transform: `translate(${from.left - to.left}px, ${from.top - to.top}px)`, opacity: docked ? 0.6 : 1 }, { transform: 'none', opacity: 1 }],
-      { duration: docked ? 650 : 500, easing: 'cubic-bezier(.22, 1, .36, 1)' },
-    )
-  }, [docked])
 
   useLayoutEffect(() => {
     const s = slot.current
     const b = bar.current
-    if (s && b) s.style.height = docked ? `${b.offsetHeight}px` : ''
+    if (!s || !b) return
+    // While docked the slot keeps the bar's height so the photo layout holds.
+    s.style.height = docked ? `${b.offsetHeight}px` : ''
+    if (docked) dockTop.current = b.getBoundingClientRect().top
   }, [docked])
 
   return { slot, bar, docked }
@@ -359,8 +359,10 @@ function Statement({ tokens }: { tokens: StatementTokens }) {
       if (!el) return
       const r = el.getBoundingClientRect()
       const vh = innerHeight
-      // 0 when the top reaches 85% of the screen, 1 when the bottom reaches 45%
-      const p = (vh * 0.85 - r.top) / (r.height + vh * 0.4)
+      // Starts as soon as the top enters the screen and finishes when the
+      // bottom reaches 70% of the screen, so it's done well before it slides
+      // under the chat bar docked at the top.
+      const p = (vh - r.top) / (r.height + vh * 0.3)
       setProgress(Math.max(0, Math.min(1, p)))
     }
     const onScroll = () => {
@@ -377,7 +379,7 @@ function Statement({ tokens }: { tokens: StatementTokens }) {
   }, [reduced])
 
   return (
-    <section className="mx-auto max-w-[62rem] px-6 pt-48 pb-40 max-mobile:px-5 max-mobile:pt-28 max-mobile:pb-24">
+    <section className="mx-auto max-w-[62rem] px-6 pt-32 pb-36 max-mobile:px-5 max-mobile:pt-20 max-mobile:pb-24">
       <p
         ref={ref}
         className="text-center font-serif text-[clamp(2.25rem,5.4vw,4.25rem)] leading-[1.08] tracking-[-0.04em] [font-variation-settings:'opsz'_72] text-balance"
