@@ -3,6 +3,8 @@ import type { Hono } from 'hono';
 import { liveWorkflowDeps } from '../workflow/live.js';
 import { liveCallsRuntime } from './live.js';
 import { callsApp } from './routes.js';
+import { liveScheduler } from './scheduleLive.js';
+import { scheduledCallsApp } from './scheduleRoutes.js';
 
 export { callsApp } from './routes.js';
 export { createCallsRuntime } from './runtime.js';
@@ -10,4 +12,5 @@ export { createCallsRuntime } from './runtime.js';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function registerCallRoutes(app: Hono<any>): void {
   app.route('/', callsApp(liveWorkflowDeps().auth, liveCallsRuntime()));
+  app.route('/', scheduledCallsApp(liveWorkflowDeps().auth, liveCallsRuntime().deps.workflows, liveScheduler()));
 }

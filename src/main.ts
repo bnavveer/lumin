@@ -5,6 +5,7 @@ import { createApp } from './server.js';
 import { packetRoutes } from './packet.js';
 import { setOutbox, setProactiveMessage, startAutopilotLoop } from './demoRunner.js';
 import { proactiveMessage } from './caseManager/engine.js';
+import { startScheduledCallLoop } from './calls/scheduleLive.js';
 
 const conv = liveConversation();
 setProactiveMessage(proactiveMessage);
@@ -18,3 +19,4 @@ const port = Number(process.env.PORT ?? 3000);
 serve({ fetch: app.fetch, port }, () => console.log(`[aid] website, chat, applicant and staff APIs on http://localhost:${port}`));
 if (process.env.DIAL_ENABLED !== 'false') void startDialChannels(conv);
 if (process.env.AUTOPILOT_ENABLED === 'true') startAutopilotLoop();
+if (process.env.SCHEDULED_CALLS_ENABLED !== 'false') startScheduledCallLoop();

@@ -4,7 +4,7 @@ import type { County, Program } from '../contracts.js';
 import { screenApplications } from '../applicationScreening.js';
 
 /** Programs that share one BenefitsCal application, which Aid fills in a browser. */
-export const BENEFITSCAL: readonly ApplicationProgram[] = ['calfresh', 'medi_cal', 'calworks'];
+export const BENEFITSCAL: readonly ApplicationProgram[] = ['calfresh', 'medi_cal', 'calworks', 'cfap', 'general_relief']; // CFAP + GR are applied for through the same county BenefitsCal application
 export const isBenefitsCal = (p: ApplicationProgram): boolean => BENEFITSCAL.includes(p);
 
 const INFO = new Map(screenApplications({}).matches.map(m => [m.program, { name: m.name, applicationUrl: m.applicationUrl }]));

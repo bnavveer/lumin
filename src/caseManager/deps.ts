@@ -28,6 +28,8 @@ export interface ConversationDeps {
   answerQuestion(question: string, opts: { county?: string; lang?: string }): Promise<string>;
   findResources(need: string, county: County, zip?: string): Promise<unknown>;
   nudgeText(kind: 'interview_nudge' | 'docs_nudge' | 'renewal_start', name: string): Promise<{ variantId: string; text: string }>;
+  /** Schedule (or place now) a county office call; returns a confirmation line. Optional. */
+  scheduleCall?(hid: string, input: { when: string; questions: string[]; purpose?: string }): Promise<string>;
   now(): Date;
 }
 
@@ -46,6 +48,7 @@ async function realDeps(): Promise<ConversationDeps> {
   return {
     repo,
     logEvent: async (hid, e) => (await import('../keewano.js')).logEvent(hid, e),
+    scheduleCall: async (hid, input) => (await import('../calls/scheduleLive.js')).liveScheduler().scheduleFromChat(hid, input, 'sms'),
     storeDocument: async (hid, url, ct, t) => (await import('../documents.js')).storeDocumentFromUrl(hid, url, ct, t),
     startExtraction: async (id) => (await import('../docExtract.js')).startExtraction(id),
     async pollExtraction(id) {

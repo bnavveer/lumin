@@ -172,6 +172,7 @@ export function liveConversation(): Conversation {
     logEvents,
     mirrorMessage: store.appendMessage,
     addTimeline: (hid, label) => store.addTimeline(hid, label),
+    scheduleCall: async (hid, input, source) => (await import('./calls/scheduleLive.js')).liveScheduler().scheduleFromChat(hid, input, source),
   });
 }
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  CALL_PURPOSES, PURPOSE_LABEL, type CallPurposeKey, type CallsConfig, type CallScript, type ScriptedCall,
+  CALL_PURPOSES, PURPOSE_LABEL, type CallPurposeKey, type CallsConfig, type CallScript, type ScheduledCall, type ScriptedCall,
 } from '../../../shared/calls'
 import type { WorkflowStep } from '../../../shared/workflow'
 import { Button, IconButton } from '../components/Button'
@@ -14,17 +14,18 @@ import { Pill, timeAgo } from './ui'
 // API contract: shared/calls.ts.
 
 const POLL_MS = 2000
+const SCHEDULE_POLL_MS = 10_000
 const MAX_QUESTIONS = 8
 const TERMINAL: ReadonlySet<ScriptedCall['status']> = new Set(['completed', 'failed', 'simulated'])
 
 function useCallsApi() {
   const { getToken } = useAuth()
-  return useCallback(async <T,>(path: string, body?: unknown): Promise<T> => {
+  return useCallback(async <T,>(path: string, body?: unknown, method?: 'DELETE'): Promise<T> => {
     const token = await getToken()
     const headers = new Headers()
     if (token) headers.set('authorization', `Bearer ${token}`)
     if (body !== undefined) headers.set('content-type', 'application/json')
-    const res = await fetch(path, body !== undefined ? { method: 'POST', headers, body: JSON.stringify(body) } : { headers })
+    const res = await fetch(path, method ? { method, headers } : body !== undefined ? { method: 'POST', headers, body: JSON.stringify(body) } : { headers })
     const j = (await res.json().catch(() => null)) as (T & { error?: string }) | null
     if (!res.ok) throw new Error(j?.error ?? `Something went wrong (${res.status}).`)
     return j as T
@@ -41,9 +42,19 @@ export function CallPanel({ step }: { step: WorkflowStep }) {
   const [open, setOpen] = useState(step.status === 'waiting_on_you')
   const base = `/api/workflows/${encodeURIComponent(workflowId)}/calls`
 
+  const [scheduled, setScheduled] = useState<ScheduledCall[]>([])
   const reloadCalls = useCallback(() => {
     call<ScriptedCall[]>(base).then(setCalls).catch(() => undefined)
-  }, [call, base])
+    call<ScheduledCall[]>(`/api/workflows/${encodeURIComponent(workflowId)}/scheduled-calls`).then(setScheduled).catch(() => undefined)
+  }, [call, base, workflowId])
+
+  // While a scheduled call is pending, refresh so it shows up live when the 15s loop starts it.
+  const pending = scheduled.some((r) => r.status === 'scheduled' || r.status === 'running')
+  useEffect(() => {
+    if (!pending) return
+    const t = setInterval(reloadCalls, SCHEDULE_POLL_MS)
+    return () => clearInterval(t)
+  }, [pending, reloadCalls])
 
   useEffect(() => {
     call<CallsConfig>('/api/calls/config').then(setConfig).catch(() => setConfig(null))
@@ -75,8 +86,9 @@ export function CallPanel({ step }: { step: WorkflowStep }) {
       )}
       {open && (
         <ScriptEditor workflowId={workflowId} base={base} enabled={Boolean(config?.enabled)}
-          onStarted={(c) => { setCalls((cs) => [c, ...cs]); setActiveId(c.id) }} />
+          onStarted={(c) => { setCalls((cs) => [c, ...cs]); setActiveId(c.id) }} onScheduled={reloadCalls} />
       )}
+      {scheduled.length > 0 && <ScheduledList rows={scheduled} onChanged={reloadCalls} />}
       {shownId && <LiveCallCard key={shownId} callId={shownId} onDone={reloadCalls} />}
       {calls.length > 1 && (
         <div>
@@ -98,11 +110,13 @@ export function CallPanel({ step }: { step: WorkflowStep }) {
   )
 }
 
-function ScriptEditor({ workflowId, base, enabled, onStarted }: { workflowId: string; base: string; enabled: boolean; onStarted: (c: ScriptedCall) => void }) {
+function ScriptEditor({ workflowId, base, enabled, onStarted, onScheduled }: { workflowId: string; base: string; enabled: boolean; onStarted: (c: ScriptedCall) => void; onScheduled: () => void }) {
   const call = useCallsApi()
   const [purpose, setPurpose] = useState<CallPurposeKey>('confirm_interview')
   const [script, setScript] = useState<CallScript | null>(null)
-  const [busy, setBusy] = useState<'suggest' | 'call' | null>(null)
+  const [busy, setBusy] = useState<'suggest' | 'call' | 'schedule' | null>(null)
+  const [laterAt, setLaterAt] = useState('')
+  const [scheduledMsg, setScheduledMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState<'idle' | 'saving' | 'saved'>('idle')
   const loaded = useRef(false)
@@ -159,6 +173,23 @@ function ScriptEditor({ workflowId, base, enabled, onStarted }: { workflowId: st
     finally { setBusy(null) }
   }
 
+  const scheduleLater = async () => {
+    if (!script || !laterAt) return
+    const at = new Date(laterAt)
+    if (Number.isNaN(at.getTime())) { setError('Pick a date and time.'); return }
+    setBusy('schedule'); setError(null); setScheduledMsg(null)
+    try {
+      const c = clean(script)
+      const row = await call<ScheduledCall>(`/api/workflows/${encodeURIComponent(workflowId)}/scheduled-calls`, {
+        when: at.toISOString(), questions: c.questions.slice(0, MAX_SCHEDULED), purpose: c.goal.slice(0, 200),
+      })
+      setScheduledMsg(`Scheduled for ${formatWhen(row.runAt)}.`)
+      setLaterAt('')
+      onScheduled()
+    } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
+    finally { setBusy(null) }
+  }
+
   return (
     <div id="call-editor" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3">
@@ -204,13 +235,67 @@ function ScriptEditor({ workflowId, base, enabled, onStarted }: { workflowId: st
             <Button size="sm" icon={busy === 'call' ? 'spinner' : 'phone'} disabled={!enabled || busy !== null || !clean(script).questions.length} onClick={() => void callNow()}>
               {busy === 'call' ? 'Starting…' : 'Call now'}
             </Button>
+            <label className="flex items-center gap-2 type-label-s font-medium">
+              <span>Or schedule for later</span>
+              <input type="datetime-local" value={laterAt} min={localInputValue(new Date())} onChange={(e) => setLaterAt(e.target.value)}
+                className="h-9 rounded-12 border border-border-primary bg-background-primary px-3 type-body-s font-normal focus-ring" />
+            </label>
+            <Button variant="secondary" size="sm" icon={busy === 'schedule' ? 'spinner' : 'clock'} disabled={!enabled || busy !== null || !laterAt || !clean(script).questions.length} onClick={() => void scheduleLater()}>
+              {busy === 'schedule' ? 'Scheduling…' : 'Schedule'}
+            </Button>
             <span className="type-body-s text-tertiary" aria-live="polite">
               {saved === 'saving' ? 'Saving…' : saved === 'saved' ? 'Saved. Approving the call step uses these questions.' : ''}
             </span>
           </div>
         </>
       )}
+      {scheduledMsg && <p role="status" className="type-body-s text-secondary">{scheduledMsg}</p>}
       {error && <p role="alert" className="type-body-s text-red-600">{error}</p>}
+    </div>
+  )
+}
+
+const MAX_SCHEDULED = 6
+const formatWhen = (iso: string) => new Date(iso).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+const localInputValue = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
+const scheduledLabel: Record<ScheduledCall['status'], string> = {
+  scheduled: 'Scheduled', running: 'Calling now', done: 'Done', canceled: 'Canceled', failed: 'Failed',
+}
+const scheduledTone = { scheduled: 'info', running: 'warn', done: 'good', canceled: 'neutral', failed: 'bad' } as const
+
+function ScheduledList({ rows, onChanged }: { rows: ScheduledCall[]; onChanged: () => void }) {
+  const call = useCallsApi()
+  const [busyId, setBusyId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const cancel = async (id: string) => {
+    setBusyId(id); setError(null)
+    try { await call(`/api/scheduled-calls/${encodeURIComponent(id)}`, undefined, 'DELETE'); onChanged() }
+    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
+    finally { setBusyId(null) }
+  }
+  return (
+    <div>
+      <h5 className="type-label-s font-medium text-secondary">Scheduled calls</h5>
+      <ul className="mt-2 flex flex-col gap-2">
+        {rows.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 rounded-12 bg-background-tertiary px-3 py-2">
+            <div className="min-w-0 flex-1">
+              <p className="type-body-s font-medium">{formatWhen(r.runAt)}{r.source !== 'web' && <span className="font-normal text-tertiary"> · from {r.source === 'sms' ? 'a text' : 'chat'}</span>}</p>
+              <ol className="mt-1 list-decimal pl-5 type-body-s text-secondary">
+                {r.script.questions.map((q, i) => <li key={i}>{q}</li>)}
+              </ol>
+              {r.status === 'failed' && r.error && <p className="mt-1 type-body-s text-red-600">{r.error}</p>}
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Pill toneName={scheduledTone[r.status]} label={scheduledLabel[r.status]} />
+              {r.status === 'scheduled' && (
+                <Button variant="ghost" size="sm" icon={busyId === r.id ? 'spinner' : 'close'} disabled={busyId !== null} onClick={() => void cancel(r.id)}>Cancel</Button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+      {error && <p role="alert" className="mt-2 type-body-s text-red-600">{error}</p>}
     </div>
   )
 }

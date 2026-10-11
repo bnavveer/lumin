@@ -56,3 +56,23 @@ export interface CallsConfig {
 }
 
 export const CALLS_NOT_CONFIGURED = "Calling isn't configured: add DIAL_API_KEY, DIAL_FROM_NUMBER_ID and DEMO_OFFICE_PHONE";
+
+// Scheduled county calls (chat, text or the call panel). Server: src/calls/schedule.ts.
+// GET    /api/workflows/:id/scheduled-calls  -> ScheduledCall[]  (newest run time first)
+// POST   /api/workflows/:id/scheduled-calls  { when, questions[], purpose? } -> ScheduledCall
+// DELETE /api/scheduled-calls/:id            -> ScheduledCall (status canceled)
+export type ScheduledCallStatus = 'scheduled' | 'running' | 'done' | 'canceled' | 'failed';
+export type ScheduleSource = 'chat' | 'sms' | 'web';
+
+export interface ScheduledCall {
+  id: string;
+  householdId: string;
+  workflowId: string | null;
+  runAt: string;
+  script: CallScript;
+  status: ScheduledCallStatus;
+  callId: string | null;
+  source: ScheduleSource;
+  error: string | null;
+  createdAt: string;
+}
