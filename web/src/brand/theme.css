@@ -12,12 +12,6 @@
 @theme {
   /* Palette (america.gov names) */
   --color-white: #fff;
-
-  /* Aid accent: tokens swap in dark mode (see aid.css) */
-  --color-accent: #0a7f6e;
-  --color-accent-strong: #07604f;
-  --color-accent-soft: #e3f5f1;
-  --color-on-accent: #ffffff;
   --color-black: #000;
   --color-blue-50: #f1f5fb;
   --color-blue-500: #0066c5; /* links */
