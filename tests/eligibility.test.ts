@@ -7,6 +7,12 @@ const base: Household = { id: 'h', orgId: 'org', phone: '+12135550100', county: 
 const pick = (h: Household, p: Program) => checkEligibility(h).find(m => m.program === p)!;
 
 describe('checkEligibility', () => {
+  it('unknown immigration status asks the county instead of ruling out CalFresh', () => {
+    const h = { ...base, immigrationStatus: 'unknown' as const };
+    expect(pick(h, 'calfresh')).toMatchObject({ status: 'needs_info', estMonthlyValue: 306 });
+    expect(pick({ ...h, monthlyIncome: 3000 }, 'calfresh').status).toBe('not_eligible');
+    expect(pick({ ...h, immigrationStatus: 'undocumented' }, 'calfresh').status).toBe('not_eligible');
+  });
   it('returns all six programs in order', () => {
     expect(checkEligibility(base).map(m => m.program))
       .toEqual(['calfresh', 'medi_cal', 'calworks', 'general_relief', 'cfap', 'section8']);
