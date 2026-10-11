@@ -174,10 +174,10 @@ export async function saveSubmission(
   if (error) fail('saveSubmission', error);
 }
 
-export async function listSubmissions(): Promise<Submission[]> {
-  const { data, error } = await db().from('submissions')
-    .select('household_id, kind, confirmation, created_at')
-    .order('created_at', { ascending: false }).limit(100);
+export async function listSubmissions(householdId?: string): Promise<Submission[]> {
+  let q = db().from('submissions').select('household_id, kind, confirmation, created_at');
+  if (householdId) q = q.eq('household_id', householdId);
+  const { data, error } = await q.order('created_at', { ascending: false }).limit(100);
   if (error) fail('listSubmissions', error);
   return ((data ?? []) as Row[]).map((r) => ({
     householdId: r.household_id as string,

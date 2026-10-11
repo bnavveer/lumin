@@ -98,6 +98,17 @@ describe('server', () => {
     expect((await app.request('/api/staff/cases/nope', auth)).status).toBe(404);
   });
 
+  it('case detail fetches only this household\'s submissions', async () => {
+    await app.request(`/api/staff/cases/${HID}`, auth);
+    expect(store.listSubmissions).toHaveBeenCalledWith(HID);
+  });
+
+  it('autopilot only returns actions for households in the caller\'s org', async () => {
+    const body = await (await app.request('/api/staff/autopilot', auth)).json();
+    expect(store.listHouseholds).toHaveBeenCalledWith('org-1');
+    expect(body.actions.map((a: { householdId: string }) => a.householdId)).toEqual([HID]);
+  });
+
   it('ask validates, answers, and maps failure to 502', async () => {
     const h = { authorization: 'Bearer ok' };
     expect((await app.request('/api/staff/ask', json({ q: '' }, h))).status).toBe(400);

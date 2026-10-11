@@ -137,7 +137,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
       const household = await getHousehold(id);
       if (!household || household.orgId !== orgId) return undefined;
       const [messages, calls, documents, submissions, timeline] = await Promise.all([
-        getMessages(id), listCalls(id), listDocuments(id), listSubmissions(), getTimeline(id),
+        getMessages(id), listCalls(id), listDocuments(id), listSubmissions(id), getTimeline(id),
       ]);
       return {
         household,
@@ -145,7 +145,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
         messages,
         calls,
         documents: await Promise.all(documents.map(async (d) => ({ ...d, url: await signedUrl(d.storagePath) }))),
-        submissions: submissions.filter((s) => s.householdId === id),
+        submissions,
         timeline,
       };
     }, () => demoCaseDetail(id));
@@ -153,7 +153,14 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
     return c.json(detail);
   });
 
-  staff.get('/autopilot', async (c) => c.json(await withDemo(() => getAutopilotState(), () => demoAutopilot())));
+  staff.get('/autopilot', async (c) => {
+    const orgId = c.var.orgId;
+    return c.json(await withDemo(async () => {
+      const [households, state] = await Promise.all([listHouseholds(orgId), getAutopilotState()]);
+      const mine = new Set(households.map((h) => h.id));
+      return { ...state, actions: state.actions.filter((a) => mine.has(a.householdId)) };
+    }, () => demoAutopilot()));
+  });
 
   staff.post(
     '/ask',
