@@ -32,8 +32,10 @@ function calfresh(h: Household, pct: number): ProgramMatch {
     case 'green_card': return match('calfresh', 'needs_info', est, 'Many green card holders wait 5 years for CalFresh; if so, CFAP pays the same.');
     case 'humanitarian': return match('calfresh', 'needs_info', null, 'Refugees and asylees lost federal eligibility in April 2026; the county will check.');
     default:
-      return h.childrenUnder18 > 0 && h.childrenAreCitizens
-        ? match('calfresh', 'likely', null, 'Your citizen children can get CalFresh even if you can’t.')
+      if (h.childrenUnder18 > 0 && h.childrenAreCitizens)
+        return match('calfresh', 'likely', null, 'Your citizen children can get CalFresh even if you can’t.');
+      return h.immigrationStatus === 'unknown'
+        ? match('calfresh', 'needs_info', est, 'CalFresh depends on immigration status; the county will check.')
         : match('calfresh', 'not_eligible', null, 'CalFresh requires an eligible immigration status.');
   }
 }
