@@ -4,7 +4,8 @@
 import 'dotenv/config';
 import type { ChildProcess } from 'node:child_process';
 import { fillApplication, type FillEvent } from '../src/benefitscal/filler.js';
-import { startTunnel } from '../src/benefitscal/tunnel.js';
+import { holdSeconds } from '../src/benefitscal/kernelSessions.js';
+import { checkTunnelHealth, startTunnel } from '../src/benefitscal/tunnel.js';
 
 const LIN = '377f71de-5cef-5c6d-8fb4-55c846de892f';
 // Synthetic demo values for fields the Household record does not hold.
@@ -27,7 +28,7 @@ async function main(): Promise<void> {
   const mode = arg('mode', 'local') === 'kernel' ? 'kernel' : 'local';
   let base = arg('base', 'http://localhost:3000')!;
   const headless = arg('headless') === 'true';
-  const hold = Number(arg('hold', mode === 'kernel' ? '45' : '0')) * 1000;
+  const hold = Number(arg('hold', '0')) * 1000;
   let tunnel: ChildProcess | undefined;
 
   if (mode === 'kernel' && /localhost|127\.0\.0\.1/.test(base)) {
@@ -36,11 +37,16 @@ async function main(): Promise<void> {
     tunnel = t.proc;
     base = t.url;
     console.log(`tunnel: ${base}`);
-    await new Promise((r) => setTimeout(r, 4000)); // let the tunnel route settle
+    // Health-check THROUGH the tunnel before handing it to Kernel (a dead quick tunnel = a blank live view).
+    if (!(await checkTunnelHealth(base))) throw new Error(`tunnel ${base} never answered /api/health`);
+    console.log('tunnel healthy');
   }
 
   const result = await fillApplication({
     householdId, baseUrl: base, mode, headless, holdMs: hold, extra: DEMO_EXTRA,
+    // Kernel: leave the browser (and its live view) running after the stop-at-signature. It is closed by
+    // Kernel's inactivity timeout once this script exits (or by the scheduled cleanup while it runs).
+    keepAliveMs: mode === 'kernel' ? holdSeconds() * 1000 : 0,
     onEvent: (e: FillEvent) => {
       console.log(`[${e.at.slice(11, 19)}] ${e.step.padEnd(20)} ${e.message}`);
     },

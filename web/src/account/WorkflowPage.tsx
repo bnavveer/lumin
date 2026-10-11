@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Workflow } from '../../../shared/workflow'
 import { Button } from '../components/Button'
 import { Icon } from '../components/icons'
 import { Link, useRouter } from '../site/router'
-import { makeApi } from './api'
+import { makeApi, type Api } from './api'
 import { useAuth } from './auth'
 import { OpenLive } from './EvidenceView'
 import { NextSteps, type StepActions } from './NextSteps'
@@ -19,12 +19,18 @@ export function WorkflowPage() {
   )
 }
 
+/** Show the live panel while filling, and while the browser is held open for signing. */
 function liveViewFor(w: Workflow): string | null {
-  const running = w.steps.some((s) => s.kind === 'fill' && s.status === 'running')
-  if (!running) return null
+  const fill = w.steps.find((s) => s.kind === 'fill' && s.status !== 'skipped')
+  const sign = w.steps.find((s) => s.kind === 'sign')
+  const active = fill?.status === 'running' || (fill?.status === 'done' && sign?.status !== 'done' && Boolean(w.liveViewUrl))
+  if (!active) return null
   const fromEvidence = w.steps.flatMap((s) => s.evidence).find((e) => e.kind === 'live_view' && safeUrl(e.url))?.url
   return safeUrl(w.liveViewUrl) ?? safeUrl(fromEvidence)
 }
+
+const replayFor = (w: Workflow): string | null =>
+  safeUrl(w.steps.flatMap((s) => s.evidence).find((e) => e.kind === 'replay' && safeUrl(e.url))?.url)
 
 function WorkflowView() {
   const { getToken } = useAuth()
@@ -61,7 +67,7 @@ function WorkflowView() {
       </Link>
       {loading && !workflow && <WorkflowSkeleton />}
       {error && !workflow && <ErrorState message={error} onRetry={() => void reload()} />}
-      {workflow && <Loaded w={workflow} actions={actions} />}
+      {workflow && <Loaded w={workflow} actions={actions} api={api} />}
     </AccountPage>
   )
 }
@@ -74,9 +80,10 @@ function WorkflowSkeleton() {
   )
 }
 
-function Loaded({ w, actions }: { w: Workflow; actions: StepActions }) {
+function Loaded({ w, actions, api }: { w: Workflow; actions: StepActions; api: Api }) {
   const done = w.steps.filter((s) => s.status === 'done' || s.status === 'skipped').length
   const live = liveViewFor(w)
+  const replay = replayFor(w)
   const lastStatus = useRef(w.status)
   const [announce, setAnnounce] = useState('')
   useEffect(() => {
@@ -99,19 +106,7 @@ function Loaded({ w, actions }: { w: Workflow; actions: StepActions }) {
 
       <NextSteps steps={w.nextSteps} actions={actions} />
 
-      {live && (
-        <section aria-labelledby="live-title" className="rounded-32 bg-blue-900 p-3 text-white">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2">
-            <h2 id="live-title" className="flex items-center gap-2 type-heading-s text-white">
-              <span aria-hidden="true" className="size-2.5 animate-pulse rounded-full bg-flag-red motion-reduce:animate-none" />Aid is filling out your application
-            </h2>
-            <OpenLive href={live} />
-          </div>
-          <div className="aspect-[16/10] overflow-hidden rounded-24 bg-black">
-            <iframe title="Live view of the browser where Aid is filling out your application" src={live} sandbox="allow-same-origin allow-scripts" referrerPolicy="no-referrer" loading="lazy" className="size-full border-0" />
-          </div>
-        </section>
-      )}
+      {live && <LivePanel workflowId={w.id} initialUrl={live} replayUrl={replay} api={api} filling={w.steps.some((s) => s.kind === 'fill' && s.status === 'running')} />}
 
       <section aria-labelledby="steps-title">
         <h2 id="steps-title" className="mb-6 type-heading-s">What Aid is doing</h2>
@@ -122,5 +117,60 @@ function Loaded({ w, actions }: { w: Workflow; actions: StepActions }) {
         <Button variant="ghost" size="sm" icon="message" className="text-secondary" onClick={actions.openChat}>Ask Aid about this application</Button>
       </div>
     </div>
+  )
+}
+
+type LiveState = { url: string | null; status: 'live' | 'ended' | 'checking'; replayUrl: string | null }
+
+/**
+ * Live view of the Kernel browser. Kernel links can rotate and the browser ends after the hold, so the
+ * URL is re-fetched from GET /api/workflows/:id/live on mount, on "Refresh" and when the frame fails.
+ * The new-tab button is the reliable path; the iframe is a best-effort preview.
+ */
+function LivePanel({ workflowId, initialUrl, replayUrl, api, filling }: { workflowId: string; initialUrl: string; replayUrl: string | null; api: Api; filling: boolean }) {
+  const [state, setState] = useState<LiveState>({ url: initialUrl, status: 'checking', replayUrl })
+  const refresh = useCallback(async () => {
+    if (!api.live) { setState((s) => ({ ...s, status: 'live' })); return }
+    setState((s) => ({ ...s, status: 'checking' }))
+    try {
+      const r = await api.live(workflowId)
+      setState({ url: safeUrl(r.url), status: r.status, replayUrl: safeUrl(r.replayUrl) ?? replayUrl })
+    } catch {
+      setState((s) => ({ ...s, status: 'live' }))
+    }
+  }, [api, workflowId, replayUrl])
+  useEffect(() => { void refresh() }, [refresh])
+
+  const url = state.url
+  if (state.status === 'ended' || !url) {
+    return (
+      <section aria-labelledby="live-title" className="flex flex-wrap items-center justify-between gap-3 rounded-32 bg-blue-900 p-5 text-white">
+        <div>
+          <h2 id="live-title" className="type-heading-s text-white">The live browser session has ended</h2>
+          <p className="type-body-s text-white/80">{state.replayUrl ? 'You can still watch the recording of everything Aid did.' : 'A recording will appear in the steps below when it is ready.'}</p>
+        </div>
+        {state.replayUrl && <a href={state.replayUrl} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-2 rounded-full bg-white px-4 text-sm font-medium text-blue-900 focus-ring">Watch replay<span className="sr-only"> (opens in a new tab)</span></a>}
+      </section>
+    )
+  }
+  return (
+    <section aria-labelledby="live-title" className="rounded-32 bg-blue-900 p-3 text-white">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-3 py-2">
+        <h2 id="live-title" className="flex items-center gap-2 type-heading-s text-white">
+          <span aria-hidden="true" className="size-2.5 animate-pulse rounded-full bg-flag-red motion-reduce:animate-none" />
+          {filling ? 'Aid is filling out your application' : 'Your application is open and waiting for your signature'}
+        </h2>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => void refresh()} className="inline-flex h-9 items-center rounded-full border border-white/40 px-4 text-sm font-medium hover:bg-white/10 focus-ring">
+            {state.status === 'checking' ? 'Checking…' : 'Refresh'}
+          </button>
+          <OpenLive href={url} />
+        </div>
+      </div>
+      <p className="px-3 pb-2 type-body-s text-white/80">For the best view, and to sign, use “Open live browser” (new tab). The preview below may not load on every network.</p>
+      <div className="aspect-[16/10] overflow-hidden rounded-24 bg-black">
+        <iframe key={url} title="Live view of the browser where Aid is filling out your application" src={url} referrerPolicy="no-referrer" allow="clipboard-read; clipboard-write" onError={() => void refresh()} className="size-full border-0" />
+      </div>
+    </section>
   )
 }

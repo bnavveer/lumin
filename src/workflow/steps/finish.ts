@@ -67,6 +67,7 @@ export async function runCall(ctx: StepCtx): Promise<StepOutcome> {
     }];
     return { status: 'waiting_on_you', summary: 'Waiting for your OK before Aid makes a phone call.', meta: { ...ctx.step.meta, asks } };
   }
+  if (ctx.deps.calls) return ctx.deps.calls.runStep(ctx);
   const { dial } = ctx.deps;
   const to = dial.officePhone();
   if (!dial.configured() || !to) {

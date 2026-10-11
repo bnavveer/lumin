@@ -4,7 +4,9 @@ import { bodyLimit } from 'hono/body-limit';
 import { streamSSE } from 'hono/streaming';
 import { z } from 'zod';
 import type { ApplicationProgram } from '../../shared/chat.js';
-import type { Workflow } from '../../shared/workflow.js';
+import type { LiveViewResponse, Workflow } from '../../shared/workflow.js';
+import { kernelLiveStatus } from '../benefitscal/kernelSessions.js';
+import { realModeAllowed } from '../benefitscal/realSite.js';
 import { screenApplications } from '../applicationScreening.js';
 import { clientIp } from '../clientIp.js';
 import type { DocType } from '../contracts.js';
@@ -29,6 +31,7 @@ const ProgramEnum = z.enum(ALL_PROGRAMS as [ApplicationProgram, ...ApplicationPr
 const CreateBody = z.object({
   programs: z.array(ProgramEnum).min(1).max(13).transform(ps => [...new Set(ps)]),
   chatSessionId: z.uuid().optional(),
+  target: z.enum(['mock', 'real']).optional(),
 });
 const StepBody = z.object({ stepId: z.uuid() });
 const ApproveBody = StepBody.extend({ decision: z.enum(['approve', 'decline']) });
@@ -42,7 +45,10 @@ function fail(c: Context, err: unknown) {
   return c.json({ error: 'Something went wrong. Please try again.' }, 500);
 }
 
-export function workflowApp(deps: WorkflowDeps, engine: Engine = createEngine(deps)): Hono<Env> {
+/** Looks up a FRESH live view for a Kernel session id (injectable for tests). */
+export type LiveLookup = (sessionId: string, replayUrl?: string | null) => Promise<LiveViewResponse>;
+
+export function workflowApp(deps: WorkflowDeps, engine: Engine = createEngine(deps), liveLookup: LiveLookup = kernelLiveStatus): Hono<Env> {
   const app = new Hono<Env>();
   const auth = requireApplicant(deps);
 
@@ -115,12 +121,14 @@ export function workflowApp(deps: WorkflowDeps, engine: Engine = createEngine(de
   app.post('/api/workflows', auth, rateLimit({ windowMs: 60_000, max: 10, key: c => `wf:${(c as Context<Env>).var.userId}` }), async c => {
     const parsed = CreateBody.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ error: 'Pick at least one program to apply for.' }, 400);
+    if (parsed.data.target === 'real' && !realModeAllowed()) return c.json({ error: 'Real BenefitsCal mode is turned off on this server.' }, 400);
     try {
       const account = await getOrCreateAccount(deps, c.var.userId);
       const fields = parsed.data.chatSessionId ? (await deps.chatFields(parsed.data.chatSessionId)) ?? {} : {};
       const { household } = await ensureHousehold(deps, account, fields);
       const wf = await engine.create({
         userId: c.var.userId, householdId: household.id, programs: parsed.data.programs, chatSessionId: parsed.data.chatSessionId ?? null,
+        target: parsed.data.target ?? 'mock',
       });
       return c.json(wf, 201);
     } catch (err) { return fail(c, err); }
@@ -131,6 +139,21 @@ export function workflowApp(deps: WorkflowDeps, engine: Engine = createEngine(de
     if (!id.success) return c.json({ error: 'Workflow not found' }, 404);
     try { return c.json(await engine.get(id.data, c.var.userId)); }
     catch (err) { return fail(c, err); }
+  });
+
+  // A fresh live view link every time (Kernel links can rotate; the browser may have ended). Owner only.
+  app.get('/api/workflows/:id/live', auth, async c => {
+    const id = SessionId.safeParse(c.req.param('id'));
+    if (!id.success) return c.json({ error: 'Workflow not found' }, 404);
+    try {
+      const lw = await engine.assertOwner(id.data, c.var.userId);
+      const fill = lw.steps.find(s => s.kind === 'fill' && typeof s.meta.kernelSessionId === 'string');
+      const replay = lw.steps.map(s => s.meta.replayUrl).find((u): u is string => typeof u === 'string' && /^https:\/\//.test(u)) ?? null;
+      c.header('cache-control', 'no-store');
+      if (!fill) return c.json({ url: null, status: 'ended', ...(replay ? { replayUrl: replay } : {}) } satisfies LiveViewResponse);
+      const live = await liveLookup(fill.meta.kernelSessionId as string, replay);
+      return c.json({ ...live, embeddable: true } satisfies LiveViewResponse);
+    } catch (err) { return fail(c, err); }
   });
 
   app.get('/api/workflows/:id/events', requireApplicant(deps, { allowQueryToken: true }), async c => {

@@ -4,13 +4,14 @@ import type { ApplicationProgram } from '../../../shared/chat.js';
 import type { BrowserMode } from '../../benefitscal/browser.js';
 import type { FillEvent, FillResult } from '../../benefitscal/filler.js';
 import { pollMockCode } from '../../benefitscal/filler.js';
+import { holdSeconds } from '../../benefitscal/kernelSessions.js';
 import { MOCK_BASE } from '../../benefitscal/mockSite.js';
 import { SIGNATURE_PAGE_ID } from '../../benefitscal/spec.js';
 import { joinNames } from '../programs.js';
+import { runRealFill } from './fillReal.js';
 import { clip, httpUrl, type StepCtx, type StepOutcome } from './context.js';
 
 const MAX_LINES = 8;
-const HOLD_MS = 10_000;
 const TOTAL_CAP_MS = 5 * 60_000;
 const KERNEL_CAP_MS = 3 * 60_000;
 
@@ -35,6 +36,7 @@ function demoExtra(hid: string): Record<string, string> {
 export const signatureUrl = (base: string): string => `${base.replace(/\/+$/, '')}${MOCK_BASE}/p/${SIGNATURE_PAGE_ID}`;
 
 export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
+  if (ctx.step.meta.target === 'real') return runRealFill(ctx);
   const { fill } = ctx.deps;
   const programs = (ctx.step.meta.programs as ApplicationProgram[] | undefined) ?? [];
   const lines: string[] = [];
@@ -55,9 +57,18 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
   }
 
   let liveShown = false;
+  let kernelSessionId: string | undefined;
+  let replayUrl: string | undefined;
   const queue: Promise<unknown>[] = [];
   const onEvent = (e: FillEvent) => {
     queue.push((async () => {
+      if (e.step === 'kernel_session' || e.step === 'replay') {
+        // Persist the Kernel session id right away so GET /api/workflows/:id/live can mint a fresh link mid-fill.
+        if (e.step === 'kernel_session') kernelSessionId = e.message;
+        else replayUrl = httpUrl(e.message) ?? undefined;
+        await ctx.progress(lines.slice(-MAX_LINES).join('\n'), { ...ctx.step.meta, kernelSessionId, ...(replayUrl ? { replayUrl } : {}) });
+        return;
+      }
       if (e.step === 'live_view' && !liveShown) {
         const url = httpUrl(e.message.replace(/^live view:\s*/, ''));
         if (url) {
@@ -74,7 +85,7 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
   };
   const attempt = (m: BrowserMode, b: string, capMs: number): Promise<FillResult> => capped(fill.run({
     householdId: ctx.household.id, baseUrl: b, mode: m, onEvent, extra: demoExtra(ctx.household.id),
-    headless: true, holdMs: m === 'kernel' ? HOLD_MS : 0,
+    headless: true, holdMs: 0, keepAliveMs: m === 'kernel' ? holdSeconds() * 1000 : 0,
     getVerificationCode: pollMockCode(fill.localBase()),
   }), capMs);
 
@@ -96,7 +107,9 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
     result = await attempt('local', base, remaining());
   }
   await Promise.all(queue);
-  await ctx.setLiveView(null);
+  const held = mode === 'kernel' && Boolean(result.sessionId);
+  // Keep the live view up while the browser is held for the signer; the UI re-fetches a fresh URL via /live.
+  await ctx.setLiveView(held ? httpUrl(result.liveViewUrl) : null);
 
   if (result.liveViewUrl && !liveShown) {
     const url = httpUrl(result.liveViewUrl);
@@ -111,15 +124,18 @@ export async function runFill(ctx: StepCtx): Promise<StepOutcome> {
       });
     }
   }
-  const replay = httpUrl(result.replayViewUrl);
+  const replay = httpUrl(result.replayViewUrl) ?? (replayUrl ?? null);
   if (replay) await ctx.evidence({ kind: 'replay', title: 'Replay of the browser session', url: replay, detail: null, source: 'kernel' });
 
-  const meta = { ...ctx.step.meta, signUrl: signatureUrl(base), mode, pagesCompleted: result.pagesCompleted };
+  const meta = {
+    ...ctx.step.meta, signUrl: signatureUrl(base), mode, pagesCompleted: result.pagesCompleted,
+    kernelSessionId: held ? result.sessionId : null, replayUrl: replay, heldUntil: held ? result.heldUntil ?? null : null,
+  };
   if (result.status === 'stopped_for_signature') {
     const missing = result.missingFields.length ? ` ${result.missingFields.length} field(s) left blank for you to check.` : '';
     return {
       status: 'done', meta,
-      summary: `Filled ${result.pagesCompleted} pages of the BenefitsCal application in a ${mode === 'kernel' ? 'Kernel cloud' : 'local'} browser and stopped at the signature page.${missing}`,
+      summary: `Filled ${result.pagesCompleted} pages of the BenefitsCal application in a ${mode === 'kernel' ? 'Kernel cloud' : 'local'} browser and stopped at the signature page.${missing}${held ? ` The live browser stays open for ${Math.round(holdSeconds() / 60)} minutes.` : ''}`,
     };
   }
   return {

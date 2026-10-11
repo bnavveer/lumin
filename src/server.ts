@@ -33,6 +33,7 @@ import { registerConversationRoutes } from './caseManager/routes.js';
 import { demoAutopilot, demoCaseDetail, demoCases, demoMetrics } from './demo.js';
 import { clientIp } from './clientIp.js';
 import { registerWorkflowRoutes } from './workflow/index.js';
+import { registerCallRoutes } from './calls/index.js';
 
 type Env = { Variables: { orgId: string; userId: string; role: string } };
 
@@ -260,6 +261,7 @@ export function createApp(opts: { packet: PacketRoutes }): Hono<Env> {
   registerVaultRoutes(app);
   registerConversationRoutes(app);
   registerWorkflowRoutes(app);
+  registerCallRoutes(app);
   app.route('/', createConversationApp(liveConversation(), {
     phone: process.env.PUBLIC_DIAL_NUMBER ?? process.env.DIAL_FROM_NUMBER,
     apiNotFound: false, // Keep later dev/staff routes reachable on the parent app.

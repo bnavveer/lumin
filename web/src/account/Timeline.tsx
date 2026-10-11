@@ -1,5 +1,6 @@
 import type { StepStatus, WorkflowStep } from '../../../shared/workflow'
 import { cx } from '../components/cx'
+import { CallPanel } from './CallPanel'
 import { EvidenceList } from './EvidenceView'
 import { programNames, StepIcon, stepStatusLabel, timeAgo } from './ui'
 
@@ -28,6 +29,7 @@ export function Timeline({ steps }: { steps: WorkflowStep[] }) {
               </p>
               <Summary step={s} />
               <EvidenceList items={s.evidence} />
+              {s.kind === 'call' && s.status !== 'skipped' && <CallPanel step={s} />}
             </div>
           </li>
         )

@@ -1,5 +1,5 @@
 import type { ApplicationProgram, ApplicationScreening } from '../../../shared/chat'
-import type { CreateWorkflowRequest, Me, Workflow, WorkflowSummary } from '../../../shared/workflow'
+import type { CreateWorkflowRequest, LiveViewResponse, Me, Workflow, WorkflowSummary } from '../../../shared/workflow'
 import { fixturesOn } from './fixtureFlag'
 import * as fx from './fixtures'
 
@@ -47,10 +47,12 @@ export interface Api {
   uploadDocument(id: string, file: File, docType: string): Promise<Workflow>
   approve(id: string, stepId: string, decision: 'approve' | 'decline'): Promise<Workflow>
   run(id: string, stepId: string): Promise<Workflow>
+  /** A FRESH Kernel live view URL (links can rotate or end), or 'ended' with the replay. */
+  live?(id: string): Promise<LiveViewResponse>
 }
 
 export function makeApi(getToken: TokenGetter): Api {
-  if (fixturesOn()) return fx.fixtureApi
+  if (fixturesOn()) return { ...fx.fixtureApi, live: async () => ({ url: null, status: 'ended' }) }
   const r = <T>(path: string, init?: RequestInit) => request<T>(getToken, path, init)
   return {
     me: () => r<Me>('/api/me'),
@@ -70,5 +72,6 @@ export function makeApi(getToken: TokenGetter): Api {
     approve: (id: string, stepId: string, decision: 'approve' | 'decline') =>
       r<Workflow>(`/api/workflows/${encodeURIComponent(id)}/approve`, json({ stepId, decision })),
     run: (id: string, stepId: string) => r<Workflow>(`/api/workflows/${encodeURIComponent(id)}/run`, json({ stepId })),
+    live: (id: string) => r<LiveViewResponse>(`/api/workflows/${encodeURIComponent(id)}/live`),
   }
 }

@@ -3,7 +3,8 @@
 import { randomUUID } from 'node:crypto';
 import { EventEmitter } from 'node:events';
 import type { ApplicationProgram } from '../../shared/chat.js';
-import type { StepKind, Workflow } from '../../shared/workflow.js';
+import type { FillTarget, StepKind, Workflow } from '../../shared/workflow.js';
+import { endKernelSession } from '../benefitscal/kernelSessions.js';
 import type { DocType } from '../contracts.js';
 import type { WorkflowDeps } from './deps.js';
 import { DONEISH, TERMINAL, deriveStatus, toWorkflow } from './nextSteps.js';
@@ -26,7 +27,7 @@ export class WorkflowError extends Error {
 
 const nowIso = () => new Date().toISOString();
 
-export function buildSteps(workflowId: string, programs: ApplicationProgram[]): StepRow[] {
+export function buildSteps(workflowId: string, programs: ApplicationProgram[], target: FillTarget = 'mock'): StepRow[] {
   const bc = programs.filter(isBenefitsCal);
   const others = programs.filter(p => !isBenefitsCal(p));
   const rows: Omit<StepRow, 'ord' | 'id' | 'workflowId' | 'startedAt' | 'finishedAt'>[] = [];
@@ -36,7 +37,7 @@ export function buildSteps(workflowId: string, programs: ApplicationProgram[]): 
   for (const p of programs) add('research', `Research what ${programName(p)} needs`, p);
   if (bc.length) add('documents', 'Gather your documents');
   else add('documents', 'Gather your documents', null, { status: 'skipped', summary: 'Aid is not filling a form for these programs, so no uploads are needed here.' });
-  if (bc.length) add('fill', `Fill the BenefitsCal application (${joinNames(bc)})`, bc[0]!, { meta: { programs: bc } });
+  if (bc.length) add('fill', `Fill the BenefitsCal application (${joinNames(bc)})`, bc[0]!, { meta: { programs: bc, ...(target === 'real' ? { target } : {}) } });
   for (const p of others) {
     add('fill', `Apply for ${programName(p)}`, p, {
       status: 'skipped', summary: `Apply at ${applicationUrl(p)}`, meta: { applyUrl: applicationUrl(p) },
@@ -139,6 +140,13 @@ export function createEngine(deps: WorkflowDeps) {
         status: out.status, summary: out.summary, meta,
         finishedAt: TERMINAL.has(out.status) ? nowIso() : null,
       });
+      // Past signing: the held Kernel browser (kept alive for the signer) is no longer needed.
+      if (step.kind === 'sign' && DONEISH.has(out.status)) {
+        for (const f of lw.steps.filter(x => x.kind === 'fill')) {
+          const sid = typeof f.meta.kernelSessionId === 'string' ? f.meta.kernelSessionId : null;
+          if (sid) await endKernelSession(sid);
+        }
+      }
     } finally {
       running.delete(stepId);
     }
@@ -206,14 +214,14 @@ export function createEngine(deps: WorkflowDeps) {
       while (background.size) await Promise.allSettled([...background]);
     },
 
-    async create(input: { userId: string; householdId: string; programs: ApplicationProgram[]; chatSessionId?: string | null }): Promise<Workflow> {
+    async create(input: { userId: string; householdId: string; programs: ApplicationProgram[]; chatSessionId?: string | null; target?: FillTarget }): Promise<Workflow> {
       const id = randomUUID();
       const now = nowIso();
       const wf: WorkflowRow = {
         id, userId: input.userId, householdId: input.householdId, programs: input.programs, status: 'researching',
         liveViewUrl: null, chatSessionId: input.chatSessionId ?? null, createdAt: now, updatedAt: now,
       };
-      await deps.repo.createWorkflow(wf, buildSteps(id, input.programs));
+      await deps.repo.createWorkflow(wf, buildSteps(id, input.programs, input.target ?? 'mock'));
       track(advance(id));
       return toWorkflow(await load(id));
     },

@@ -218,5 +218,11 @@ export function liveWorkflowDeps(): WorkflowDeps {
     log: (hid, e) => logEvent(hid, e),
     sleep: (ms) => new Promise(r => setTimeout(r, ms)),
     callPoll: { intervalMs: 5000, timeoutMs: 180_000 },
+    calls: {
+      async runStep(ctx) {
+        const [{ liveCallsRuntime }, { runScriptedCallStep }] = await Promise.all([import('../calls/live.js'), import('../calls/stepCall.js')]);
+        return runScriptedCallStep(liveCallsRuntime(), ctx);
+      },
+    },
   };
 }

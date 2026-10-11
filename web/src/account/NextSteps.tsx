@@ -63,6 +63,11 @@ function ActionControl({ n, actions }: { n: NextStep; actions: StepActions }) {
     case 'approve':
       return (
         <div className="flex flex-wrap gap-2">
+          {/call/i.test(n.title) && stepId && (
+            <a href="#call-panel" className="inline-flex h-9 items-center gap-2 rounded-full border border-border-primary px-4 text-sm font-medium hover:bg-background-tertiary focus-ring">
+              <Icon name="edit" size={14} />Edit questions
+            </a>
+          )}
           <Button size="sm" icon={busy ? 'spinner' : 'check'} disabled={busy || !stepId} onClick={() => stepId && actions.approve(stepId, 'approve', key)}>Approve</Button>
           <Button variant="outline" size="sm" disabled={busy || !stepId} onClick={() => stepId && actions.approve(stepId, 'decline', key)}>Decline</Button>
         </div>

@@ -62,6 +62,8 @@ export interface WorkflowDeps {
     sendText(to: string, body: string): Promise<string>;
   };
   summarizeCall(transcript: string): Promise<{ outcome: CallOutcomeKind; details: string }>;
+  /** Scripted calls (src/calls). When present, an approved call step runs the editable script. */
+  calls?: { runStep(ctx: import('./steps/context.js').StepCtx): Promise<import('./steps/context.js').StepOutcome> };
   log(householdId: string, e: CaseEvent): Promise<void>;
   sleep(ms: number): Promise<void>;
   /** Poll interval and limit for call transcripts. */

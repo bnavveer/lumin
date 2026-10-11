@@ -61,7 +61,7 @@ function setup(opts: Opts = {}) {
         o.onEvent?.({ at: new Date().toISOString(), step: 'page', message: 'Household: Members' });
         return opts.fillStatus === 'error'
           ? { status: 'error' as const, pagesCompleted: 2, missingFields: [], detail: 'boom' }
-          : { status: 'stopped_for_signature' as const, pagesCompleted: 12, missingFields: [], liveViewUrl: 'https://live.kernel.example/abc', screenshotPath: '/tmp/x.png', replayViewUrl: 'https://replay.kernel.example/r' };
+          : { status: 'stopped_for_signature' as const, pagesCompleted: 12, missingFields: [], liveViewUrl: 'https://live.kernel.example/abc', screenshotPath: '/tmp/x.png', replayViewUrl: 'https://replay.kernel.example/r', sessionId: 'kb-123' };
       }),
       publicBase: async () => 'https://pub.example',
       localBase: () => 'http://localhost:3000',
@@ -81,7 +81,8 @@ function setup(opts: Opts = {}) {
     callPoll: { intervalMs: 1, timeoutMs: 10 },
   };
   const engine = createEngine(deps);
-  const app = workflowApp(deps, engine);
+  const liveCalls: string[] = [];
+  const app = workflowApp(deps, engine, async (sid, replay) => { liveCalls.push(sid); return { url: `https://live.kernel.example/fresh-${sid}`, status: 'live', ...(replay ? { replayUrl: replay } : {}) }; });
   const req = (path: string, init: RequestInit & { token?: string } = {}) => {
     const headers = new Headers(init.headers);
     if (init.token) headers.set('Authorization', `Bearer ${init.token}`);
@@ -121,7 +122,7 @@ function setup(opts: Opts = {}) {
     await engine.idle();
     return res;
   }
-  return { deps, engine, app, req, signup, create, get, step, upload, toSignature, approve, sent, calls, events, households };
+  return { deps, engine, app, req, signup, create, get, step, upload, toSignature, approve, sent, calls, events, households, liveCalls };
 }
 
 describe('accounts', () => {
@@ -305,5 +306,40 @@ describe('workflow', () => {
     expect((text.match(/event: update/g) ?? []).length).toBeGreaterThanOrEqual(2);
     expect(text).toContain(`"id":"${wf.id}"`);
     expect((await t.app.request(`/api/workflows/${wf.id}/events`)).status).toBe(401);
+  });
+});
+
+describe('GET /api/workflows/:id/live', () => {
+  it('returns a fresh live view URL to the owner and 404 to anyone else', async () => {
+    const t = setup();
+    const owner = await t.signup('owner@aid.test', { phone: '4155550111' });
+    const other = await t.signup('other@aid.test', { phone: '4155550112' });
+    const wf = await t.toSignature(owner);
+    expect(t.step(wf, 'fill').status).toBe('done');
+    const res = await t.req(`/api/workflows/${wf.id}/live`, { token: owner });
+    expect(res.status).toBe(200);
+    const body = await res.json() as { url: string; status: string; replayUrl?: string };
+    expect(body).toMatchObject({ url: 'https://live.kernel.example/fresh-kb-123', status: 'live', replayUrl: 'https://replay.kernel.example/r' });
+    expect(t.liveCalls).toEqual(['kb-123']);
+    expect((await t.req(`/api/workflows/${wf.id}/live`, { token: other })).status).toBe(404);
+    expect((await t.req(`/api/workflows/${wf.id}/live`)).status).toBe(401);
+    expect(t.liveCalls).toEqual(['kb-123']);
+  });
+
+  it('keeps the live view on the workflow while the browser is held for signing', async () => {
+    const t = setup();
+    const tok = await t.signup('held@aid.test', { phone: '4155550113' });
+    const wf = await t.toSignature(tok);
+    expect(wf.liveViewUrl).toBe('https://live.kernel.example/abc');
+  });
+
+  it('rejects target real unless ALLOW_REAL_BENEFITSCAL=true', async () => {
+    const t = setup();
+    const tok = await t.signup('real@aid.test', { phone: '4155550114' });
+    const prev = process.env.ALLOW_REAL_BENEFITSCAL;
+    delete process.env.ALLOW_REAL_BENEFITSCAL;
+    const res = await t.req('/api/workflows', { method: 'POST', token: tok, body: JSON.stringify({ programs: ['calfresh'], target: 'real' }) });
+    expect(res.status).toBe(400);
+    if (prev !== undefined) process.env.ALLOW_REAL_BENEFITSCAL = prev;
   });
 });
