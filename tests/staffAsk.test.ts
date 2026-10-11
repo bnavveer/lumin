@@ -16,7 +16,7 @@ describe('askStaffQuestion', () => {
   it('passes question, tools, system prompt and step limit to generateText', async () => {
     const generate = vi.fn(async () => ({ text: ' 124 households and 1,486 events. ' }));
     const tools = { run_sql_query: {} } as never;
-    setAskDeps({ generate: generate as never, tools: async () => tools });
+    setAskDeps({ generate: generate as never, model: (() => ({})) as never, tools: async () => tools });
     const out = await askStaffQuestion('How many users?');
     expect(out).toBe('124 households and 1,486 events.');
     const args = (generate.mock.calls[0] as unknown as [Record<string, unknown>])[0];

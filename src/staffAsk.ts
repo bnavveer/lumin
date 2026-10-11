@@ -21,12 +21,13 @@ Other events in the project are generic Keewano SDK events and are usually irrel
 Answer in 2 to 4 sentences with real numbers from the query results. Never invent numbers: if the data is empty or a query fails, say so plainly. No markdown tables.`;
 
 type GenerateFn = typeof generateText;
-interface Deps { generate: GenerateFn; tools?: () => Promise<ToolSet> }
-const defaults = (): Deps => ({ generate: generateText });
+type ModelFn = typeof aidModel;
+interface Deps { generate: GenerateFn; model: ModelFn; tools?: () => Promise<ToolSet> }
+const defaults = (): Deps => ({ generate: generateText, model: aidModel });
 let deps: Deps = defaults();
 
-/** Test seam: inject generateText and/or the tool set. Call with no args to restore defaults. */
-export function setAskDeps(d: { generate?: GenerateFn; tools?: () => Promise<ToolSet> } = {}): void {
+/** Test seam: inject generateText, the model factory and/or the tool set. Call with no args to restore defaults. */
+export function setAskDeps(d: { generate?: GenerateFn; model?: ModelFn; tools?: () => Promise<ToolSet> } = {}): void {
   deps = { ...defaults(), ...d };
 }
 
@@ -68,7 +69,7 @@ export async function askStaffQuestion(q: string): Promise<string> {
   try {
     const tools = await (deps.tools ?? getMcpTools)();
     const { text } = await deps.generate({
-      model: aidModel('agent'),
+      model: deps.model('agent'),
       system: SYSTEM_PROMPT,
       prompt: question,
       tools,

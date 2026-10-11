@@ -222,8 +222,10 @@ export function registerInboxRoutes(app: Hono<any>): void {
     return c.json({ address: inbox.address });
   });
 
-  app.post('/api/demo/county-email', requireStaff, async (c) => {
+  app.post('/api/demo/county-email', async (c, next) => {
     if (!isDemoMode()) return c.json({ error: 'Not found' }, 404);
+    return next();
+  }, requireStaff, async (c) => {
     const parsed = DemoBody.safeParse(await c.req.json().catch(() => ({})));
     if (!parsed.success) return c.json({ error: 'householdId (uuid) and a valid template are required' }, 400);
     const hid = parsed.data.householdId;
