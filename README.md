@@ -9,8 +9,10 @@
 ## Contents
 
 - [What it does](#what-it-does)
+- [Measured impact](#measured-impact)
 - [How a case moves](#how-a-case-moves)
 - [Features](#features)
+- [Diagrams](#diagrams)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [Getting started](#getting-started)
@@ -40,6 +42,20 @@
 | Lumin can call or email the county (with permission) and reports back by chat or text. | Time-saved metrics: the Lumin cohort vs. a baseline cohort. |
 
 **Programs.** Screening covers CalFresh, Medi-Cal, CalWORKs, General Relief, CFAP, Section 8, PG&E CARE and FERA, WIC, California LifeLine, LIHEAP, IHSS and subsidized child care. The BenefitsCal application (one form) covers **CalFresh, Medi-Cal, CalWORKs, CFAP and General Relief**. Other programs get a referral with the official link and what to bring. Counties: **Los Angeles** and **San Francisco** for now.
+
+---
+
+## Measured impact
+
+Measured live in Keewano by comparing a `baseline` cohort (the manual process) with an `aid` cohort (Source event values). **These numbers come from a synthetic two-week history and are labelled as such.**
+
+| Metric | Baseline (manual) | With Lumin |
+|---|---|---|
+| Median time from screening to submitted | 368 hours (about 15 days) | 3.1 hours |
+| Households that submitted | 68.9% | 89% |
+| Interviews missed | 28.6% | 3.1% |
+
+**Why now:** the 2025 federal law adds Medicaid work requirements and 6-month renewals for expansion adults from January 2027, so paperwork roughly doubles for millions of people.
 
 ---
 
@@ -105,6 +121,142 @@
 
 ### Analytics and autopilot
 - **Keewano** (`src/keewano.ts`): append-only case event types; SQL queries drive the autopilot (`src/autopilot.ts`, `src/demoRunner.ts`), staff "Ask Lumin" (`src/staffAsk.ts`), wording insights and time-saved metrics.
+
+---
+
+## Diagrams
+
+### System architecture
+
+```mermaid
+flowchart LR
+  subgraph CH["Channels"]
+    WEB["Web chat and dashboard<br/>React 19 + Vite"]
+    DIALCH["SMS, iMessage and voice<br/>via Dial"]
+    MAIL["County email<br/>via AgentMail"]
+  end
+
+  subgraph API["Lumin API - Hono"]
+    AGENT["Agent<br/>Claude via Neon AI Gateway<br/>per-task routing and fallback"]
+    WF["Workflow engine<br/>research, docs, fill, sign, submit"]
+    CM["caseManager<br/>text commands and approvals"]
+    CALLS["Calls<br/>scripts, scheduling, answers"]
+    AP["Autopilot<br/>every 2 min"]
+  end
+
+  subgraph INT["Integrations"]
+    KERNEL["Kernel cloud browser<br/>BenefitsCal practice replica or real<br/>stops before signing"]
+    EXA["Exa<br/>live web lookups"]
+    SB[("Supabase<br/>Auth, Postgres + RLS,<br/>Storage, pgvector index")]
+    KW["Keewano<br/>case event memory<br/>and decisions"]
+    DEVIN["Devin<br/>background research"]
+  end
+
+  WEB --> AGENT
+  DIALCH --> CM
+  MAIL --> CALLS
+  CM --> AGENT
+  AGENT --> WF
+  WF --> KERNEL
+  AGENT --> EXA
+  AGENT --> SB
+  WF --> SB
+  WF --> KW
+  CALLS --> DIALCH
+  AP --> KW
+  KW --> AP
+  AP --> CM
+  AP --> CALLS
+  AGENT -.-> DEVIN
+```
+
+### End-to-end application workflow
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor U as Family
+  participant C as Chat
+  participant R as Research
+  participant D as Documents
+  participant K as Kernel browser
+  participant O as County office
+  participant A as Autopilot
+
+  U->>C: Describes their situation
+  C-->>U: Screening suggestions for programs
+  U->>C: Picks programs to apply for
+  C->>R: Research requirements
+  R-->>C: Cited answers from research files and Exa
+  U->>D: Uploads document photos
+  D-->>C: Vision extraction, expiry and missing-doc checks
+  C->>K: Fill BenefitsCal application
+  K-->>U: Live view and replay
+  K-->>U: STOP at the signature screen
+  U->>K: Signs the application themselves
+  K->>O: Submit application
+  O-->>C: Confirmation number
+  C-->>U: Propose a call to the county office
+  U->>C: Approves the call
+  C->>O: Dial places the call
+  O-->>C: Transcript and answers
+  C-->>U: Text update with the answers
+  A->>U: Follow-up nudges until approved
+```
+
+### Autopilot loop (Keewano)
+
+```mermaid
+flowchart TD
+  EV["Events from every channel<br/>chat, text, voice, email, documents, fills"] --> KW[("Keewano<br/>typed case events")]
+  KW --> TICK{"Every 2 minutes<br/>5 who is stuck queries"}
+
+  TICK --> Q1["Interview not confirmed"]
+  TICK --> Q2["Documents stalled"]
+  TICK --> Q3["Signed but not submitted"]
+  TICK --> Q4["Waitlist closed"]
+  TICK --> Q5["Renewal due"]
+
+  Q1 --> ACT["Actions"]
+  Q2 --> ACT
+  Q3 --> ACT
+  Q4 --> ACT
+  Q5 --> ACT
+
+  ACT --> N["Text nudge<br/>with A/B variant"]
+  ACT --> S["Submit"]
+  ACT --> X["Exa waitlist recheck"]
+  ACT --> CL["Call"]
+
+  N --> EV
+  S --> EV
+  X --> EV
+  CL --> EV
+
+  INBOX["Inbox poll every 30 s<br/>county email classified"] --> EV
+  INBOX -->|"email suggests a follow-up"| CL
+  SCHED["Scheduled calls<br/>checked every 15 s"] --> CL
+```
+
+### Where data lives
+
+```mermaid
+flowchart LR
+  subgraph SBX["Supabase - source of truth"]
+    REC["Records and workflows"]
+    DOCS["Documents in private Storage"]
+    AUTH["Auth and org-isolated RLS"]
+  end
+  subgraph KWX["Keewano - behavior only"]
+    EVT["Typed events<br/>counts, program names, categories<br/>no PII, no message text"]
+  end
+  subgraph IDX["Research index"]
+    VEC["research files embedded in pgvector"]
+  end
+  APP["Lumin API"] --> SBX
+  APP --> KWX
+  APP --> IDX
+```
 
 ---
 
